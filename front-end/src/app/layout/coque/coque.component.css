@@ -1,0 +1,166 @@
+.coque {
+  display: flex;
+  min-height: 100vh;
+}
+
+.menu {
+  flex: none;
+  position: sticky;
+  top: 0;
+  width: 232px;
+  height: 100vh;
+  padding: 20px 12px;
+  border-right: 1px solid var(--bord);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: width 0.2s ease;
+}
+
+.coque--replie .menu {
+  width: 72px;
+}
+
+.menu__tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 6px 16px;
+}
+
+.menu__marque {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.menu__bascule {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: var(--rayon-petit);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu__liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.menu__lien {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: none;
+  border-radius: var(--rayon-petit);
+  background: transparent;
+  color: var(--texte-moyen);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+}
+
+.menu__lien--actif {
+  background: var(--accent);
+  color: var(--sur-accent);
+  font-weight: 600;
+}
+
+.menu__lien--a-venir {
+  color: var(--texte-doux);
+  cursor: default;
+}
+
+.menu__etiquette {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: var(--rayon-pastille);
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.menu__theme {
+  margin-top: auto;
+  cursor: pointer;
+}
+
+.coque--replie .menu__texte,
+.coque--replie .menu__etiquette {
+  display: none;
+}
+
+.contenu {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Sur téléphone, le menu passe en bandeau horizontal en haut de page. */
+@media (max-width: 860px) {
+  .coque {
+    flex-direction: column;
+  }
+
+  .menu,
+  .coque--replie .menu {
+    position: static;
+    width: 100%;
+    height: auto;
+    padding: 10px 16px;
+    border-right: none;
+    border-bottom: 1px solid var(--bord);
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .menu__tete {
+    padding: 0;
+    margin-right: auto;
+  }
+
+  .menu__bascule,
+  .menu__lien--a-venir,
+  .menu__lien .menu__texte {
+    display: none;
+  }
+
+  .menu__liste {
+    flex-direction: row;
+  }
+
+  .menu__lien {
+    width: 48px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .menu__theme {
+    margin-top: 0;
+  }
+}

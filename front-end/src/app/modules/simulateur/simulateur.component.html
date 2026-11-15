@@ -1,0 +1,169 @@
+<div class="page">
+  <header>
+    <p class="surtitre">Simulateur{{ catalogue() ? ' · ' + catalogue()!.bareme.libelle : '' }}</p>
+    <h1>Combien je gagne sur cette affaire ?</h1>
+  </header>
+
+  @if (chargementImpossible()) {
+    <div class="note note--danger" role="alert">
+      Le barème n’a pas pu être chargé.
+      <button type="button" class="lien" (click)="charger()">Réessayer</button>
+    </div>
+  }
+
+  <div class="colonnes">
+    <section class="parametres" aria-label="Paramètres de l’affaire">
+      <app-selecteur-contrat [contrats]="catalogue()?.contrats ?? []" [selection]="contrat()" (choisi)="choisirContrat($event)" />
+
+      @if (contrat(); as c) {
+        <p class="rappel">{{ c.compagnie }} · {{ c.famille }}</p>
+
+        <div class="deux">
+          <div class="champ">
+            <label class="champ__libelle" for="montant">{{ libelleMontant() }}</label>
+            <div class="champ__zone">
+              <input id="montant" class="champ__saisie" type="text" inputmode="decimal" autocomplete="off" placeholder="0" [value]="montant()" (input)="saisir('montant', $event)" [attr.aria-describedby]="parMois() ? 'montant-aide' : null" />
+              <span class="champ__unite" aria-hidden="true">€</span>
+            </div>
+            @if (parMois()) {
+              <p class="champ__aide" id="montant-aide">Soit {{ parMois() }} par mois.</p>
+            }
+          </div>
+
+          @if (c.saisie === 'FRAIS_LIBRES') {
+            <div class="champ">
+              <label class="champ__libelle" for="frais">Frais sur versements</label>
+              <div class="champ__zone">
+                <input id="frais" class="champ__saisie" type="text" inputmode="decimal" autocomplete="off" placeholder="0" [value]="frais()" (input)="saisir('frais', $event)" />
+                <span class="champ__unite" aria-hidden="true">%</span>
+              </div>
+            </div>
+          }
+
+          @if (c.saisie === 'TAUX_MANUEL') {
+            <div class="champ">
+              <label class="champ__libelle" for="taux">Taux de commission de la compagnie</label>
+              <div class="champ__zone">
+                <input id="taux" class="champ__saisie" type="text" inputmode="decimal" autocomplete="off" placeholder="0" [value]="taux()" (input)="saisir('taux', $event)" aria-describedby="taux-aide" />
+                <span class="champ__unite" aria-hidden="true">%</span>
+              </div>
+              <p class="champ__aide" id="taux-aide">Ce contrat n’a pas de taux fixe au barème. {{ bornesTaux() }}</p>
+            </div>
+          }
+        </div>
+
+        @if (c.saisie === 'LISTE') {
+          @if (optionsEnListe()) {
+            <div class="champ">
+              <label class="champ__libelle" for="option">Mode de commission</label>
+              <div class="champ__zone">
+                <select id="option" class="champ__saisie" [value]="option()" (change)="choisirOption($event)">
+                  @for (o of c.options; track o.code) {
+                    <option [value]="o.code" [selected]="o.code === option()">{{ o.libelle }}</option>
+                  }
+                </select>
+                <svg class="chevron" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg>
+              </div>
+            </div>
+          } @else {
+            <div class="groupe" role="group" aria-labelledby="titre-option">
+              <div class="groupe__libelle" id="titre-option">Mode de commission</div>
+              <div class="pastilles">
+                @for (o of c.options; track o.code) {
+                  <button type="button" class="pastille" [attr.aria-pressed]="o.code === option()" (click)="option.set(o.code)">{{ o.libelle }}</button>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        @if (c.saisie === 'FRAIS_LIBRES' && c.variantes.length) {
+          <div class="groupe" role="group" aria-labelledby="titre-duree">
+            <div class="groupe__libelle" id="titre-duree">Durée d’escompte</div>
+            <div class="pastilles">
+              @for (v of c.variantes; track v.code) {
+                <button type="button" class="pastille" [attr.aria-pressed]="v.code === variante()" (click)="variante.set(v.code)">{{ v.libelle }}</button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (c.remunerations.length > 1) {
+          <div class="groupe" role="group" aria-labelledby="titre-remuneration">
+            <div class="groupe__libelle" id="titre-remuneration">Option de rémunération du contrat</div>
+            <div class="pastilles">
+              @for (r of c.remunerations; track r.code) {
+                <button type="button" class="pastille" [attr.aria-pressed]="r.code === remuneration()" (click)="remuneration.set(r.code)">{{ r.libelle }}</button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (c.saisie === 'SEUIL') {
+          <div class="groupe" role="group" aria-labelledby="titre-tranche">
+            <div class="groupe__libelle" id="titre-tranche">Tranche de cotisation</div>
+            <div class="pastilles">
+              <button type="button" class="pastille" [attr.aria-pressed]="variante() === null" (click)="variante.set(null)">Selon la cotisation saisie</button>
+              @for (v of c.variantes; track v.code) {
+                <button type="button" class="pastille" [attr.aria-pressed]="v.code === variante()" (click)="variante.set(v.code)">{{ v.libelle }}</button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (c.aide) {
+          <p class="champ__aide">{{ c.aide }}</p>
+        }
+      }
+    </section>
+
+    <section class="resultat" aria-label="Résultat" aria-live="polite">
+      <div class="vedette" [class.vedette--calcul]="etat().statut === 'calcul'">
+        <p class="vedette__titre">Votre commission estimée</p>
+        <p class="vedette__montant montant">{{ montantAffiche() }}</p>
+
+        @if (etat(); as e) {
+          @if (e.statut === 'attente') {
+            <p class="vedette__message">{{ e.message }}</p>
+          }
+        }
+
+        @if (lignes().length) {
+          <dl class="vedette__lignes">
+            @for (ligne of lignes(); track ligne.libelle) {
+              <div>
+                <dt>{{ ligne.libelle }}</dt>
+                <dd class="montant">{{ ligne.valeur }}</dd>
+              </div>
+            }
+          </dl>
+        }
+      </div>
+
+      @if (etat(); as e) {
+        @if (e.statut === 'erreur') {
+          <div class="note note--danger" role="alert">{{ e.message }}</div>
+        }
+      }
+
+      @if (resultat(); as r) {
+        @for (avertissement of r.avertissements; track avertissement.code) {
+          <div class="note note--alerte" role="status">{{ avertissement.message }}</div>
+        }
+
+        @if (r.reserves.length) {
+          <div class="reserves">
+            <h2>À confirmer par le cabinet</h2>
+            <ul>
+              @for (reserve of r.reserves; track reserve) {
+                <li>{{ reserve }}</li>
+              }
+            </ul>
+          </div>
+        }
+      }
+
+      <p class="mention">Estimation. Le montant définitif est celui que la compagnie verse au cabinet pour ce contrat.</p>
+    </section>
+  </div>
+</div>

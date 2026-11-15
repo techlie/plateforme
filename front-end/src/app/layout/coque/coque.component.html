@@ -1,0 +1,62 @@
+<div class="coque" [class.coque--replie]="!ouvert()">
+  <nav class="menu" aria-label="Navigation principale">
+    <div class="menu__tete">
+      @if (ouvert()) {
+        <span class="menu__marque">SR CONSEIL</span>
+      }
+      <button
+        type="button"
+        class="menu__bascule"
+        (click)="basculerMenu()"
+        [attr.aria-label]="ouvert() ? 'Replier le menu' : 'Déplier le menu'"
+        [attr.aria-expanded]="ouvert()"
+      >
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></svg>
+      </button>
+    </div>
+
+    <ul class="menu__liste">
+      @for (entree of menu; track entree.libelle) {
+        <li>
+          @if (entree.lien) {
+            <a class="menu__lien" [routerLink]="entree.lien" routerLinkActive="menu__lien--actif" ariaCurrentWhenActive="page" [attr.title]="entree.libelle">
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
+                @for (trace of entree.icone; track trace) {
+                  <path [attr.d]="trace" />
+                }
+              </svg>
+              <span class="menu__texte">{{ entree.libelle }}</span>
+            </a>
+          } @else {
+            <span class="menu__lien menu__lien--a-venir" [attr.title]="entree.libelle + ' : bientôt disponible'">
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
+                @for (trace of entree.icone; track trace) {
+                  <path [attr.d]="trace" />
+                }
+              </svg>
+              <span class="menu__texte">{{ entree.libelle }}</span>
+              <span class="menu__etiquette">Bientôt</span>
+            </span>
+          }
+        </li>
+      }
+    </ul>
+
+    <button type="button" class="menu__lien menu__theme" (click)="basculerTheme()" [attr.aria-label]="libelleTheme()" [attr.title]="libelleTheme()">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
+        @if (sombre()) {
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2" /><path d="M12 20v2" /><path d="M4.9 4.9l1.4 1.4" /><path d="M17.7 17.7l1.4 1.4" />
+          <path d="M2 12h2" /><path d="M20 12h2" /><path d="M4.9 19.1l1.4-1.4" /><path d="M17.7 6.3l1.4-1.4" />
+        } @else {
+          <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />
+        }
+      </svg>
+      <span class="menu__texte">{{ libelleTheme() }}</span>
+    </button>
+  </nav>
+
+  <main class="contenu">
+    <router-outlet />
+  </main>
+</div>

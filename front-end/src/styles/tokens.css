@@ -1,0 +1,68 @@
+/*
+ * Variables de la charte SR CONSEIL.
+ * Toute couleur, tout rayon et toute ombre d'un composant passent par ces variables :
+ * c'est ce qui garantit le même rendu en clair et en sombre.
+ */
+:root {
+  color-scheme: light;
+
+  --fond: #ffffff;
+  --surface: #f4f5f7;
+  --surface-douce: #fafafa;
+  --bord: #eef0f2;
+  --bord-fort: #d1d5db;
+
+  --texte: #0b0d12;
+  --texte-moyen: #4b5563;
+  --texte-doux: #6b7280;
+
+  --accent: #0b0d12;
+  --sur-accent: #ffffff;
+
+  --vedette: #0b0d12;
+  --sur-vedette: #ffffff;
+  --sur-vedette-doux: #9ca3af;
+
+  --alerte-fond: #fff7ed;
+  --alerte-texte: #7c2d12;
+  --succes-fond: #ecfdf3;
+  --succes-texte: #14532d;
+  --danger-fond: #fef2f2;
+  --danger-texte: #b91c1c;
+
+  --rayon-petit: 12px;
+  --rayon: 14px;
+  --rayon-grand: 20px;
+  --rayon-pastille: 999px;
+
+  --police: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --contour-focus: 0 0 0 3px color-mix(in srgb, var(--texte) 28%, transparent);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --fond: #0b0d12;
+  --surface: #1c1f26;
+  --surface-douce: #121419;
+  --bord: #23262e;
+  --bord-fort: #4b5563;
+
+  --texte: #f5f6f8;
+  --texte-moyen: #c0c5ce;
+  --texte-doux: #9ca3af;
+
+  --accent: #f5f6f8;
+  --sur-accent: #0b0d12;
+
+  --vedette: #1a1d24;
+  --sur-vedette: #ffffff;
+  --sur-vedette-doux: #9ca3af;
+
+  --alerte-fond: #2b1a0e;
+  --alerte-texte: #fdba74;
+  --succes-fond: #0f2a1a;
+  --succes-texte: #86efac;
+  --danger-fond: #2a1215;
+  --danger-texte: #f87171;
+}

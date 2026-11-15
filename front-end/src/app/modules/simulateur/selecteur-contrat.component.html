@@ -1,0 +1,57 @@
+<div class="champ">
+  <label class="champ__libelle" for="contrat">Contrat</label>
+  <div class="champ__zone">
+    <svg class="loupe" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+    <input
+      #champ
+      id="contrat"
+      class="champ__saisie saisie"
+      type="text"
+      role="combobox"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Compagnie ou nom du contrat"
+      aria-autocomplete="list"
+      aria-controls="liste-contrats"
+      [attr.aria-expanded]="ouvert()"
+      [attr.aria-activedescendant]="ouvert() && nombre() ? 'contrat-' + rangActif() : null"
+      [value]="texte()"
+      (focus)="ouvrir(champ)"
+      (click)="ouvrir(champ)"
+      (input)="surSaisie($event)"
+      (keydown)="surTouche($event)"
+    />
+  </div>
+
+  @if (ouvert()) {
+    <div class="liste" id="liste-contrats" role="listbox" aria-label="Contrats">
+      @for (groupe of groupes(); track groupe.compagnie) {
+        <div role="group" [attr.aria-label]="groupe.compagnie">
+          <div class="liste__compagnie" aria-hidden="true">{{ groupe.compagnie }}</div>
+          @for (ligne of groupe.contrats; track ligne.contrat.cle) {
+            <div
+              class="liste__contrat"
+              role="option"
+              [id]="'contrat-' + ligne.rang"
+              [class.liste__contrat--actif]="ligne.rang === rangActif()"
+              [attr.aria-selected]="ligne.contrat.cle === selection()?.cle"
+              (pointerdown)="$event.preventDefault()"
+              (click)="retenir(ligne.contrat)"
+              (pointermove)="rangActif.set(ligne.rang)"
+            >
+              <span>{{ ligne.contrat.libelle }}</span>
+              <span class="liste__famille">{{ ligne.contrat.famille }}</span>
+            </div>
+          }
+        </div>
+      } @empty {
+        <div class="liste__vide">Aucun contrat ne correspond à cette recherche.</div>
+      }
+    </div>
+  }
+  <div class="sr-seulement" aria-live="polite">
+    @if (ouvert()) {
+      {{ nombre() }} contrats proposés
+    }
+  </div>
+</div>

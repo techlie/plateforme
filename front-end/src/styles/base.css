@@ -1,0 +1,169 @@
+/* Socle commun à tous les écrans : typographie, champs, pastilles, encarts. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: var(--police);
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--contour-focus);
+}
+
+.montant,
+.chiffres {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-seulement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Champs de saisie */
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.champ__libelle,
+.groupe__libelle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+
+.champ__zone {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: var(--rayon);
+  background: var(--surface);
+}
+
+.champ__zone:focus-within {
+  box-shadow: var(--contour-focus);
+}
+
+.champ__saisie {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 52px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.champ__saisie:focus-visible {
+  box-shadow: none;
+}
+
+.champ__saisie::placeholder {
+  color: var(--texte-doux);
+  font-weight: 500;
+}
+
+.champ__unite {
+  flex: none;
+  padding-left: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+
+.champ__aide {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--texte-doux);
+}
+
+select.champ__saisie {
+  appearance: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Choix par pastilles */
+.groupe {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pastilles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pastille {
+  min-height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--rayon-pastille);
+  background: var(--surface);
+  color: var(--texte);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pastille[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--sur-accent);
+}
+
+/* Encarts d'information */
+.note {
+  padding: 14px 16px;
+  border-radius: var(--rayon);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.note--alerte {
+  background: var(--alerte-fond);
+  color: var(--alerte-texte);
+}
+
+.note--danger {
+  background: var(--danger-fond);
+  color: var(--danger-texte);
+}

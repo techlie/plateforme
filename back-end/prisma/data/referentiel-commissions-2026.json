@@ -912,7 +912,7 @@
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.18,
       "tauxMax": 0.48,
-      "aide": "SAISIE MANUELLE : 18 à 48% (année 1) / 0 à 23% (années suivantes)"
+      "aide": "Indication de la compagnie : 18 à 48 % (année 1) / 0 à 23 % (années suivantes)."
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_GE_11ANS_LINEAIRE",
@@ -1121,7 +1121,7 @@
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.18,
       "tauxMax": 0.48,
-      "aide": "SAISIE MANUELLE : 18 à 48% (année 1) / 1 à 24% (années suivantes)"
+      "aide": "Indication de la compagnie : 18 à 48 % (année 1) / 1 à 24 % (années suivantes)."
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_LE_6ANS",
@@ -3926,8 +3926,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 0.7
     },
     {
       "cle": "CARDIF|ASSURANCE VIE|CARDIF ELITE",
@@ -5061,8 +5060,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 0.7
     },
     {
       "cle": "METLIFE|PREVOYANCE|METLIFE_PREVOYANCE",
@@ -5691,8 +5689,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 0.7
     },
     {
       "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_ANCIENNES_OFFRES",
@@ -5710,7 +5707,7 @@
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
       "tauxMax": 1.0,
-      "aide": "SAISIE SELON TARIFICATEUR : précompte jusqu'à 55/20"
+      "aide": "Selon le tarificateur : précompte jusqu'à 55/20."
     },
     {
       "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_NOUVELLES_OFFRES",
@@ -5728,7 +5725,7 @@
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
       "tauxMax": 1.0,
-      "aide": "SAISIE SELON TARIFICATEUR : linéaire <=35% ou précompte <=50/20"
+      "aide": "Selon le tarificateur : linéaire jusqu'à 35 % ou précompte jusqu'à 50/20."
     },
     {
       "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_PRIME_UNIQUE",
@@ -5745,8 +5742,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 1.0,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 1.0
     },
     {
       "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_PRET_RELAIS",
@@ -5763,8 +5759,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 1.0,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 1.0
     },
     {
       "cle": "SOLLY AZAR|MUTUELLE|SOLLY_SANTE_SENIOR",
@@ -5891,8 +5886,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 1.0,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 1.0
     },
     {
       "cle": "SWISSLIFE|MUTUELLE|(contrat unique)",
@@ -5909,8 +5903,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 0.7
     },
     {
       "cle": "SWISSLIFE|PREVOYANCE|SLPI",
@@ -6023,8 +6016,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 0.7
     },
     {
       "cle": "UNIM|PREVOYANCE|UNIM_UNICED",
@@ -6066,8 +6058,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 0.7
     },
     {
       "cle": "UTWIN|MUTUELLE|(contrat unique)",
@@ -6084,8 +6075,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 0.7
     },
     {
       "cle": "VERALTI|MUTUELLE|VERALTI_API_SANTE",
@@ -6338,8 +6328,7 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7,
-      "aide": "Taux de commission prévu par la compagnie, à saisir."
+      "tauxMax": 0.7
     }
   ]
 }
