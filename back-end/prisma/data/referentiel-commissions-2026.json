@@ -159,11 +159,31 @@
       "horsTaxe": false,
       "aConfirmer": [
         "Choix entre Acquisition Max et Encours Max non confirmé pour ce contrat : la grille déduit 0,5 point de frais.",
-        "Surcommission de 40 % appliquée sans tenir compte de la part en unités de compte, de l'âge ni du plafond de versement."
+        "Baisse de la surcommission entre 57 et 67 ans calculée au prorata, un dixième par année. Formule exacte à confirmer."
       ],
       "mode": "ESCOMPTE",
       "saisie": "FRAIS_LIBRES",
-      "surcommission": 0.4,
+      "fraisMax": 0.0475,
+      "surcommission": {
+        "libelle": "Surcommission",
+        "seuilPartUc": 0.5,
+        "tauxUcAuDessus": 0.4,
+        "tauxEuroAuDessus": 0.04,
+        "tauxUcEnDessous": 0.3,
+        "tauxEuroEnDessous": 0.0,
+        "source": "Protocole Abeille : 40 % sur la part en unités de compte et 4 % sur la part en euros si les unités de compte dépassent 50 % ; 30 % et 0 % sinon."
+      },
+      "ponderationAge": {
+        "ageDebut": 57,
+        "ageFin": 67,
+        "ageReference": 67,
+        "diviseur": 10,
+        "source": "Protocole Abeille : au-delà de 57 ans, les surcommissions diminuent jusqu'à 66 ans, de manière proratisée ; 0 % à partir de 67 ans."
+      },
+      "plafondSurcommission": {
+        "montantAnnuel": 24000,
+        "source": "Protocole Abeille : 2 000 € par mois. Décision du cabinet du 12 novembre 2026 : par client et par type de contrat, sur les primes périodiques."
+      },
       "variantes": [
         {
           "code": "AVANCE_3_ANS",
@@ -471,12 +491,32 @@
       "base": "VERSEMENT_ANNUEL",
       "horsTaxe": false,
       "aConfirmer": [
-        "Avec l'option Acquisition Max, maintien de la surcommission de 40 % non confirmé.",
-        "Surcommission de 40 % appliquée sans tenir compte de la part en unités de compte, de l'âge ni du plafond de versement."
+        "Avec l'option Acquisition Max, maintien de la surcommission non confirmé.",
+        "Baisse de la surcommission entre 57 et 67 ans calculée au prorata, un dixième par année. Formule exacte à confirmer."
       ],
       "mode": "ESCOMPTE",
       "saisie": "FRAIS_LIBRES",
-      "surcommission": 0.4,
+      "fraisMax": 0.0475,
+      "surcommission": {
+        "libelle": "Surcommission",
+        "seuilPartUc": 0.5,
+        "tauxUcAuDessus": 0.4,
+        "tauxEuroAuDessus": 0.04,
+        "tauxUcEnDessous": 0.3,
+        "tauxEuroEnDessous": 0.0,
+        "source": "Protocole Abeille : 40 % sur la part en unités de compte et 4 % sur la part en euros si les unités de compte dépassent 50 % ; 30 % et 0 % sinon."
+      },
+      "ponderationAge": {
+        "ageDebut": 57,
+        "ageFin": 67,
+        "ageReference": 67,
+        "diviseur": 10,
+        "source": "Protocole Abeille : au-delà de 57 ans, les surcommissions diminuent jusqu'à 66 ans, de manière proratisée ; 0 % à partir de 67 ans."
+      },
+      "plafondSurcommission": {
+        "montantAnnuel": 24000,
+        "source": "Protocole Abeille : 2 000 € par mois. Décision du cabinet du 12 novembre 2026 : par client et par type de contrat, sur les primes périodiques."
+      },
       "variantes": [
         {
           "code": "AVANCE_3_ANS",
@@ -527,11 +567,31 @@
       "libelle": "RP / EA",
       "base": "VERSEMENT_UNIQUE",
       "horsTaxe": false,
+      "aConfirmer": [
+        "Baisse de la surcommission entre 57 et 67 ans calculée au prorata, un dixième par année. Formule exacte à confirmer."
+      ],
       "mode": "TAUX",
-      "ajout": 0.039,
+      "ajout": -0.005,
       "multiplicateur": 1,
       "saisie": "FRAIS_LIBRES",
-      "fraisParDefaut": 0.007
+      "fraisParDefaut": 0.007,
+      "fraisMax": 0.0475,
+      "surcommission": {
+        "libelle": "Surcommission",
+        "seuilPartUc": 0.4,
+        "tauxUcAuDessus": 0.044,
+        "tauxEuroAuDessus": 0.004,
+        "tauxUcEnDessous": 0.032,
+        "tauxEuroEnDessous": 0.0,
+        "source": "Protocole Abeille, versement unique : 4,4 % sur les unités de compte et 0,4 % sur l'euro si les unités de compte dépassent 40 % ; 3,2 % et 0 % sinon."
+      },
+      "ponderationAge": {
+        "ageDebut": 57,
+        "ageFin": 67,
+        "ageReference": 67,
+        "diviseur": 10,
+        "source": "Protocole Abeille : au-delà de 57 ans, les surcommissions diminuent jusqu'à 66 ans, de manière proratisée ; 0 % à partir de 67 ans."
+      }
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_DYNAMIQUE_GT_6ANS",
@@ -3939,7 +3999,9 @@
       "base": "VERSEMENT_ANNUEL",
       "horsTaxe": false,
       "aConfirmer": [
-        "Barème relevé tel quel dans la grille, pour une réversion de 70 %. Ajustement proportionnel pour les autres taux de réversion non confirmé."
+        "Barème relevé tel quel dans la grille, pour une réversion de 70 %. Ajustement proportionnel pour les autres taux de réversion non confirmé.",
+        "Pondération d'âge appliquée à l'escompte et non au bonus : lecture à confirmer.",
+        "Frais de référence de 2,75 % ou de 4,75 % pour l'escompte plein : à confirmer."
       ],
       "mode": "BAREME",
       "saisie": "LISTE",
@@ -3986,7 +4048,19 @@
           "frais": 0,
           "tauxMandataireReference": 0.0655
         }
-      ]
+      ],
+      "partFixeIncluse": {
+        "taux": 0.11,
+        "libelle": "Bonus",
+        "source": "Protocole Cardif : bonus de 11 % en escompte, repris dans la grille."
+      },
+      "ponderationAge": {
+        "ageDebut": 45,
+        "ageFin": 65,
+        "ageReference": 65,
+        "diviseur": 20,
+        "source": "Protocole Cardif : pondération n/20, de 45 à 65 ans."
+      }
     },
     {
       "cle": "CARDIF|PU/VL|CARDIF ELITE",
@@ -4002,7 +4076,8 @@
       "ajout": -0.005,
       "multiplicateur": 1,
       "saisie": "FRAIS_LIBRES",
-      "fraisParDefaut": 0.03
+      "fraisParDefaut": 0.03,
+      "fraisMax": 0.0475
     },
     {
       "cle": "ENTORIA|MUTUELLE|ENTORIA_SANTE_TNS",
@@ -4659,7 +4734,9 @@
       "base": "VERSEMENT_ANNUEL",
       "horsTaxe": false,
       "aConfirmer": [
-        "Barème relevé tel quel dans la grille, pour une réversion de 70 %. Ajustement proportionnel pour les autres taux de réversion non confirmé."
+        "Barème relevé tel quel dans la grille, pour une réversion de 70 %. Ajustement proportionnel pour les autres taux de réversion non confirmé.",
+        "Entre 45 et 54 ans, lecture retenue : (60 − âge) / 15 de l'escompte. Le protocole ne définit pas N.",
+        "À partir de 55 ans, maintien du rappel de 25 % en plus des 6 % non confirmé."
       ],
       "mode": "BAREME",
       "saisie": "LISTE",
@@ -4676,7 +4753,20 @@
           "frais": 0.0095,
           "tauxMandataireReference": 0.238
         }
-      ]
+      ],
+      "partFixeIncluse": {
+        "taux": 0.25,
+        "libelle": "Rappel de commission",
+        "source": "Reconstitué : 36,3 % = (36 % + 25 %) × 59,5 %. Décision du cabinet : rappel payé d'avance sur un palier certain."
+      },
+      "ponderationAge": {
+        "ageDebut": 45,
+        "ageFin": 55,
+        "ageReference": 60,
+        "diviseur": 15,
+        "tauxApresAgeFin": 0.06,
+        "source": "Protocole Generali : de 45 à 54 ans, N/15e de l'escompte ; 6 % linéaire à partir de 55 ans."
+      }
     },
     {
       "cle": "HENNER|MUTUELLE|SANTE_PRO_H",
@@ -5964,10 +6054,20 @@
       "base": "VERSEMENT_ANNUEL",
       "horsTaxe": false,
       "mode": "TAUX",
-      "ajout": 0.09,
+      "ajout": 0,
       "multiplicateur": 4,
       "saisie": "FRAIS_LIBRES",
-      "fraisParDefaut": 0.0
+      "fraisParDefaut": 0.0,
+      "fraisMax": 0.0475,
+      "surcommission": {
+        "libelle": "Bonus unités de compte",
+        "seuilPartUc": 0.0,
+        "tauxUcAuDessus": 0.36,
+        "tauxEuroAuDessus": 0.0,
+        "tauxUcEnDessous": 0.36,
+        "tauxEuroEnDessous": 0.0,
+        "source": "Protocole Swiss Life : avance sur 4 ans = 4 × (bonus de 9 % + frais), soit 36 % de bonus. Décision du cabinet : bonus payé sur la seule part en unités de compte."
+      }
     },
     {
       "cle": "SWISSLIFE|TRANSFERTS/PU/VL|PERIN",
@@ -5980,10 +6080,20 @@
       "base": "VERSEMENT_UNIQUE",
       "horsTaxe": false,
       "mode": "TAUX",
-      "ajout": 0.0325,
+      "ajout": 0,
       "multiplicateur": 1,
       "saisie": "FRAIS_LIBRES",
-      "fraisParDefaut": 0.0
+      "fraisParDefaut": 0.0,
+      "fraisMax": 0.0475,
+      "surcommission": {
+        "libelle": "Bonus unités de compte",
+        "seuilPartUc": 0.0,
+        "tauxUcAuDessus": 0.0325,
+        "tauxEuroAuDessus": 0.0,
+        "tauxUcEnDessous": 0.0325,
+        "tauxEuroEnDessous": 0.0,
+        "source": "Protocole Swiss Life : bonus de 3,25 % + frais. Décision du cabinet : bonus payé sur la seule part en unités de compte."
+      }
     },
     {
       "cle": "SWISSLIFE|EPARGNE|STRATEGIC PREMIUM / CAPI",
@@ -5996,10 +6106,20 @@
       "base": "VERSEMENT_UNIQUE",
       "horsTaxe": false,
       "mode": "TAUX",
-      "ajout": 0.036,
+      "ajout": 0,
       "multiplicateur": 1,
       "saisie": "FRAIS_LIBRES",
-      "fraisParDefaut": 0.01
+      "fraisParDefaut": 0.01,
+      "fraisMax": 0.0475,
+      "surcommission": {
+        "libelle": "Bonus unités de compte",
+        "seuilPartUc": 0.0,
+        "tauxUcAuDessus": 0.036,
+        "tauxEuroAuDessus": 0.0,
+        "tauxUcEnDessous": 0.036,
+        "tauxEuroEnDessous": 0.0,
+        "source": "Protocole Swiss Life : bonus de 3,60 % + frais. Décision du cabinet : bonus payé sur la seule part en unités de compte."
+      }
     },
     {
       "cle": "UNIM|MUTUELLE|(contrat unique)",

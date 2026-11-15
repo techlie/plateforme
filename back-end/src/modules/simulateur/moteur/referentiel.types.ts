@@ -51,6 +51,45 @@ export interface Remuneration {
   deductionFrais: number;
 }
 
+/** Part de la commission qui dépend de la répartition entre unités de compte et fonds en euros. */
+export interface Surcommission {
+  libelle: string;
+  /** Part en unités de compte au-delà de laquelle le barème haut s'applique. */
+  seuilPartUc: number;
+  tauxUcAuDessus: number;
+  tauxEuroAuDessus: number;
+  tauxUcEnDessous: number;
+  tauxEuroEnDessous: number;
+  source: string;
+}
+
+/**
+ * Baisse liée à l'âge de l'assuré.
+ * Jusqu'à `ageDebut` : rien ne change. Entre les deux âges : coefficient (ageReference − âge) / diviseur.
+ * À partir de `ageFin` : coefficient nul, ou `tauxApresAgeFin` à la place de l'escompte s'il est renseigné.
+ */
+export interface PonderationAge {
+  ageDebut: number;
+  ageFin: number;
+  ageReference: number;
+  diviseur: number;
+  tauxApresAgeFin?: number;
+  source: string;
+}
+
+export interface PlafondSurcommission {
+  /** Versements annuels au-delà desquels la surcommission n'est plus versée, par client et par type de contrat. */
+  montantAnnuel: number;
+  source: string;
+}
+
+/** Part d'un barème qui ne dépend pas de l'âge (rappel, bonus), en taux compagnie. */
+export interface PartFixeIncluse {
+  taux: number;
+  libelle: string;
+  source: string;
+}
+
 export interface ContratReferentiel {
   cle: string;
   compagnie: string;
@@ -70,7 +109,11 @@ export interface ContratReferentiel {
   tauxMin?: number;
   tauxMax?: number;
   aide?: string;
-  surcommission?: number;
+  fraisMax?: number;
+  surcommission?: Surcommission;
+  ponderationAge?: PonderationAge;
+  plafondSurcommission?: PlafondSurcommission;
+  partFixeIncluse?: PartFixeIncluse;
   seuilMontant?: number;
   options?: OptionCommission[];
   variantes?: Variante[];

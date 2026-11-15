@@ -21,6 +21,10 @@ export interface Contrat {
   remunerations: Choix[];
   remunerationParDefaut?: string;
   fraisParDefaut?: number;
+  fraisMax?: number;
+  demandeAge: boolean;
+  demandePartUc: boolean;
+  plafondAnnuel?: number;
   tauxMin?: number;
   tauxMax?: number;
   seuilMontant?: number;
@@ -46,6 +50,9 @@ export interface DemandeCalcul {
   taux?: number;
   variante?: string;
   remuneration?: string;
+  age?: number;
+  partUc?: number;
+  versementsExistants?: number;
 }
 
 export interface Resultat {

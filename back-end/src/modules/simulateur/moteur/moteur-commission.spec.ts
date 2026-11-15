@@ -10,6 +10,12 @@ const referentiel: Referentiel = JSON.parse(
 const RETRAITE_PLURIELLE = 'ABEILLE|RETRAITE|RETRAITE PLURIELLE';
 const EPARGNE_ACTIVE = 'ABEILLE|ASSURANCE VIE|EPARGNE ACTIVE';
 const ALPTIS_PRO_PLUS = 'ALPTIS|PREVOYANCE|PREVOYANCE_PRO_PLUS';
+const ABEILLE_VERSEMENT = 'ABEILLE|TRANSFERTS/PU/VL|RP/EA';
+const GENERALI = 'GENERALI|RETRAITE|GENERALI RETRAITE PRO';
+const CARDIF = 'CARDIF|ASSURANCE VIE|CARDIF ELITE';
+
+/** Le cas que la grille d'origine suppose sans le dire : tout en unités de compte, assuré de 40 ans. */
+const CAS_GRILLE = { age: 40, partUc: 1 };
 
 /**
  * Grille de commissions d'origine du cabinet, réécrite à la main à partir du classeur,
@@ -134,13 +140,15 @@ describe('Équivalence avec la grille du cabinet', () => {
     expect(cas.length).toBeGreaterThan(600);
   });
 
-  it('paie le même montant que la grille pour chaque contrat, chaque option et chaque variante', () => {
-    // Sur un million d'euros, un écart d'un centime correspond à un écart de taux de 0,000001 %.
-    const montant = 1_000_000;
+  it('paie le même montant que la grille quand l’affaire est dans le cas que la grille suppose', () => {
+    // La grille suppose 100 % d'unités de compte, un assuré jeune et un versement sous le plafond.
     const ecarts: string[] = [];
     for (const c of cas) {
+      const contrat = referentiel.contrats.find((x) => x.cle === c.cle) as ContratReferentiel;
+      // Sur un million d'euros, un écart d'un centime correspond à un écart de taux de 0,000001 %.
+      const montant = contrat.plafondSurcommission ? contrat.plafondSurcommission.montantAnnuel : 1_000_000;
       const attendu = arrondirAuCentime(grilleOrigine(c.cle, c.frais, c.variante) * montant);
-      const obtenu = calculerCommission(referentiel, c.cle, { ...c.demande, montant, tauxReversion: 0.7 });
+      const obtenu = calculerCommission(referentiel, c.cle, { ...c.demande, ...CAS_GRILLE, montant, tauxReversion: 0.7 });
       if (obtenu.montantMandataire !== attendu) {
         ecarts.push(`${c.cle} ${JSON.stringify(c.demande)} : grille ${attendu}, moteur ${obtenu.montantMandataire}`);
       }
@@ -153,6 +161,7 @@ describe('Écarts voulus avec la grille', () => {
   it("ne verse pas de commission de base négative quand les frais sont sous le minimum de la compagnie", () => {
     // La grille calcule (0 % − 0,5 %) × coefficient, donc une base négative. Le moteur la ramène à zéro.
     const resultat = calculerCommission(referentiel, EPARGNE_ACTIVE, {
+      ...CAS_GRILLE,
       montant: 6000,
       frais: 0,
       variante: 'AVANCE_5_ANS',
@@ -171,10 +180,203 @@ describe('Écarts voulus avec la grille', () => {
     expect(resultat.montantMandataire).toBe(0);
     expect(resultat.avertissements.map((a) => a.code)).toEqual(['FRAIS_SOUS_MINIMUM']);
   });
+
+  it('refuse des frais au-delà de 4,75 %, pour qu’un « 3 » tapé à la place de « 3 % » ne passe pas', () => {
+    expect(() =>
+      calculerCommission(referentiel, RETRAITE_PLURIELLE, {
+        ...CAS_GRILLE,
+        montant: 6000,
+        frais: 0.06,
+        variante: 'AVANCE_5_ANS',
+        tauxReversion: 0.7,
+      }),
+    ).toThrow(ErreurCalcul);
+  });
+});
+
+/*
+ * Règles décidées par le cabinet le 12 novembre 2026, que la grille d'origine n'applique pas :
+ * surcommission sur la part réelle en unités de compte, pondérations d'âge répercutées au mandataire,
+ * plafond Abeille de 2 000 € par mois par client et par type de contrat, bonus Swiss Life sur la part UC.
+ * Les montants « perçu par le cabinet » sont ceux de l'audit des outils de commission (points A1, A2, A4, A8).
+ */
+describe('Abeille, primes périodiques : surcommission selon la part en unités de compte', () => {
+  const base = { montant: 6000, frais: 0.03, variante: 'AVANCE_5_ANS', remuneration: 'ENCOURS_MAX', age: 40, tauxReversion: 0.7 };
+
+  it('verse 40 % sur les unités de compte quand tout y est investi', () => {
+    const r = calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, partUc: 1 });
+    expect(r.montantCabinet).toBe(2556.38);
+    expect(r.montantMandataire).toBe(1789.46);
+    expect(r.avertissements).toEqual([]);
+  });
+
+  it('verse 40 % sur les unités de compte et 4 % sur l’euro au-dessus de 50 %', () => {
+    const r = calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, partUc: 0.6 });
+    expect(r.tauxCompagnie).toBeCloseTo(0.10125 + 0.256, 12);
+    // 0,35725 × 6 000 × 85 % = 1 821,975 €, arrondi au centime supérieur.
+    expect(r.montantCabinet).toBe(1821.98);
+  });
+
+  it('verse 30 % sur les unités de compte et rien sur l’euro à 50 % ou moins', () => {
+    const r = calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, partUc: 0.4 });
+    expect(r.montantCabinet).toBe(1128.38);
+    expect(r.montantMandataire).toBe(789.86);
+    expect(r.avertissements.map((a) => a.code)).toEqual(['PART_UC_SOUS_SEUIL']);
+  });
+
+  it('exige la part en unités de compte', () => {
+    expect(() => calculerCommission(referentiel, RETRAITE_PLURIELLE, base)).toThrow('unités de compte');
+  });
+});
+
+describe('Abeille : baisse de la surcommission avec l’âge', () => {
+  const base = { montant: 6000, frais: 0.03, variante: 'AVANCE_5_ANS', remuneration: 'ENCOURS_MAX', partUc: 1, tauxReversion: 0.7 };
+  const a = (age: number) => calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, age });
+
+  it('ne change rien jusqu’à 57 ans', () => {
+    expect(a(57).montantMandataire).toBe(1789.46);
+    expect(a(57).avertissements).toEqual([]);
+  });
+
+  it('retire un dixième de la surcommission par année entre 57 et 67 ans', () => {
+    expect(a(58).tauxCompagnie).toBeCloseTo(0.10125 + 0.36, 12);
+    expect(a(62).tauxCompagnie).toBeCloseTo(0.10125 + 0.2, 12);
+    expect(a(62).montantMandataire).toBe(1075.46);
+    expect(a(66).montantMandataire).toBe(504.26);
+    expect(a(62).avertissements.map((x) => x.code)).toEqual(['AGE_SURCOMMISSION_REDUITE']);
+  });
+
+  it('ne verse plus de surcommission à partir de 67 ans, la commission de base reste due', () => {
+    expect(a(67).montantMandataire).toBe(361.46);
+    expect(a(80).montantMandataire).toBe(361.46);
+    expect(a(67).avertissements.map((x) => x.code)).toEqual(['AGE_SANS_SURCOMMISSION']);
+  });
+
+  it('exige l’âge de l’assuré', () => {
+    expect(() => calculerCommission(referentiel, RETRAITE_PLURIELLE, base)).toThrow('âge');
+  });
+});
+
+describe('Abeille : plafond de 2 000 € par mois, par client et par type de contrat', () => {
+  const base = { frais: 0.03, variante: 'AVANCE_5_ANS', remuneration: 'ENCOURS_MAX', ...CAS_GRILLE, tauxReversion: 0.7 };
+
+  it('paie la surcommission en entier jusqu’à 2 000 € par mois', () => {
+    const r = calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, montant: 24000 });
+    expect(r.tauxCompagnie).toBeCloseTo(0.10125 + 0.4, 12);
+    expect(r.avertissements).toEqual([]);
+  });
+
+  it('paie 3 000 € par mois sur 2 000 € pour la surcommission, sur 3 000 € pour la commission de base', () => {
+    const r = calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, montant: 36000 });
+    expect(r.montantCompagnie).toBe(13245); // 10,125 % × 36 000 + 40 % × 24 000
+    expect(r.montantCabinet).toBe(11258.25);
+    expect(r.avertissements.map((x) => x.code)).toEqual(['PLAFOND_SURCOMMISSION']);
+  });
+
+  it('compte les versements déjà en place pour ce client sur le même type de contrat', () => {
+    const r = calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, montant: 18000, versementsExistants: 12000 });
+    expect(r.montantCompagnie).toBe(6622.5); // 10,125 % × 18 000 + 40 % × 12 000
+  });
+
+  it('ne verse plus de surcommission quand le plafond est déjà atteint, sans jamais la rendre négative', () => {
+    const r = calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, montant: 6000, versementsExistants: 30000 });
+    expect(r.montantCompagnie).toBe(607.5);
+  });
+
+  it('traite chaque type de contrat à part : 2 000 € sur un PER et 2 000 € sur une assurance vie passent en entier', () => {
+    const per = calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, montant: 24000 });
+    const vie = calculerCommission(referentiel, EPARGNE_ACTIVE, { ...base, montant: 24000 });
+    expect(per.avertissements).toEqual([]);
+    expect(vie.avertissements).toEqual([]);
+  });
+
+  it('ne plafonne pas un versement unique', () => {
+    const r = calculerCommission(referentiel, ABEILLE_VERSEMENT, { ...CAS_GRILLE, montant: 100000, frais: 0.007, tauxReversion: 0.7 });
+    expect(r.montantMandataire).toBe(2737);
+  });
+});
+
+describe('Abeille, versement unique : surcommission selon la part en unités de compte et l’âge', () => {
+  const base = { montant: 100000, frais: 0.007, tauxReversion: 0.7 };
+
+  it('verse 3,2 % sur les unités de compte à 40 % ou moins', () => {
+    const r = calculerCommission(referentiel, ABEILLE_VERSEMENT, { ...base, age: 40, partUc: 0.3 });
+    expect(r.tauxCompagnie).toBeCloseTo(0.002 + 0.0096, 12);
+    expect(r.montantMandataire).toBe(690.2);
+  });
+
+  it('réduit la surcommission de moitié à 62 ans', () => {
+    const r = calculerCommission(referentiel, ABEILLE_VERSEMENT, { ...base, age: 62, partUc: 1 });
+    expect(r.montantMandataire).toBe(1428);
+  });
+});
+
+describe('Swiss Life : bonus payé sur la seule part en unités de compte', () => {
+  it('paie le bonus entier du PER individuel à 100 % d’unités de compte, la moitié à 50 %', () => {
+    const cle = 'SWISSLIFE|RETRAITE|PER INDIVIDUEL';
+    const tout = calculerCommission(referentiel, cle, { montant: 6000, frais: 0, partUc: 1, tauxReversion: 0.7 });
+    const moitie = calculerCommission(referentiel, cle, { montant: 6000, frais: 0, partUc: 0.5, tauxReversion: 0.7 });
+    expect(tout.montantMandataire).toBe(1285.2);
+    expect(moitie.montantMandataire).toBe(642.6);
+  });
+
+  it('ajoute les frais au bonus sur Strategic Premium', () => {
+    const r = calculerCommission(referentiel, 'SWISSLIFE|EPARGNE|STRATEGIC PREMIUM / CAPI', {
+      montant: 50000,
+      frais: 0.01,
+      partUc: 0.6,
+      tauxReversion: 0.7,
+    });
+    expect(r.tauxCompagnie).toBeCloseTo(0.01 + 0.0216, 12);
+    expect(r.montantMandataire).toBe(940.1);
+  });
+
+  it('ne demande pas l’âge', () => {
+    expect(() =>
+      calculerCommission(referentiel, 'SWISSLIFE|TRANSFERTS/PU/VL|PERIN', { montant: 1000, frais: 0.01, partUc: 1, tauxReversion: 0.7 }),
+    ).not.toThrow();
+  });
+});
+
+describe('Generali Retraite Pro : pondération d’âge sur l’escompte', () => {
+  const a = (age: number) => calculerCommission(referentiel, GENERALI, { montant: 6000, option: '2,95 %', age, tauxReversion: 0.7 });
+
+  it('paie le barème entier jusqu’à 45 ans', () => {
+    expect(a(40).montantMandataire).toBe(2178);
+    expect(a(45).montantMandataire).toBe(2178);
+  });
+
+  it('réduit l’escompte d’un quinzième par année entre 45 et 54 ans, sans toucher au rappel', () => {
+    expect(a(50).montantMandataire).toBe(1749.5);
+    expect(a(50).avertissements.map((x) => x.code)).toEqual(['AGE_ESCOMPTE_REDUIT']);
+  });
+
+  it('passe à 6 % par an à partir de 55 ans, rappel maintenu', () => {
+    expect(a(55).tauxCompagnie).toBeCloseTo(0.31, 12);
+    expect(a(55).montantCabinet).toBe(1581); // dont 306 € hors rappel, le montant relevé par l'audit
+    expect(a(55).montantMandataire).toBe(1106.7);
+  });
+});
+
+describe('Cardif Elite : pondération d’âge sur l’escompte, pas sur le bonus', () => {
+  const a = (age: number) => calculerCommission(referentiel, CARDIF, { montant: 6000, option: '2,75 %', age, tauxReversion: 0.7 });
+
+  it('paie le barème entier jusqu’à 45 ans', () => {
+    expect(a(40).montantMandataire).toBe(1999.2);
+  });
+
+  it('réduit l’escompte d’un vingtième par année entre 45 et 65 ans', () => {
+    expect(a(55).tauxCompagnie).toBeCloseTo(0.225 + 0.11, 10);
+    expect(a(55).montantMandataire).toBe(1195.95);
+  });
+
+  it('ne garde que le bonus à partir de 65 ans', () => {
+    expect(a(65).montantMandataire).toBe(392.7);
+  });
 });
 
 describe('Abeille Retraite Plurielle, options de rémunération', () => {
-  const base = { montant: 6000, frais: 0.03, variante: 'AVANCE_5_ANS', tauxReversion: 0.7 };
+  const base = { ...CAS_GRILLE, montant: 6000, frais: 0.03, variante: 'AVANCE_5_ANS', tauxReversion: 0.7 };
 
   it('retrouve l’exemple du protocole en Encours Max : 10,12 % sur 5 ans à 3 % de frais', () => {
     const r = calculerCommission(referentiel, RETRAITE_PLURIELLE, { ...base, remuneration: 'ENCOURS_MAX' });
@@ -222,8 +424,8 @@ describe('Chaîne compagnie, cabinet, mandataire', () => {
 
   it('ajuste un barème relevé à 70 % au taux de réversion du mandataire', () => {
     const cle = 'GENERALI|RETRAITE|GENERALI RETRAITE PRO';
-    const a70 = calculerCommission(referentiel, cle, { montant: 10000, option: '2,95 %', tauxReversion: 0.7 });
-    const a80 = calculerCommission(referentiel, cle, { montant: 10000, option: '2,95 %', tauxReversion: 0.8 });
+    const a70 = calculerCommission(referentiel, cle, { montant: 10000, option: '2,95 %', age: 40, tauxReversion: 0.7 });
+    const a80 = calculerCommission(referentiel, cle, { montant: 10000, option: '2,95 %', age: 40, tauxReversion: 0.8 });
     expect(a70.montantMandataire).toBe(3630);
     expect(a80.montantMandataire).toBe(4148.57);
   });
@@ -261,12 +463,22 @@ describe('Demandes refusées', () => {
   it('refuse un contrat absent du barème', () => refuse('INCONNU|X|Y', {}, 'CONTRAT_INCONNU'));
   it('refuse un montant négatif', () => refuse(ALPTIS_PRO_PLUS, { montant: -1, option: '30%/10% PRE' }, 'MONTANT_INVALIDE'));
   it('refuse une option qui n’existe pas', () => refuse(ALPTIS_PRO_PLUS, { option: '99%' }, 'OPTION_INCONNUE'));
-  it('refuse des frais au-delà de 100 %', () =>
-    refuse(RETRAITE_PLURIELLE, { frais: 3, variante: 'AVANCE_5_ANS' }, 'FRAIS_INVALIDES'));
+  it('refuse des frais au-delà de la borne du contrat', () =>
+    refuse(RETRAITE_PLURIELLE, { ...CAS_GRILLE, frais: 3, variante: 'AVANCE_5_ANS' }, 'FRAIS_INVALIDES'));
+  it('refuse un âge qui n’est pas un nombre entier', () =>
+    refuse(RETRAITE_PLURIELLE, { frais: 0.03, variante: 'AVANCE_5_ANS', partUc: 1, age: 45.5 }, 'AGE_MANQUANT'));
+  it('refuse une part en unités de compte supérieure à 100 %', () =>
+    refuse(RETRAITE_PLURIELLE, { frais: 0.03, variante: 'AVANCE_5_ANS', partUc: 1.2, age: 45 }, 'PART_UC_MANQUANTE'));
+  it('refuse des versements déjà en place négatifs', () =>
+    refuse(
+      RETRAITE_PLURIELLE,
+      { frais: 0.03, variante: 'AVANCE_5_ANS', partUc: 1, age: 45, versementsExistants: -1 },
+      'VERSEMENTS_INVALIDES',
+    ));
   it('refuse une durée d’escompte inconnue', () =>
-    refuse(RETRAITE_PLURIELLE, { frais: 0.03, variante: 'AVANCE_9_ANS' }, 'VARIANTE_INCONNUE'));
+    refuse(RETRAITE_PLURIELLE, { ...CAS_GRILLE, frais: 0.03, variante: 'AVANCE_9_ANS' }, 'VARIANTE_INCONNUE'));
   it('refuse une option de rémunération non prévue pour le contrat', () =>
-    refuse(EPARGNE_ACTIVE, { frais: 0.03, variante: 'AVANCE_5_ANS', remuneration: 'ACQUISITION_MAX' }, 'REMUNERATION_INCONNUE'));
+    refuse(EPARGNE_ACTIVE, { ...CAS_GRILLE, frais: 0.03, variante: 'AVANCE_5_ANS', remuneration: 'ACQUISITION_MAX' }, 'REMUNERATION_INCONNUE'));
   it('refuse un taux saisi hors des bornes du contrat', () =>
     refuse('ZEPHIR|PREVOYANCE|(contrat unique)', { taux: 0.9 }, 'TAUX_INVALIDE'));
   it('refuse un taux de réversion supérieur à 100 %', () =>

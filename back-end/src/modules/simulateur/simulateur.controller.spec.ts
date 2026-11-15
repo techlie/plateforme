@@ -27,7 +27,19 @@ describe('API du simulateur', () => {
   it('ne laisse sortir aucun taux interne du barème dans la liste des contrats', async () => {
     const reponse = await request(app.getHttpServer()).get('/api/simulateur/contrats').expect(200);
     const texte = JSON.stringify(reponse.body);
-    for (const champ of ['coefficient', 'surcommission', 'tauxMandataireReference', 'deductionFrais', 'partCabinet', 'ajout']) {
+    const internes = [
+      'coefficient',
+      'surcommission',
+      'tauxMandataireReference',
+      'deductionFrais',
+      'partCabinet',
+      'ajout',
+      'ponderationAge',
+      'partFixeIncluse',
+      'tauxUcAuDessus',
+      'source',
+    ];
+    for (const champ of internes) {
       expect(texte).not.toContain(`"${champ}"`);
     }
   });
@@ -44,13 +56,58 @@ describe('API du simulateur', () => {
   it('ne montre au mandataire ni la commission compagnie ni la part du cabinet', async () => {
     const reponse = await request(app.getHttpServer())
       .post('/api/simulateur/calcul')
-      .send({ cleContrat: 'ABEILLE|RETRAITE|RETRAITE PLURIELLE', montant: 6000, frais: 0.03, variante: 'AVANCE_5_ANS' })
+      .send({
+        cleContrat: 'ABEILLE|RETRAITE|RETRAITE PLURIELLE',
+        montant: 6000,
+        frais: 0.03,
+        variante: 'AVANCE_5_ANS',
+        age: 45,
+        partUc: 1,
+      })
       .expect(200);
     const champs = Object.keys(reponse.body);
     for (const interdit of ['montantCompagnie', 'montantCabinet', 'tauxCompagnie', 'tauxCabinet', 'tauxMandataire']) {
       expect(champs).not.toContain(interdit);
     }
     expect(reponse.body.lignes.map((l: { code: string }) => l.code)).toEqual(['BASE', 'SURCOMMISSION']);
+  });
+
+  it('indique à l’écran les contrats qui demandent l’âge, la part en unités de compte et le plafond', async () => {
+    const reponse = await request(app.getHttpServer()).get('/api/simulateur/contrats').expect(200);
+    const trouver = (cle: string) => reponse.body.contrats.find((c: { cle: string }) => c.cle === cle);
+    const abeille = trouver('ABEILLE|RETRAITE|RETRAITE PLURIELLE');
+    expect([abeille.demandeAge, abeille.demandePartUc, abeille.plafondAnnuel]).toEqual([true, true, 24000]);
+    const swissLife = trouver('SWISSLIFE|RETRAITE|PER INDIVIDUEL');
+    expect([swissLife.demandeAge, swissLife.demandePartUc]).toEqual([false, true]);
+    const generali = trouver('GENERALI|RETRAITE|GENERALI RETRAITE PRO');
+    expect([generali.demandeAge, generali.demandePartUc]).toEqual([true, false]);
+    const alptis = trouver('ALPTIS|PREVOYANCE|PREVOYANCE_PRO_PLUS');
+    expect([alptis.demandeAge, alptis.demandePartUc]).toEqual([false, false]);
+  });
+
+  it('applique le plafond Abeille et prévient le mandataire', async () => {
+    const reponse = await request(app.getHttpServer())
+      .post('/api/simulateur/calcul')
+      .send({
+        cleContrat: 'ABEILLE|RETRAITE|RETRAITE PLURIELLE',
+        montant: 36000,
+        frais: 0.03,
+        variante: 'AVANCE_5_ANS',
+        remuneration: 'ENCOURS_MAX',
+        age: 45,
+        partUc: 1,
+      })
+      .expect(200);
+    expect(reponse.body.montant).toBe(7880.78); // 70 % de 11 258,25 €
+    expect(reponse.body.avertissements.map((a: { code: string }) => a.code)).toEqual(['PLAFOND_SURCOMMISSION']);
+  });
+
+  it('demande l’âge quand le contrat en dépend', async () => {
+    const reponse = await request(app.getHttpServer())
+      .post('/api/simulateur/calcul')
+      .send({ cleContrat: 'GENERALI|RETRAITE|GENERALI RETRAITE PRO', montant: 6000, option: '2,95 %' })
+      .expect(400);
+    expect(reponse.body.code).toBe('AGE_MANQUANT');
   });
 
   it('refuse que l’écran impose un taux de réversion', async () => {

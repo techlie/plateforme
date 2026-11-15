@@ -89,6 +89,11 @@ mandataires », pas le thème du socle.
 
 ## 6. Façon de travailler
 
+- Une décision du cabinet s'inscrit d'abord dans `docs/decisions.md`, avec sa date,
+  puis se code. Avant de construire un module, relire ce registre en entier : une
+  décision déjà prise ne se redemande pas et ne se laisse pas de côté.
+- Une formule de protocole incertaine ne bloque pas une décision : on applique la
+  lecture la plus naturelle, on la marque `aConfirmer`, on l'affiche.
 - `main` est la version en service. Tout travail se fait sur une branche.
 - Rien n'est fusionné dans `main` si un test échoue.
 - Un message d'enregistrement dit ce qui change et pourquoi, en français.

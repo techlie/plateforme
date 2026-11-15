@@ -52,6 +52,40 @@
           }
         </div>
 
+        @if (c.demandePartUc || c.demandeAge) {
+          <div class="deux">
+            @if (c.demandePartUc) {
+              <div class="champ">
+                <label class="champ__libelle" for="part-uc">Part en unités de compte</label>
+                <div class="champ__zone">
+                  <input id="part-uc" class="champ__saisie" type="text" inputmode="decimal" autocomplete="off" placeholder="0" [value]="partUc()" (input)="saisir('partUc', $event)" />
+                  <span class="champ__unite" aria-hidden="true">%</span>
+                </div>
+              </div>
+            }
+            @if (c.demandeAge) {
+              <div class="champ">
+                <label class="champ__libelle" for="age">Âge de l’assuré</label>
+                <div class="champ__zone">
+                  <input id="age" class="champ__saisie" type="text" inputmode="numeric" autocomplete="off" placeholder="0" [value]="age()" (input)="saisir('age', $event)" />
+                  <span class="champ__unite" aria-hidden="true">ans</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (c.plafondAnnuel) {
+          <div class="champ">
+            <label class="champ__libelle" for="deja-verse">Déjà versé par an sur ce type de contrat</label>
+            <div class="champ__zone">
+              <input id="deja-verse" class="champ__saisie" type="text" inputmode="decimal" autocomplete="off" placeholder="0" [value]="dejaVerse()" (input)="saisir('dejaVerse', $event)" aria-describedby="deja-verse-aide" />
+              <span class="champ__unite" aria-hidden="true">€</span>
+            </div>
+            <p class="champ__aide" id="deja-verse-aide">Par ce client, chez {{ c.compagnie }}. La surcommission est versée jusqu’à {{ plafondMensuel() }} par mois, par client et par type de contrat.</p>
+          </div>
+        }
+
         @if (c.saisie === 'LISTE') {
           @if (optionsEnListe()) {
             <div class="champ">
@@ -162,6 +196,17 @@
           </div>
         }
       }
+
+      <dl class="reperes">
+        <div>
+          <dt>Quand</dt>
+          <dd>Sur le bordereau du mois où la compagnie a validé le contrat et où le devoir de conseil est signé.</dd>
+        </div>
+        <div>
+          <dt>Si le contrat s’arrête</dt>
+          <dd>La compagnie peut reprendre sa commission. La reprise vous est alors répercutée au prorata de ce que vous avez reçu.</dd>
+        </div>
+      </dl>
 
       <p class="mention">Estimation. Le montant définitif est celui que la compagnie verse au cabinet pour ce contrat.</p>
     </section>

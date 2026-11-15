@@ -56,13 +56,19 @@ Fait :
   combinaisons du barème ;
 - l'écran, en clair et en sombre, utilisable sur téléphone.
 
+Règles du cabinet appliquées, en plus de la grille : surcommission Abeille sur la
+part réelle en unités de compte, baisse selon l'âge de l'assuré (Abeille, Generali,
+Cardif), plafond Abeille de 2 000 € par mois par client et par type de contrat, bonus
+Swiss Life sur la seule part en unités de compte. Le détail, décision par décision,
+est dans [`docs/decisions.md`](docs/decisions.md).
+
 Manque :
 
-- la connexion : le taux de réversion est pour l'instant celui de référence (70 %) ;
+- la connexion : le taux de reversement est pour l'instant celui de référence (70 %) ;
   il viendra de la fiche de chaque mandataire ;
-- les points marqués « à confirmer » dans le référentiel, à trancher avec le cabinet ;
-- la surcommission Abeille selon la part en unités de compte, l'âge et le plafond ;
-- le moment du paiement et les règles de reprise, contrat par contrat ;
+- les lectures de protocole marquées « à confirmer » dans le référentiel ;
+- le cumul automatique du plafond Abeille entre les contrats d'un même client, qui
+  viendra avec le module Affaires (il se saisit à la main pour l'instant) ;
 - le référentiel en base de données, modifiable par un administrateur.
 
 ## Règles du dépôt

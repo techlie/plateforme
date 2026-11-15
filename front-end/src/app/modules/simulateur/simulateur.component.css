@@ -142,6 +142,33 @@ h1 {
   line-height: 1.5;
 }
 
+.reperes {
+  margin: 0;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reperes dt {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+
+.reperes dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.reserves {
+  border: 1px dashed var(--bord-fort);
+  background: transparent;
+}
+
 .mention {
   font-size: 13px;
   line-height: 1.55;

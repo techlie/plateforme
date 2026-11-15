@@ -42,6 +42,9 @@ export class SimulateurComponent {
   readonly montant = signal('');
   readonly frais = signal('');
   readonly taux = signal('');
+  readonly age = signal('');
+  readonly partUc = signal('100');
+  readonly dejaVerse = signal('');
   readonly option = signal<string | null>(null);
   readonly variante = signal<string | null>(null);
   readonly remuneration = signal<string | null>(null);
@@ -53,6 +56,11 @@ export class SimulateurComponent {
   readonly parMois = computed(() => {
     const montant = lireNombre(this.montant());
     return this.contrat()?.base === 'VERSEMENT_ANNUEL' && montant ? formaterEuros(montant / 12) : null;
+  });
+
+  readonly plafondMensuel = computed(() => {
+    const plafond = this.contrat()?.plafondAnnuel;
+    return plafond ? formaterEuros(plafond / 12).replace(',00', '') : null;
   });
 
   readonly bornesTaux = computed(() => {
@@ -83,10 +91,35 @@ export class SimulateurComponent {
     }
     if (contrat.saisie === 'FRAIS_LIBRES') {
       const frais = lirePourcent(this.frais());
-      if (frais === null || this.frais().trim() === '' || frais > 1) {
+      if (frais === null || this.frais().trim() === '') {
         return { manque: 'Indiquez les frais sur versements.' };
       }
+      const max = contrat.fraisMax ?? 1;
+      if (frais > max) {
+        return { manque: `Les frais de ce contrat vont de 0 à ${ecrirePourcent(max)} %.` };
+      }
       demande.frais = frais;
+    }
+    if (contrat.demandePartUc) {
+      const partUc = lirePourcent(this.partUc());
+      if (partUc === null || this.partUc().trim() === '' || partUc > 1) {
+        return { manque: 'Indiquez la part investie en unités de compte, entre 0 et 100 %.' };
+      }
+      demande.partUc = partUc;
+    }
+    if (contrat.demandeAge) {
+      const age = lireNombre(this.age());
+      if (age === null || this.age().trim() === '' || !Number.isInteger(age) || age > 120) {
+        return { manque: 'Indiquez l’âge de l’assuré.' };
+      }
+      demande.age = age;
+    }
+    if (contrat.plafondAnnuel && this.dejaVerse().trim() !== '') {
+      const dejaVerse = lireNombre(this.dejaVerse());
+      if (dejaVerse === null) {
+        return { manque: 'Indiquez en euros les versements déjà en place, ou laissez le champ vide.' };
+      }
+      demande.versementsExistants = Math.round(dejaVerse * 100) / 100;
     }
     if (contrat.saisie === 'TAUX_MANUEL') {
       const taux = lirePourcent(this.taux());
@@ -186,6 +219,7 @@ export class SimulateurComponent {
     this.option.set(contrat.saisie === 'LISTE' ? (contrat.options[0]?.code ?? null) : null);
     this.remuneration.set(contrat.remunerationParDefaut ?? null);
     this.taux.set('');
+    this.dejaVerse.set('');
     this.frais.set(contrat.fraisParDefaut !== undefined ? ecrirePourcent(contrat.fraisParDefaut) : '');
     if (contrat.saisie === 'SEUIL') {
       this.variante.set(null);
@@ -195,7 +229,7 @@ export class SimulateurComponent {
     }
   }
 
-  saisir(cible: 'montant' | 'frais' | 'taux', evenement: Event): void {
+  saisir(cible: 'montant' | 'frais' | 'taux' | 'age' | 'partUc' | 'dejaVerse', evenement: Event): void {
     this[cible].set((evenement.target as HTMLInputElement).value);
   }
 

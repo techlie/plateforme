@@ -25,6 +25,13 @@ export interface ContratSimulateur {
   remunerations: ChoixSimulateur[];
   remunerationParDefaut?: string;
   fraisParDefaut?: number;
+  fraisMax?: number;
+  /** Vrai si la commission dépend de l'âge de l'assuré. */
+  demandeAge: boolean;
+  /** Vrai si la commission dépend de la part investie en unités de compte. */
+  demandePartUc: boolean;
+  /** Versements annuels au-delà desquels la surcommission n'est plus versée, par client et par type de contrat. */
+  plafondAnnuel?: number;
   tauxMin?: number;
   tauxMax?: number;
   seuilMontant?: number;

@@ -39,6 +39,10 @@ export class SimulateurService {
         remunerations: (c.remunerations ?? []).map((r) => ({ code: r.code, libelle: r.libelle })),
         remunerationParDefaut: c.remunerationParDefaut,
         fraisParDefaut: c.fraisParDefaut,
+        fraisMax: c.fraisMax,
+        demandeAge: !!c.ponderationAge,
+        demandePartUc: !!c.surcommission,
+        plafondAnnuel: c.plafondSurcommission?.montantAnnuel,
         tauxMin: c.tauxMin,
         tauxMax: c.tauxMax,
         seuilMontant: c.seuilMontant,
@@ -63,6 +67,9 @@ export class SimulateurService {
         taux: demande.taux,
         variante: demande.variante,
         remuneration: demande.remuneration,
+        age: demande.age,
+        partUc: demande.partUc,
+        versementsExistants: demande.versementsExistants,
         tauxReversion: referentiel.tauxReversionReference,
       });
       // Vue mandataire : ni la commission versée par la compagnie, ni la part du cabinet.

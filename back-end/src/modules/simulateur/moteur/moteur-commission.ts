@@ -1,4 +1,4 @@
-import { ContratReferentiel, Referentiel } from './referentiel.types';
+import { ContratReferentiel, PonderationAge, Referentiel } from './referentiel.types';
 
 /**
  * Moteur de calcul des commissions.
@@ -20,6 +20,12 @@ export interface DemandeCalcul {
   variante?: string;
   /** Code de l'option de rémunération (mode ESCOMPTE). */
   remuneration?: string;
+  /** Âge de l'assuré, en années révolues. Exigé quand le contrat a une pondération d'âge. */
+  age?: number;
+  /** Part des versements investie en unités de compte, en décimal. Exigée quand la commission en dépend. */
+  partUc?: number;
+  /** Versements annuels déjà en place pour ce client sur le même type de contrat, en euros. */
+  versementsExistants?: number;
   /** Part de la commission du cabinet reversée au mandataire, en décimal. */
   tauxReversion: number;
 }
@@ -83,6 +89,14 @@ export function trouverContrat(referentiel: Referentiel, cle: string): ContratRe
   return contrat;
 }
 
+function formaterPourcent(taux: number): string {
+  return `${(Math.round(taux * 10000) / 100).toLocaleString('fr-FR')} %`;
+}
+
+function formaterEuros(montant: number): string {
+  return `${Math.round(montant).toLocaleString('fr-FR')} €`;
+}
+
 function exigerTaux(valeur: number | undefined, code: string, message: string, min = 0, max = 1): number {
   if (valeur === undefined || valeur === null || !Number.isFinite(valeur) || valeur < min || valeur > max) {
     throw new ErreurCalcul(code, message);
@@ -90,13 +104,99 @@ function exigerTaux(valeur: number | undefined, code: string, message: string, m
   return valeur;
 }
 
+function exigerFrais(contrat: ContratReferentiel, demande: DemandeCalcul): number {
+  const max = contrat.fraisMax ?? 1;
+  return exigerTaux(demande.frais, 'FRAIS_INVALIDES', `Indiquez les frais, entre 0 et ${formaterPourcent(max)}.`, 0, max);
+}
+
+function exigerAge(demande: DemandeCalcul): number {
+  const age = demande.age;
+  if (age === undefined || age === null || !Number.isInteger(age) || age < 0 || age > 120) {
+    throw new ErreurCalcul('AGE_MANQUANT', "Indiquez l'âge de l'assuré.");
+  }
+  return age;
+}
+
+/** Coefficient d'âge entre 0 et 1. Vaut exactement 1 tant que l'âge de début n'est pas dépassé. */
+export function coefficientAge(regle: PonderationAge, age: number): number {
+  if (age <= regle.ageDebut) {
+    return 1;
+  }
+  if (age >= regle.ageFin) {
+    return 0;
+  }
+  return Math.min(1, Math.max(0, (regle.ageReference - age) / regle.diviseur));
+}
+
 interface TauxCompagnie {
   /** Taux hors surcommission. */
   base: number;
   surcommission: number;
+  libelleSurcommission?: string;
   varianteRetenue?: string;
   remunerationRetenue?: string;
   avertissements: Avertissement[];
+}
+
+/**
+ * Surcommission versée par la compagnie, rapportée au montant de l'affaire.
+ * Elle dépend de la part en unités de compte, puis de l'âge de l'assuré, puis du plafond de versement.
+ */
+function surcommissionCompagnie(contrat: ContratReferentiel, demande: DemandeCalcul, avertissements: Avertissement[]): number {
+  const regle = contrat.surcommission;
+  if (!regle) {
+    return 0;
+  }
+  const partUc = exigerTaux(
+    demande.partUc,
+    'PART_UC_MANQUANTE',
+    'Indiquez la part investie en unités de compte, entre 0 et 100 %.',
+  );
+  const auDessus = partUc > regle.seuilPartUc;
+  let taux = auDessus
+    ? partUc * regle.tauxUcAuDessus + (1 - partUc) * regle.tauxEuroAuDessus
+    : partUc * regle.tauxUcEnDessous + (1 - partUc) * regle.tauxEuroEnDessous;
+  const nom = regle.libelle.toLowerCase();
+  if (!auDessus && regle.tauxUcEnDessous < regle.tauxUcAuDessus) {
+    avertissements.push({
+      code: 'PART_UC_SOUS_SEUIL',
+      message: `Part en unités de compte de ${formaterPourcent(regle.seuilPartUc)} ou moins : la ${nom} est réduite.`,
+    });
+  }
+
+  if (contrat.ponderationAge) {
+    const age = exigerAge(demande);
+    const coefficient = coefficientAge(contrat.ponderationAge, age);
+    if (coefficient === 0) {
+      avertissements.push({
+        code: 'AGE_SANS_SURCOMMISSION',
+        message: `Assuré de ${contrat.ponderationAge.ageFin} ans ou plus : pas de ${nom}.`,
+      });
+    } else if (coefficient < 1) {
+      avertissements.push({
+        code: 'AGE_SURCOMMISSION_REDUITE',
+        message: `Assuré de plus de ${contrat.ponderationAge.ageDebut} ans : la ${nom} est réduite.`,
+      });
+    }
+    taux *= coefficient;
+  }
+
+  if (contrat.plafondSurcommission && demande.montant > 0) {
+    const existants = demande.versementsExistants ?? 0;
+    if (!Number.isFinite(existants) || existants < 0) {
+      throw new ErreurCalcul('VERSEMENTS_INVALIDES', 'Indiquez un montant positif pour les versements déjà en place.');
+    }
+    const plafond = contrat.plafondSurcommission.montantAnnuel;
+    const assiette = Math.max(0, Math.min(demande.montant, plafond - existants));
+    if (assiette < demande.montant) {
+      avertissements.push({
+        code: 'PLAFOND_SURCOMMISSION',
+        message: `Au-delà de ${formaterEuros(plafond / 12)} par mois, par client et par type de contrat, la ${nom} n'est plus versée.`,
+      });
+      taux *= assiette / demande.montant;
+    }
+  }
+  return taux;
 }
 
 function tauxModeTaux(contrat: ContratReferentiel, demande: DemandeCalcul): TauxCompagnie {
@@ -111,7 +211,7 @@ function tauxModeTaux(contrat: ContratReferentiel, demande: DemandeCalcul): Taux
     }
     taux = option.taux;
   } else if (contrat.saisie === 'FRAIS_LIBRES') {
-    taux = exigerTaux(demande.frais, 'FRAIS_INVALIDES', 'Indiquez les frais, entre 0 et 100 %.');
+    taux = exigerFrais(contrat, demande);
   } else {
     const min = contrat.tauxMin ?? 0;
     const max = contrat.tauxMax ?? 1;
@@ -130,14 +230,19 @@ function tauxModeTaux(contrat: ContratReferentiel, demande: DemandeCalcul): Taux
     base = 0;
     avertissements.push({
       code: 'FRAIS_SOUS_MINIMUM',
-      message: 'Avec ces frais, la compagnie ne verse pas de commission sur ce contrat.',
+      message: `Frais inférieurs à ${formaterPourcent(-ajout)} : pas de commission de base.`,
     });
   }
-  return { base, surcommission: 0, avertissements };
+  return {
+    base,
+    surcommission: surcommissionCompagnie(contrat, demande, avertissements),
+    libelleSurcommission: contrat.surcommission?.libelle,
+    avertissements,
+  };
 }
 
 function tauxModeEscompte(contrat: ContratReferentiel, demande: DemandeCalcul): TauxCompagnie {
-  const frais = exigerTaux(demande.frais, 'FRAIS_INVALIDES', 'Indiquez les frais, entre 0 et 100 %.');
+  const frais = exigerFrais(contrat, demande);
   const variante = (contrat.variantes ?? []).find((v) => v.code === demande.variante);
   if (!variante || variante.coefficient === undefined) {
     throw new ErreurCalcul('VARIANTE_INCONNUE', "Choisissez une durée d'escompte prévue pour ce contrat.");
@@ -158,7 +263,8 @@ function tauxModeEscompte(contrat: ContratReferentiel, demande: DemandeCalcul): 
   }
   return {
     base: Math.max(fraisRetenus, 0) * variante.coefficient,
-    surcommission: contrat.surcommission ?? 0,
+    surcommission: surcommissionCompagnie(contrat, demande, avertissements),
+    libelleSurcommission: contrat.surcommission?.libelle,
     varianteRetenue: variante.code,
     remunerationRetenue: remuneration.code,
     avertissements,
@@ -181,8 +287,44 @@ function tauxModeSeuil(contrat: ContratReferentiel, demande: DemandeCalcul, base
   return { base: variante.taux, surcommission: 0, varianteRetenue: variante.code, avertissements: [] };
 }
 
-function formaterPourcent(taux: number): string {
-  return `${(Math.round(taux * 10000) / 100).toLocaleString('fr-FR')} %`;
+/**
+ * Barème relevé dans la grille : il donne le taux payé au mandataire pour le taux de réversion de référence.
+ * Quand le contrat a une pondération d'âge, elle porte sur l'escompte, pas sur la part fixe (rappel, bonus).
+ */
+function tauxModeBareme(referentiel: Referentiel, contrat: ContratReferentiel, demande: DemandeCalcul): TauxCompagnie {
+  const option = (contrat.options ?? []).find((o) => o.code === demande.option);
+  if (!option || option.tauxMandataireReference === undefined) {
+    throw new ErreurCalcul('OPTION_INCONNUE', 'Choisissez un niveau de frais prévu pour ce contrat.');
+  }
+  const plein = option.tauxMandataireReference / referentiel.tauxReversionReference / referentiel.partCabinet;
+  const avertissements: Avertissement[] = [];
+  const regle = contrat.ponderationAge;
+  if (!regle) {
+    return { base: plein, surcommission: 0, avertissements };
+  }
+
+  const age = exigerAge(demande);
+  if (age <= regle.ageDebut) {
+    return { base: plein, surcommission: 0, avertissements };
+  }
+  const partFixe = contrat.partFixeIncluse?.taux ?? 0;
+  const escompte = Math.max(plein - partFixe, 0);
+  if (age >= regle.ageFin) {
+    const apres = regle.tauxApresAgeFin ?? 0;
+    avertissements.push({
+      code: 'AGE_ESCOMPTE_REMPLACE',
+      message:
+        apres > 0
+          ? `Assuré de ${regle.ageFin} ans ou plus : la compagnie verse ${formaterPourcent(apres)} par an au lieu de l'escompte.`
+          : `Assuré de ${regle.ageFin} ans ou plus : la compagnie ne verse plus l'escompte.`,
+    });
+    return { base: Math.min(apres, escompte) + partFixe, surcommission: 0, avertissements };
+  }
+  avertissements.push({
+    code: 'AGE_ESCOMPTE_REDUIT',
+    message: `Assuré de plus de ${regle.ageDebut} ans : l'escompte versé par la compagnie est réduit.`,
+  });
+  return { base: escompte * coefficientAge(regle, age) + partFixe, surcommission: 0, avertissements };
 }
 
 /**
@@ -200,39 +342,25 @@ export function calculerCommission(referentiel: Referentiel, cleContrat: string,
 
   const baseCalcul = contrat.horsTaxe ? demande.montant * referentiel.coefficientHorsTaxe : demande.montant;
 
-  let tauxCompagnie: number;
-  let tauxCabinet: number;
-  let tauxMandataire: number;
-  let partBase = 1;
   let detail: TauxCompagnie;
-
   if (contrat.mode === 'BAREME') {
-    const option = (contrat.options ?? []).find((o) => o.code === demande.option);
-    if (!option || option.tauxMandataireReference === undefined) {
-      throw new ErreurCalcul('OPTION_INCONNUE', 'Choisissez un niveau de frais prévu pour ce contrat.');
-    }
-    // Le barème donne le taux payé au mandataire pour le taux de réversion de référence.
-    tauxCabinet = option.tauxMandataireReference / referentiel.tauxReversionReference;
-    tauxCompagnie = tauxCabinet / referentiel.partCabinet;
-    tauxMandataire = tauxCabinet * reversion;
-    detail = { base: tauxCompagnie, surcommission: 0, avertissements: [] };
+    detail = tauxModeBareme(referentiel, contrat, demande);
+  } else if (contrat.mode === 'ESCOMPTE') {
+    detail = tauxModeEscompte(contrat, demande);
+  } else if (contrat.mode === 'SEUIL') {
+    detail = tauxModeSeuil(contrat, demande, baseCalcul);
   } else {
-    if (contrat.mode === 'ESCOMPTE') {
-      detail = tauxModeEscompte(contrat, demande);
-    } else if (contrat.mode === 'SEUIL') {
-      detail = tauxModeSeuil(contrat, demande, baseCalcul);
-    } else {
-      detail = tauxModeTaux(contrat, demande);
-    }
-    tauxCompagnie = detail.base + detail.surcommission;
-    tauxCabinet = tauxCompagnie * referentiel.partCabinet;
-    tauxMandataire = tauxCabinet * reversion;
-    partBase = tauxCompagnie > 0 ? detail.base / tauxCompagnie : 1;
+    detail = tauxModeTaux(contrat, demande);
   }
+
+  const tauxCompagnie = detail.base + detail.surcommission;
+  const tauxCabinet = tauxCompagnie * referentiel.partCabinet;
+  const tauxMandataire = tauxCabinet * reversion;
+  const partBase = tauxCompagnie > 0 ? detail.base / tauxCompagnie : 1;
 
   const montantMandataire = arrondirAuCentime(baseCalcul * tauxMandataire);
   const composantes: Composante[] = [];
-  if (detail.surcommission > 0) {
+  if (detail.libelleSurcommission) {
     // La dernière composante absorbe l'arrondi : le total reste exact au centime.
     const montantBase = arrondirAuCentime(baseCalcul * tauxMandataire * partBase);
     composantes.push({
@@ -243,7 +371,7 @@ export function calculerCommission(referentiel: Referentiel, cleContrat: string,
     });
     composantes.push({
       code: 'SURCOMMISSION',
-      libelle: 'Surcommission',
+      libelle: detail.libelleSurcommission,
       taux: tauxMandataire * (1 - partBase),
       montant: arrondirAuCentime(montantMandataire - montantBase),
     });
