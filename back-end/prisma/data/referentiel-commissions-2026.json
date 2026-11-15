@@ -6,6 +6,11 @@
   "partCabinet": 0.85,
   "coefficientHorsTaxe": 0.87,
   "tauxReversionReference": 0.7,
+  "coCourtage": {
+    "tauxParDefaut": 0.3,
+    "tauxMax": 0.5,
+    "source": "Conventions de co-courtage avec un cabinet d'expertise comptable : part exprimée sur la commission brute versée par la compagnie, avant la retenue du courtier grossiste. Le mandataire reçoit ensuite son taux de reversement sur ce qui reste au cabinet."
+  },
   "contrats": [
     {
       "cle": "ACPS|MUTUELLE|ACPS_SANTE_INDIVIDUELS",
@@ -40,7 +45,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ACPS|MUTUELLE|ACPS_SANTE_SENIORS",
@@ -75,7 +85,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ACPS|MUTUELLE|ACPS_SANTE_SENIORS_PLUS",
@@ -110,7 +125,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ACPS|MUTUELLE|ACPS_TNS_SANTE",
@@ -145,7 +165,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ABEILLE|ASSURANCE VIE|EPARGNE ACTIVE",
@@ -217,7 +242,23 @@
           "deductionFrais": 0.005
         }
       ],
-      "remunerationParDefaut": "ENCOURS_MAX"
+      "remunerationParDefaut": "ENCOURS_MAX",
+      "reprise": {
+        "type": "ESCOMPTE_ET_SURCOMMISSION",
+        "resume": "Commission de base : si le contrat s'arrête pendant la durée d'escompte, la compagnie reprend la part qui correspond aux versements non faits. Surcommission : reprise de 100 % la 1re année, 90 % la 2e, 80 % la 3e et 70 % la 4e ; au-delà de 1 500 € de versement par mois, encore 60 % la 5e année.",
+        "calcul": "Base reprise = commission de base × mois non versés ÷ mois de la durée d'escompte. Surcommission reprise = surcommission × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.9,
+          0.8,
+          0.7
+        ],
+        "annee5": {
+          "seuilMensuel": 1500,
+          "taux": 0.6
+        },
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Abeille"
+      }
     },
     {
       "cle": "ABEILLE|PREVOYANCE|GARANTIE_EMPRUNTEUR_ABEILLE",
@@ -246,7 +287,16 @@
           "libelle": "1 700 € par an ou plus",
           "taux": 0.85
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PRORATA_PREMIERE_ANNEE",
+        "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
+        "calcul": "Reprise = commission × mois non payés ÷ 12.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+        ]
+      }
     },
     {
       "cle": "ABEILLE|PREVOYANCE|PROFIL_CLE_ASSOCIES",
@@ -275,7 +325,16 @@
           "libelle": "1 700 € par an ou plus",
           "taux": 0.85
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PRORATA_PREMIERE_ANNEE",
+        "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
+        "calcul": "Reprise = commission × mois non payés ÷ 12.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+        ]
+      }
     },
     {
       "cle": "ABEILLE|PREVOYANCE|SENSEO_AGRICOLE",
@@ -304,7 +363,16 @@
           "libelle": "1 700 € par an ou plus",
           "taux": 0.65
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PRORATA_PREMIERE_ANNEE",
+        "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
+        "calcul": "Reprise = commission × mois non payés ÷ 12.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+        ]
+      }
     },
     {
       "cle": "ABEILLE|PREVOYANCE|SENSEO_LIBERAL",
@@ -333,7 +401,16 @@
           "libelle": "1 700 € par an ou plus",
           "taux": 0.85
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PRORATA_PREMIERE_ANNEE",
+        "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
+        "calcul": "Reprise = commission × mois non payés ÷ 12.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+        ]
+      }
     },
     {
       "cle": "ABEILLE|PREVOYANCE|SENSEO_MEDICAL_INF_KINE",
@@ -362,7 +439,16 @@
           "libelle": "1 700 € par an ou plus",
           "taux": 0.35
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PRORATA_PREMIERE_ANNEE",
+        "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
+        "calcul": "Reprise = commission × mois non payés ÷ 12.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+        ]
+      }
     },
     {
       "cle": "ABEILLE|PREVOYANCE|SENSEO_MEDICAL_MEDECIN",
@@ -391,7 +477,16 @@
           "libelle": "1 700 € par an ou plus",
           "taux": 0.9
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PRORATA_PREMIERE_ANNEE",
+        "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
+        "calcul": "Reprise = commission × mois non payés ÷ 12.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+        ]
+      }
     },
     {
       "cle": "ABEILLE|PREVOYANCE|SENSEO_MEDICAL_HORS_INF_KINE_MEDECIN",
@@ -420,7 +515,16 @@
           "libelle": "1 700 € par an ou plus",
           "taux": 0.85
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PRORATA_PREMIERE_ANNEE",
+        "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
+        "calcul": "Reprise = commission × mois non payés ÷ 12.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+        ]
+      }
     },
     {
       "cle": "ABEILLE|PREVOYANCE|SENSEO_PREVOYANCE",
@@ -449,7 +553,16 @@
           "libelle": "1 700 € par an ou plus",
           "taux": 0.75
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PRORATA_PREMIERE_ANNEE",
+        "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
+        "calcul": "Reprise = commission × mois non payés ÷ 12.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+        ]
+      }
     },
     {
       "cle": "ABEILLE|PREVOYANCE|SOLUTION_PREVOYANCE_PRO",
@@ -478,7 +591,16 @@
           "libelle": "1 700 € par an ou plus",
           "taux": 0.6
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PRORATA_PREMIERE_ANNEE",
+        "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
+        "calcul": "Reprise = commission × mois non payés ÷ 12.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+        ]
+      }
     },
     {
       "cle": "ABEILLE|RETRAITE|RETRAITE PLURIELLE",
@@ -555,7 +677,23 @@
           "deductionFrais": 0.005
         }
       ],
-      "remunerationParDefaut": "ACQUISITION_MAX"
+      "remunerationParDefaut": "ACQUISITION_MAX",
+      "reprise": {
+        "type": "ESCOMPTE_ET_SURCOMMISSION",
+        "resume": "Commission de base : si le contrat s'arrête pendant la durée d'escompte, la compagnie reprend la part qui correspond aux versements non faits. Surcommission : reprise de 100 % la 1re année, 90 % la 2e, 80 % la 3e et 70 % la 4e ; au-delà de 1 500 € de versement par mois, encore 60 % la 5e année.",
+        "calcul": "Base reprise = commission de base × mois non versés ÷ mois de la durée d'escompte. Surcommission reprise = surcommission × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.9,
+          0.8,
+          0.7
+        ],
+        "annee5": {
+          "seuilMensuel": 1500,
+          "taux": 0.6
+        },
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Abeille"
+      }
     },
     {
       "cle": "ABEILLE|TRANSFERTS/PU/VL|RP/EA",
@@ -591,6 +729,18 @@
         "ageReference": 67,
         "diviseur": 10,
         "source": "Protocole Abeille : au-delà de 57 ans, les surcommissions diminuent jusqu'à 66 ans, de manière proratisée ; 0 % à partir de 67 ans."
+      },
+      "reprise": {
+        "type": "SURCOMMISSION_PAR_ANNEE",
+        "resume": "Pas de reprise sur la commission de base. La surcommission peut être reprise pendant 4 ans, seulement en cas de rachat d'au moins 30 000 € sur un versement à frais de 1,5 % ou moins : 100 % la 1re année, 90 % la 2e, 80 % la 3e, 70 % la 4e.",
+        "calcul": "Surcommission reprise = surcommission × taux de l'année du rachat.",
+        "tauxParAnnee": [
+          1.0,
+          0.9,
+          0.8,
+          0.7
+        ],
+        "source": "Protocole Sofraco Épargne 2026, édition de juin 2026, Abeille"
       }
     },
     {
@@ -642,7 +792,12 @@
           "taux": 0.05,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_DYNAMIQUE_LE_6ANS",
@@ -677,7 +832,12 @@
           "taux": 0.05,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_IRIADE_MNCAP_MAESTRO_CNP_GT_10ANS",
@@ -728,7 +888,12 @@
           "taux": 0.05,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_IRIADE_MNCAP_MAESTRO_CNP_LE_10ANS",
@@ -763,7 +928,12 @@
           "taux": 0.05,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_6_11ANS_LINEAIRE",
@@ -954,7 +1124,12 @@
           "taux": 0.28,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_6_11ANS_PRECOMPTE",
@@ -972,7 +1147,12 @@
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.18,
       "tauxMax": 0.48,
-      "aide": "Indication de la compagnie : 18 à 48 % (année 1) / 0 à 23 % (années suivantes)."
+      "aide": "Indication de la compagnie : 18 à 48 % (année 1) / 0 à 23 % (années suivantes).",
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_GE_11ANS_LINEAIRE",
@@ -1163,7 +1343,12 @@
           "taux": 0.28,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_GE_11ANS_PRECOMPTE",
@@ -1181,7 +1366,12 @@
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.18,
       "tauxMax": 0.48,
-      "aide": "Indication de la compagnie : 18 à 48 % (année 1) / 1 à 24 % (années suivantes)."
+      "aide": "Indication de la compagnie : 18 à 48 % (année 1) / 1 à 24 % (années suivantes).",
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_LE_6ANS",
@@ -1372,7 +1562,12 @@
           "taux": 0.28,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|MUTUELLE|ALPTIS_LUMINEIS",
@@ -1403,7 +1598,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|MUTUELLE|ALPTIS_LUMINEIS_PACK_POST",
@@ -1426,7 +1626,12 @@
           "taux": 0.1,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_FRONTALIERS",
@@ -1463,7 +1668,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_PRO_PLUS",
@@ -1526,7 +1736,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_PROTECT",
@@ -1555,7 +1770,12 @@
           "taux": 0.18,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_SELECT",
@@ -1714,7 +1934,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_EQUILIBRE",
@@ -1759,7 +1984,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|DECES_PLUS",
@@ -1790,7 +2020,17 @@
           "taux": 0.18,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|FRAIS_GENERAUX_PLUS",
@@ -1853,7 +2093,17 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|GARANTIE_DEPENDANCE_ALPTIS",
@@ -1886,7 +2136,17 @@
             0.05
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_GE_500K_REDUIT",
@@ -1917,7 +2177,17 @@
           "taux": 0.14,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_GE_500K_STANDARD",
@@ -1948,7 +2218,17 @@
           "taux": 0.18,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_LT_500K_GE_40_REDUIT",
@@ -1979,7 +2259,17 @@
           "taux": 0.14,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_LT_500K_GE_40_STANDARD",
@@ -2010,7 +2300,17 @@
           "taux": 0.18,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_LT_500K_LT_40",
@@ -2041,7 +2341,17 @@
           "taux": 0.18,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|PREVOYANCE_FRONTALIERS",
@@ -2066,7 +2376,17 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|PREVOYANCE_PRO_PLUS",
@@ -2129,7 +2449,17 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "ALPTIS|PREVOYANCE|SPI_V4",
@@ -2192,7 +2522,17 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Commission en précompte : reprise de 100 % de la commission d'apport si le contrat s'arrête la 1re année, de 50 % la 2e année, rien ensuite. La commission d'apport est la part versée en plus la 1re année : 20 % dans un précompte 30 % / 10 %.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année × taux de l'année d'arrêt.",
+        "tauxParAnnee": [
+          1.0,
+          0.5
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+      }
     },
     {
       "cle": "APIVIA|ASSURANCE PRÊT|APIVIA_EMPRUNTEUR_CHOIX_1",
@@ -2217,7 +2557,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|ASSURANCE PRÊT|APIVIA_EMPRUNTEUR_CHOIX_2",
@@ -2242,7 +2587,12 @@
             0.12
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|ASSURANCE PRÊT|APIVIA_EMPRUNTEUR_PERTE_EMPLOI",
@@ -2267,7 +2617,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|ASSURANCE PRÊT|APIVIA_EMPRUNTEUR_RISQUES_AGGRAVES",
@@ -2292,7 +2647,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|MUTUELLE|ACS_COULEUR_MUTUELLE",
@@ -2315,7 +2675,12 @@
           "taux": 0.05,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|MUTUELLE|APIVIA_VITAMIN",
@@ -2351,7 +2716,12 @@
             0.14
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|MUTUELLE|APIVIA_VITAMIN_HOSPI",
@@ -2387,7 +2757,12 @@
             0.14
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|MUTUELLE|APIVIA_VITAMIN_PRO",
@@ -2415,7 +2790,12 @@
             0.14
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|MUTUELLE|SANTE_PLUS_COLLECTIF_C1",
@@ -2438,7 +2818,12 @@
           "taux": 0.09,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|MUTUELLE|SANTE_PLUS_COLLECTIF_C2",
@@ -2464,7 +2849,12 @@
             0.05
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_DEPENDANCE_PP",
@@ -2489,7 +2879,12 @@
             0.15
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_DEPENDANCE_PU",
@@ -2512,7 +2907,12 @@
           "taux": 0.1,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_10ANS",
@@ -2537,7 +2937,12 @@
             0.08
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_15ANS",
@@ -2562,7 +2967,12 @@
             0.08
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_25ANS",
@@ -2587,7 +2997,12 @@
             0.08
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_5ANS",
@@ -2612,7 +3027,12 @@
             0.08
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_VIAGERES",
@@ -2637,7 +3057,12 @@
             0.08
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_OBSEQUES",
@@ -2662,7 +3087,12 @@
             0.2
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_PREV_EMPRUNTEUR_CHOIX_1",
@@ -2687,7 +3117,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_PREV_EMPRUNTEUR_CHOIX_2",
@@ -2712,7 +3147,12 @@
             0.12
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_PREV_EMPRUNTEUR_PERTE_EMPLOI",
@@ -2737,7 +3177,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_PREV_EMPRUNTEUR_RISQUES_AGGRAVES",
@@ -2762,7 +3207,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_PREVOYANCE_INDEPENDANTS",
@@ -2787,7 +3237,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APIVIA|PREVOYANCE|APIVIA_TEMPO_DECES",
@@ -2812,7 +3267,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|ASSURANCE PRÊT|ESSENTIEL",
@@ -2901,7 +3361,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|ASSURANCE PRÊT|HORIZON",
@@ -2990,7 +3455,12 @@
             0.2
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|ASSURANCE PRÊT|INTEGRALE",
@@ -3079,7 +3549,12 @@
             0.2
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|ASSURANCE PRÊT|OPTIMUM_PLUS",
@@ -3168,7 +3643,12 @@
             0.2
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|ASSURANCE PRÊT|EQUILIBRE",
@@ -3241,7 +3721,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|MUTUELLE|SANTE_MODUL_COLL",
@@ -3322,7 +3807,12 @@
             0.04
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|MUTUELLE|SANTE_PARTICULIERS",
@@ -3355,7 +3845,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|MUTUELLE|SANTE_PRIVILEGE",
@@ -3404,7 +3899,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|MUTUELLE|SANTE_PRO",
@@ -3477,7 +3977,12 @@
             0.11
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|MUTUELLE|SANTE_SENIORS",
@@ -3510,7 +4015,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|MUTUELLE|SANTE_START",
@@ -3559,7 +4069,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|MUTUELLE|SANTE_TPE_COLL",
@@ -3608,7 +4123,12 @@
             0.05
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "APRIL|PREVOYANCE|ACCIDENT",
@@ -3649,7 +4169,18 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "EQUIVALENT_LINEAIRE",
+        "resume": "Pendant 2 ans, la compagnie reprend la différence entre la commission versée d'avance et celle qui aurait été due en linéaire sur les cotisations encaissées. Un précompte 30 % / 10 % équivaut à 14 % linéaire, un 40 % / 10 % à 16 %. Exemple du protocole : prime de 1 000 €, précompte 30 % / 10 %, arrêt au 12e mois : 300 € versés − 140 € acquis = 160 € repris.",
+        "calcul": "Reprise = commission versée − cotisations encaissées × taux linéaire équivalent.",
+        "dureeMois": 24,
+        "equivalentsLineaires": {
+          "30%/10%": 0.14,
+          "40%/10%": 0.16
+        },
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+      }
     },
     {
       "cle": "APRIL|PREVOYANCE|ASSOCIES_PCLE",
@@ -3690,7 +4221,18 @@
             0.15
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "EQUIVALENT_LINEAIRE",
+        "resume": "Pendant 2 ans, la compagnie reprend la différence entre la commission versée d'avance et celle qui aurait été due en linéaire sur les cotisations encaissées. Un précompte 30 % / 10 % équivaut à 14 % linéaire, un 40 % / 10 % à 16 %. Exemple du protocole : prime de 1 000 €, précompte 30 % / 10 %, arrêt au 12e mois : 300 € versés − 140 € acquis = 160 € repris.",
+        "calcul": "Reprise = commission versée − cotisations encaissées × taux linéaire équivalent.",
+        "dureeMois": 24,
+        "equivalentsLineaires": {
+          "30%/10%": 0.14,
+          "40%/10%": 0.16
+        },
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+      }
     },
     {
       "cle": "APRIL|PREVOYANCE|CHOMAGE_DIRIG",
@@ -3739,7 +4281,18 @@
             0.0
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "EQUIVALENT_LINEAIRE",
+        "resume": "Pendant 2 ans, la compagnie reprend la différence entre la commission versée d'avance et celle qui aurait été due en linéaire sur les cotisations encaissées. Un précompte 30 % / 10 % équivaut à 14 % linéaire, un 40 % / 10 % à 16 %. Exemple du protocole : prime de 1 000 €, précompte 30 % / 10 %, arrêt au 12e mois : 300 € versés − 140 € acquis = 160 € repris.",
+        "calcul": "Reprise = commission versée − cotisations encaissées × taux linéaire équivalent.",
+        "dureeMois": 24,
+        "equivalentsLineaires": {
+          "30%/10%": 0.14,
+          "40%/10%": 0.16
+        },
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+      }
     },
     {
       "cle": "APRIL|PREVOYANCE|FRAIS_GEN_PERM",
@@ -3780,7 +4333,18 @@
             0.15
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "EQUIVALENT_LINEAIRE",
+        "resume": "Pendant 2 ans, la compagnie reprend la différence entre la commission versée d'avance et celle qui aurait été due en linéaire sur les cotisations encaissées. Un précompte 30 % / 10 % équivaut à 14 % linéaire, un 40 % / 10 % à 16 %. Exemple du protocole : prime de 1 000 €, précompte 30 % / 10 %, arrêt au 12e mois : 300 € versés − 140 € acquis = 160 € repris.",
+        "calcul": "Reprise = commission versée − cotisations encaissées × taux linéaire équivalent.",
+        "dureeMois": 24,
+        "equivalentsLineaires": {
+          "30%/10%": 0.14,
+          "40%/10%": 0.16
+        },
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+      }
     },
     {
       "cle": "APRIL|PREVOYANCE|HOSPI_PLUS",
@@ -3805,7 +4369,18 @@
             0.2
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "EQUIVALENT_LINEAIRE",
+        "resume": "Pendant 2 ans, la compagnie reprend la différence entre la commission versée d'avance et celle qui aurait été due en linéaire sur les cotisations encaissées. Un précompte 30 % / 10 % équivaut à 14 % linéaire, un 40 % / 10 % à 16 %. Exemple du protocole : prime de 1 000 €, précompte 30 % / 10 %, arrêt au 12e mois : 300 € versés − 140 € acquis = 160 € repris.",
+        "calcul": "Reprise = commission versée − cotisations encaissées × taux linéaire équivalent.",
+        "dureeMois": 24,
+        "equivalentsLineaires": {
+          "30%/10%": 0.14,
+          "40%/10%": 0.16
+        },
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+      }
     },
     {
       "cle": "APRIL|PREVOYANCE|OBSEQUES",
@@ -3838,7 +4413,18 @@
             0.08
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "EQUIVALENT_LINEAIRE",
+        "resume": "Pendant 2 ans, la compagnie reprend la différence entre la commission versée d'avance et celle qui aurait été due en linéaire sur les cotisations encaissées. Un précompte 30 % / 10 % équivaut à 14 % linéaire, un 40 % / 10 % à 16 %. Exemple du protocole : prime de 1 000 €, précompte 30 % / 10 %, arrêt au 12e mois : 300 € versés − 140 € acquis = 160 € repris.",
+        "calcul": "Reprise = commission versée − cotisations encaissées × taux linéaire équivalent.",
+        "dureeMois": 24,
+        "equivalentsLineaires": {
+          "30%/10%": 0.14,
+          "40%/10%": 0.16
+        },
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+      }
     },
     {
       "cle": "APRIL|PREVOYANCE|PREV_MODUL_COLL",
@@ -3887,7 +4473,18 @@
             0.05
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "EQUIVALENT_LINEAIRE",
+        "resume": "Pendant 2 ans, la compagnie reprend la différence entre la commission versée d'avance et celle qui aurait été due en linéaire sur les cotisations encaissées. Un précompte 30 % / 10 % équivaut à 14 % linéaire, un 40 % / 10 % à 16 %. Exemple du protocole : prime de 1 000 €, précompte 30 % / 10 %, arrêt au 12e mois : 300 € versés − 140 € acquis = 160 € repris.",
+        "calcul": "Reprise = commission versée − cotisations encaissées × taux linéaire équivalent.",
+        "dureeMois": 24,
+        "equivalentsLineaires": {
+          "30%/10%": 0.14,
+          "40%/10%": 0.16
+        },
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+      }
     },
     {
       "cle": "APRIL|PREVOYANCE|PRO_PREMIUM",
@@ -3928,7 +4525,18 @@
             0.15
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "EQUIVALENT_LINEAIRE",
+        "resume": "Pendant 2 ans, la compagnie reprend la différence entre la commission versée d'avance et celle qui aurait été due en linéaire sur les cotisations encaissées. Un précompte 30 % / 10 % équivaut à 14 % linéaire, un 40 % / 10 % à 16 %. Exemple du protocole : prime de 1 000 €, précompte 30 % / 10 %, arrêt au 12e mois : 300 € versés − 140 € acquis = 160 € repris.",
+        "calcul": "Reprise = commission versée − cotisations encaissées × taux linéaire équivalent.",
+        "dureeMois": 24,
+        "equivalentsLineaires": {
+          "30%/10%": 0.14,
+          "40%/10%": 0.16
+        },
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+      }
     },
     {
       "cle": "APRIL|PREVOYANCE|TEMPO_DECES",
@@ -3969,7 +4577,18 @@
             0.2
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "EQUIVALENT_LINEAIRE",
+        "resume": "Pendant 2 ans, la compagnie reprend la différence entre la commission versée d'avance et celle qui aurait été due en linéaire sur les cotisations encaissées. Un précompte 30 % / 10 % équivaut à 14 % linéaire, un 40 % / 10 % à 16 %. Exemple du protocole : prime de 1 000 €, précompte 30 % / 10 %, arrêt au 12e mois : 300 € versés − 140 € acquis = 160 € repris.",
+        "calcul": "Reprise = commission versée − cotisations encaissées × taux linéaire équivalent.",
+        "dureeMois": 24,
+        "equivalentsLineaires": {
+          "30%/10%": 0.14,
+          "40%/10%": 0.16
+        },
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+      }
     },
     {
       "cle": "ASSUREA|ASSURANCE PRÊT|(contrat unique)",
@@ -3986,7 +4605,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7
+      "tauxMax": 0.7,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "CARDIF|ASSURANCE VIE|CARDIF ELITE",
@@ -4060,6 +4684,17 @@
         "ageReference": 65,
         "diviseur": 20,
         "source": "Protocole Cardif : pondération n/20, de 45 à 65 ans."
+      },
+      "reprise": {
+        "type": "PRORATA_DUREE",
+        "dureeMois": 36,
+        "horsPartFixe": true,
+        "resume": "Reprise pendant 3 ans si le contrat s'arrête, au prorata du temps restant. Le bonus n'est pas repris.",
+        "calcul": "Reprise = commission hors bonus × mois restants ÷ 36.",
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Cardif",
+        "aConfirmer": [
+          "Le protocole indique « N/36e sur la base du linéaire » : lecture au prorata du temps restant, à confirmer."
+        ]
       }
     },
     {
@@ -4077,7 +4712,12 @@
       "multiplicateur": 1,
       "saisie": "FRAIS_LIBRES",
       "fraisParDefaut": 0.03,
-      "fraisMax": 0.0475
+      "fraisMax": 0.0475,
+      "reprise": {
+        "type": "AUCUNE",
+        "resume": "Pas de reprise sur un versement unique ou libre.",
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Cardif"
+      }
     },
     {
       "cle": "ENTORIA|MUTUELLE|ENTORIA_SANTE_TNS",
@@ -4220,7 +4860,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ENTORIA|MUTUELLE|ENTORIA_TIME_PRO_SANTE",
@@ -4363,7 +5008,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ENTORIA|PREVOYANCE|PROTECFI",
@@ -4506,7 +5156,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "TEXTE",
+        "resume": "Commission en précompte : pendant 2 ans, la compagnie reprend la différence entre la commission versée et la commission réellement due sur les cotisations encaissées depuis la date d'effet. Commission linéaire : pas de reprise.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Entoria"
+      }
     },
     {
       "cle": "ENTORIA|PREVOYANCE|PREVOYANCE_TNS",
@@ -4673,7 +5328,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "TEXTE",
+        "resume": "Commission en précompte : pendant 2 ans, la compagnie reprend la différence entre la commission versée et la commission réellement due sur les cotisations encaissées depuis la date d'effet. Commission linéaire : pas de reprise.",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Entoria"
+      }
     },
     {
       "cle": "GENERALI|MUTUELLE|SANTE PRO",
@@ -4696,7 +5356,12 @@
           "taux": 0.15,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "GENERALI|PREVOYANCE|GENERALI_PREVOYANCE",
@@ -4721,7 +5386,12 @@
             0.18
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "GENERALI|RETRAITE|GENERALI RETRAITE PRO",
@@ -4766,6 +5436,17 @@
         "diviseur": 15,
         "tauxApresAgeFin": 0.06,
         "source": "Protocole Generali : de 45 à 54 ans, N/15e de l'escompte ; 6 % linéaire à partir de 55 ans."
+      },
+      "reprise": {
+        "type": "PRORATA_DUREE",
+        "dureeMois": 72,
+        "totaliteJusquAuMois": 12,
+        "resume": "Reprise en totalité si le contrat s'arrête la 1re année, puis au prorata du temps restant jusqu'à 6 ans.",
+        "calcul": "Reprise = commission × mois restants ÷ 72.",
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Generali",
+        "aConfirmer": [
+          "Reprise du rappel de 25 % en même temps que l'escompte : à confirmer."
+        ]
       }
     },
     {
@@ -4801,7 +5482,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "HENNER|MUTUELLE|SOLUT_ACT_SANTE",
@@ -4848,7 +5534,12 @@
           "taux": 0.25,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "HENNER|MUTUELLE|SOLUT_IND_SANTE",
@@ -4889,7 +5580,12 @@
           "taux": 0.25,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "HODEVA|MUTUELLE|SANTE_SENIOR",
@@ -4930,7 +5626,12 @@
             0.15
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "HODEVA|MUTUELLE|SANTE_TNS",
@@ -4979,7 +5680,12 @@
             0.2
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "HODEVA|PREVOYANCE|PREV_PRO",
@@ -5060,7 +5766,12 @@
             0.0
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "HODEVA|PREVOYANCE|TEMPO_DC_HO_CLE",
@@ -5133,7 +5844,12 @@
             0.0
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "METLIFE|ASSURANCE PRÊT|(contrat unique)",
@@ -5150,7 +5866,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7
+      "tauxMax": 0.7,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "METLIFE|PREVOYANCE|METLIFE_PREVOYANCE",
@@ -5175,7 +5896,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "PAVILLON PREVOYANCE|MUTUELLE|LOURMEL",
@@ -5198,7 +5924,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "PAVILLON PREVOYANCE|MUTUELLE|SERINIS",
@@ -5233,7 +5964,12 @@
           "taux": 0.15,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "PAVILLON PREVOYANCE|MUTUELLE|TERRI",
@@ -5256,7 +5992,12 @@
           "taux": 0.15,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "PAVILLON PREVOYANCE|MUTUELLE|UNICA",
@@ -5303,7 +6044,12 @@
           "taux": 0.3,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|ASSURANCE PRÊT|REPAM_EMPRUNTEUR",
@@ -5390,7 +6136,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|MUTUELLE|REPAM_SANTE_ATMP",
@@ -5413,7 +6164,12 @@
           "taux": 0.15,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|MUTUELLE|REPAM_SANTE_ENTREPRISE",
@@ -5466,7 +6222,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|MUTUELLE|REPAM_SANTE_FRONTALIER",
@@ -5495,7 +6256,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|MUTUELLE|REPAM_SANTE_SURCO",
@@ -5518,7 +6284,12 @@
           "taux": 0.15,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|MUTUELLE|REPAM_SANTE_SYNTEC",
@@ -5541,7 +6312,12 @@
           "taux": 0.07,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|MUTUELLE|REPAM_SURCO_COLLECTIF",
@@ -5564,7 +6340,12 @@
           "taux": 0.1,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|MUTUELLE|SANTE_PARTICULIER",
@@ -5611,7 +6392,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|PREVOYANCE|DEPENDANCE",
@@ -5642,7 +6428,12 @@
             0.15
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|PREVOYANCE|OBSEQUES",
@@ -5693,7 +6484,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "REPAM|PREVOYANCE|PREV_TNS",
@@ -5762,7 +6558,12 @@
             0.15
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SIMULASSUR|ASSURANCE PRÊT|(contrat unique)",
@@ -5779,7 +6580,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7
+      "tauxMax": 0.7,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_ANCIENNES_OFFRES",
@@ -5797,7 +6603,12 @@
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
       "tauxMax": 1.0,
-      "aide": "Selon le tarificateur : précompte jusqu'à 55/20."
+      "aide": "Selon le tarificateur : précompte jusqu'à 55/20.",
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_NOUVELLES_OFFRES",
@@ -5815,7 +6626,12 @@
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
       "tauxMax": 1.0,
-      "aide": "Selon le tarificateur : linéaire jusqu'à 35 % ou précompte jusqu'à 50/20."
+      "aide": "Selon le tarificateur : linéaire jusqu'à 35 % ou précompte jusqu'à 50/20.",
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_PRIME_UNIQUE",
@@ -5832,7 +6648,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 1.0
+      "tauxMax": 1.0,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_PRET_RELAIS",
@@ -5849,7 +6670,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 1.0
+      "tauxMax": 1.0,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SOLLY AZAR|MUTUELLE|SOLLY_SANTE_SENIOR",
@@ -5912,7 +6738,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SOLLY AZAR|MUTUELLE|SOLLY_SANTE_TNS",
@@ -5959,7 +6790,12 @@
           "taux": 0.2,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SOLLY AZAR|PREVOYANCE|SOLLY_PREVOYANCE_TNS",
@@ -5976,7 +6812,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 1.0
+      "tauxMax": 1.0,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SWISSLIFE|MUTUELLE|(contrat unique)",
@@ -5993,7 +6834,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7
+      "tauxMax": 0.7,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SWISSLIFE|PREVOYANCE|SLPI",
@@ -6018,7 +6864,21 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "PAR_ANNEE_APPORT",
+        "resume": "Reprise de 100 % de la commission d'apport si le contrat s'arrête pendant les 3 premières années, sauf sinistre avec paiement du capital. La commission d'apport est la part versée en plus la 1re année.",
+        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année.",
+        "tauxParAnnee": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Swiss Life",
+        "aConfirmer": [
+          "Le taux du barème regroupe commission et surcommission. La surcommission n'est reprise que 2 ans : 100 % la 1re année, de 50 % à 0 % la 2e."
+        ]
+      }
     },
     {
       "cle": "SWISSLIFE|PREV-MUT|COLLECTIF",
@@ -6041,7 +6901,12 @@
           "taux": 0.1,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "SWISSLIFE|RETRAITE|PER INDIVIDUEL",
@@ -6067,6 +6932,13 @@
         "tauxUcEnDessous": 0.36,
         "tauxEuroEnDessous": 0.0,
         "source": "Protocole Swiss Life : avance sur 4 ans = 4 × (bonus de 9 % + frais), soit 36 % de bonus. Décision du cabinet : bonus payé sur la seule part en unités de compte."
+      },
+      "reprise": {
+        "type": "PRORATA_DUREE",
+        "dureeMois": 48,
+        "resume": "Reprise pendant 4 ans si le contrat s'arrête, au prorata du temps restant.",
+        "calcul": "Reprise = commission × mois restants ÷ 48.",
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Swiss Life"
       }
     },
     {
@@ -6093,6 +6965,11 @@
         "tauxUcEnDessous": 0.0325,
         "tauxEuroEnDessous": 0.0,
         "source": "Protocole Swiss Life : bonus de 3,25 % + frais. Décision du cabinet : bonus payé sur la seule part en unités de compte."
+      },
+      "reprise": {
+        "type": "AUCUNE",
+        "resume": "Pas de reprise sur un versement unique ou libre.",
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Swiss Life"
       }
     },
     {
@@ -6119,6 +6996,11 @@
         "tauxUcEnDessous": 0.036,
         "tauxEuroEnDessous": 0.0,
         "source": "Protocole Swiss Life : bonus de 3,60 % + frais. Décision du cabinet : bonus payé sur la seule part en unités de compte."
+      },
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Le protocole ne prévoit pas de règle de reprise pour ce contrat.",
+        "source": "Protocole Sofraco Épargne 2026, édition de juin 2026, Swiss Life"
       }
     },
     {
@@ -6136,7 +7018,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7
+      "tauxMax": 0.7,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "UNIM|PREVOYANCE|UNIM_UNICED",
@@ -6161,7 +7048,12 @@
             0.15
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "UTWIN|ASSURANCE PRÊT|(contrat unique)",
@@ -6178,7 +7070,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7
+      "tauxMax": 0.7,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "UTWIN|MUTUELLE|(contrat unique)",
@@ -6195,7 +7092,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7
+      "tauxMax": 0.7,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|MUTUELLE|VERALTI_API_SANTE",
@@ -6218,7 +7120,12 @@
           "taux": 0.17,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|MUTUELLE|VERALTI_ESSENTIO",
@@ -6241,7 +7148,12 @@
           "taux": 0.17,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|MUTUELLE|VERALTI_PROFIL_R_CO",
@@ -6266,7 +7178,12 @@
             0.05
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|PREVOYANCE|VERALTI_ACCIDENT",
@@ -6291,7 +7208,12 @@
             0.1
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|PREVOYANCE|VERALTI_ALLOC_DECES",
@@ -6314,7 +7236,12 @@
           "taux": 0.1,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|PREVOYANCE|VERALTI_HOSPITALISATION",
@@ -6337,7 +7264,12 @@
           "taux": 0.1,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|PREVOYANCE|VERALTI_SOL_150_CADRES",
@@ -6360,7 +7292,12 @@
           "taux": 0.05,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|PREVOYANCE|VERALTI_TANDEM",
@@ -6383,7 +7320,12 @@
           "taux": 0.17,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|PREVOYANCE|VERALTI_TOTEM",
@@ -6406,7 +7348,12 @@
           "taux": 0.08,
           "tauxSuivants": []
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "VERALTI|PREVOYANCE|VERALTI_TREMPLIN",
@@ -6431,7 +7378,12 @@
             0.07
           ]
         }
-      ]
+      ],
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     },
     {
       "cle": "ZEPHIR|PREVOYANCE|(contrat unique)",
@@ -6448,7 +7400,12 @@
       "multiplicateur": 1,
       "saisie": "TAUX_MANUEL",
       "tauxMin": 0.0,
-      "tauxMax": 0.7
+      "tauxMax": 0.7,
+      "reprise": {
+        "type": "NON_PRECISEE",
+        "resume": "Les protocoles dont dispose le cabinet ne précisent pas la règle de reprise de ce contrat. À vérifier auprès du back-office avant de s'engager.",
+        "source": "Aucun protocole transmis pour ce contrat"
+      }
     }
   ]
 }

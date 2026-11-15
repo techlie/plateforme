@@ -1,4 +1,4 @@
-import { ecrirePourcent, formaterEuros, lireNombre, lirePourcent, normaliser } from './nombres';
+import { ecrirePourcent, formaterEuros, insecable, lireNombre, lirePourcent, normaliser } from './nombres';
 
 describe('Saisie des nombres', () => {
   it('lit les écritures françaises', () => {
@@ -35,5 +35,9 @@ describe('Saisie des nombres', () => {
 
   it('compare les recherches sans accents ni majuscules', () => {
     expect(normaliser('Prévoyance Zéphir')).toBe('prevoyance zephir');
+  });
+
+  it('garde un nombre et son unité sur la même ligne', () => {
+    expect(insecable('reprise de 100 % au-delà de 1 500 € par mois')).toBe('reprise de 100\u00a0% au-delà de 1\u202f500\u00a0€ par mois');
   });
 });

@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, debounceTime, map, of, scan, startWith, switchMap } from 'rxjs';
-import { ecrirePourcent, formaterEuros, lireNombre, lirePourcent } from '../../shared/nombres';
+import { ecrirePourcent, formaterEuros, insecable, lireNombre, lirePourcent } from '../../shared/nombres';
 import { SelecteurContratComponent } from './selecteur-contrat.component';
 import { SimulateurApi } from './simulateur.api';
 import { Catalogue, Contrat, DemandeCalcul, Resultat } from './simulateur.types';
@@ -45,6 +45,8 @@ export class SimulateurComponent {
   readonly age = signal('');
   readonly partUc = signal('100');
   readonly dejaVerse = signal('');
+  readonly coCourtage = signal(false);
+  readonly tauxCoCourtage = signal('');
   readonly option = signal<string | null>(null);
   readonly variante = signal<string | null>(null);
   readonly remuneration = signal<string | null>(null);
@@ -131,6 +133,14 @@ export class SimulateurComponent {
       }
       demande.taux = taux;
     }
+    if (this.coCourtage()) {
+      const taux = lirePourcent(this.tauxCoCourtage());
+      const max = this.catalogue()?.coCourtage.tauxMax ?? 1;
+      if (taux === null || this.tauxCoCourtage().trim() === '' || taux <= 0 || taux > max) {
+        return { manque: `Indiquez la part du cabinet d’expertise comptable, jusqu’à ${ecrirePourcent(max)} %.` };
+      }
+      demande.tauxCoCourtage = taux;
+    }
     const variante = this.variante();
     if (variante) {
       demande.variante = variante;
@@ -174,6 +184,36 @@ export class SimulateurComponent {
     const resultat = this.resultat();
     return resultat ? formaterEuros(resultat.montant) : '—';
   });
+
+  /** Part du cabinet d'expertise comptable, prête à afficher. */
+  readonly partComptable = computed(() => {
+    const coCourtage = this.resultat()?.coCourtage;
+    return coCourtage ? { montant: formaterEuros(coCourtage.montant), taux: ecrirePourcent(coCourtage.taux) } : null;
+  });
+
+  /** Textes de la règle de reprise, sans coupure entre un nombre et son unité. */
+  readonly reprise = computed(() => {
+    const reprise = this.resultat()?.reprise;
+    return reprise
+      ? {
+          regle: insecable(reprise.regle),
+          calcul: reprise.calcul ? insecable(reprise.calcul) : null,
+          note: reprise.note ? insecable(reprise.note) : null,
+          aConfirmer: reprise.aConfirmer.map(insecable),
+        }
+      : null;
+  });
+
+  readonly reserves = computed(() => (this.resultat()?.reserves ?? []).map(insecable));
+
+  /** Exemples de reprise sur l'affaire simulée, prêts à afficher. */
+  readonly exemplesReprise = computed(() =>
+    (this.resultat()?.reprise.exemples ?? []).map((e) => ({
+      mois: e.mois,
+      part: `${Math.round(e.taux * 100)} %`,
+      montant: formaterEuros(e.montant),
+    })),
+  );
 
   readonly lignes = computed(() => {
     const resultat = this.resultat();
@@ -229,7 +269,16 @@ export class SimulateurComponent {
     }
   }
 
-  saisir(cible: 'montant' | 'frais' | 'taux' | 'age' | 'partUc' | 'dejaVerse', evenement: Event): void {
+  /** Active ou non le co-courtage, et propose le taux habituel des conventions à la première activation. */
+  basculerCoCourtage(evenement: Event): void {
+    const actif = (evenement.target as HTMLInputElement).checked;
+    if (actif && this.tauxCoCourtage().trim() === '') {
+      this.tauxCoCourtage.set(ecrirePourcent(this.catalogue()?.coCourtage.tauxParDefaut ?? 0));
+    }
+    this.coCourtage.set(actif);
+  }
+
+  saisir(cible: 'montant' | 'frais' | 'taux' | 'age' | 'partUc' | 'dejaVerse' | 'tauxCoCourtage', evenement: Event): void {
     this[cible].set((evenement.target as HTMLInputElement).value);
   }
 

@@ -148,6 +148,23 @@
         @if (c.aide) {
           <p class="champ__aide">{{ c.aide }}</p>
         }
+
+        <div class="partage">
+          <label class="bascule">
+            <input type="checkbox" [checked]="coCourtage()" (change)="basculerCoCourtage($event)" />
+            <span>Convention de co-courtage avec un cabinet d’expertise comptable</span>
+          </label>
+          @if (coCourtage()) {
+            <div class="champ">
+              <label class="champ__libelle" for="co-courtage">Part reversée au cabinet d’expertise comptable</label>
+              <div class="champ__zone">
+                <input id="co-courtage" class="champ__saisie" type="text" inputmode="decimal" autocomplete="off" placeholder="0" [value]="tauxCoCourtage()" (input)="saisir('tauxCoCourtage', $event)" aria-describedby="co-courtage-aide" />
+                <span class="champ__unite" aria-hidden="true">%</span>
+              </div>
+              <p class="champ__aide" id="co-courtage-aide">Taux de la convention, calculé sur la commission brute versée par la compagnie. Votre commission se calcule ensuite sur ce qui reste au cabinet.</p>
+            </div>
+          }
+        </div>
       }
     </section>
 
@@ -174,6 +191,16 @@
         }
       </div>
 
+      @if (partComptable(); as part) {
+        <div class="comptable">
+          <div class="comptable__ligne">
+            <span>Cabinet d’expertise comptable · {{ part.taux }} %</span>
+            <strong class="montant">{{ part.montant }}</strong>
+          </div>
+          <p>Pas d’avance de commission pour le cabinet d’expertise comptable : sa part lui est versée au fil des bordereaux reçus des compagnies.</p>
+        </div>
+      }
+
       @if (etat(); as e) {
         @if (e.statut === 'erreur') {
           <div class="note note--danger" role="alert">{{ e.message }}</div>
@@ -185,11 +212,11 @@
           <div class="note note--alerte" role="status">{{ avertissement.message }}</div>
         }
 
-        @if (r.reserves.length) {
+        @if (reserves().length) {
           <div class="reserves">
             <h2>À confirmer par le cabinet</h2>
             <ul>
-              @for (reserve of r.reserves; track reserve) {
+              @for (reserve of reserves(); track reserve) {
                 <li>{{ reserve }}</li>
               }
             </ul>
@@ -197,14 +224,48 @@
         }
       }
 
+      @if (reprise(); as rep) {
+        <div class="reprise">
+          <h2>Si le contrat s’arrête</h2>
+          <p>{{ rep.regle }}</p>
+          @if (rep.calcul) {
+            <p class="reprise__calcul">{{ rep.calcul }}</p>
+          }
+          @if (exemplesReprise().length) {
+            <table>
+              <caption>Sur cette affaire, la reprise serait de :</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Arrêt du contrat</th>
+                  <th scope="col">Part reprise</th>
+                  <th scope="col">Montant repris</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (exemple of exemplesReprise(); track exemple.mois) {
+                  <tr>
+                    <th scope="row">{{ exemple.mois }}<sup>e</sup> mois</th>
+                    <td class="montant">{{ exemple.part }}</td>
+                    <td class="montant">{{ exemple.montant }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+          @if (rep.note) {
+            <p>{{ rep.note }}</p>
+          }
+          <p class="reprise__rappel">La reprise de la compagnie vous est répercutée au prorata de ce que vous avez reçu.</p>
+          @for (point of rep.aConfirmer; track point) {
+            <p class="reprise__reserve">À confirmer : {{ point }}</p>
+          }
+        </div>
+      }
+
       <dl class="reperes">
         <div>
           <dt>Quand</dt>
           <dd>Sur le bordereau du mois où la compagnie a validé le contrat et où le devoir de conseil est signé.</dd>
-        </div>
-        <div>
-          <dt>Si le contrat s’arrête</dt>
-          <dd>La compagnie peut reprendre sa commission. La reprise vous est alors répercutée au prorata de ce que vous avez reçu.</dd>
         </div>
       </dl>
 

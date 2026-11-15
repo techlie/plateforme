@@ -40,6 +40,8 @@ export interface ContratSimulateur {
 
 export interface CatalogueSimulateur {
   bareme: { code: string; libelle: string; dateEffet: string };
+  /** Co-courtage : taux proposé par défaut et taux maximal accepté. */
+  coCourtage: { tauxParDefaut: number; tauxMax: number };
   contrats: ContratSimulateur[];
 }
 
@@ -61,6 +63,16 @@ export interface ResultatSimulation {
   varianteRetenue?: string;
   remunerationRetenue?: string;
   avertissements: { code: string; message: string }[];
+  /** Présent seulement en co-courtage : ce que reçoit le cabinet d'expertise comptable. */
+  coCourtage?: { taux: number; montant: number };
+  /** Règle de reprise du contrat et ce qu'elle donnerait sur cette affaire. */
+  reprise: {
+    regle: string;
+    calcul?: string;
+    exemples: { mois: number; taux: number; montant: number }[];
+    note?: string;
+    aConfirmer: string[];
+  };
   /** Points du barème que le cabinet doit encore confirmer. */
   reserves: string[];
 }

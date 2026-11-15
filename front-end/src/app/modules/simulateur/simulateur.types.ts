@@ -39,6 +39,7 @@ export interface Bareme {
 
 export interface Catalogue {
   bareme: Bareme;
+  coCourtage: { tauxParDefaut: number; tauxMax: number };
   contrats: Contrat[];
 }
 
@@ -53,6 +54,15 @@ export interface DemandeCalcul {
   age?: number;
   partUc?: number;
   versementsExistants?: number;
+  tauxCoCourtage?: number;
+}
+
+export interface Reprise {
+  regle: string;
+  calcul?: string;
+  exemples: { mois: number; taux: number; montant: number }[];
+  note?: string;
+  aConfirmer: string[];
 }
 
 export interface Resultat {
@@ -65,5 +75,7 @@ export interface Resultat {
   varianteRetenue?: string;
   remunerationRetenue?: string;
   avertissements: { code: string; message: string }[];
+  coCourtage?: { taux: number; montant: number };
+  reprise: Reprise;
   reserves: string[];
 }

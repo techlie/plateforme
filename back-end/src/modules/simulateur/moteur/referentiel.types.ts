@@ -90,6 +90,56 @@ export interface PartFixeIncluse {
   source: string;
 }
 
+/** Façon dont la compagnie reprend une commission quand le contrat s'arrête. */
+export type TypeReprise =
+  /** Pas de reprise. */
+  | 'AUCUNE'
+  /** Aucune règle connue du cabinet pour ce contrat. */
+  | 'NON_PRECISEE'
+  /** Règle connue mais non chiffrable sans le détail des cotisations encaissées. */
+  | 'TEXTE'
+  /** Au prorata du temps restant sur une durée fixe. */
+  | 'PRORATA_DUREE'
+  /** Base au prorata de la durée d'escompte, surcommission selon l'année d'arrêt. */
+  | 'ESCOMPTE_ET_SURCOMMISSION'
+  /** Surcommission seule, selon l'année d'arrêt. */
+  | 'SURCOMMISSION_PAR_ANNEE'
+  /** Commission d'apport d'un précompte, selon l'année d'arrêt. */
+  | 'PAR_ANNEE_APPORT'
+  /** Au prorata des primes non payées, la première année seulement. */
+  | 'PRORATA_PREMIERE_ANNEE'
+  /** Différence entre la commission versée et son équivalent linéaire. */
+  | 'EQUIVALENT_LINEAIRE';
+
+export interface RegleReprise {
+  type: TypeReprise;
+  /** La règle, en clair. */
+  resume: string;
+  /** La formule, en clair. */
+  calcul?: string;
+  source: string;
+  dureeMois?: number;
+  /** Reprise entière tant que ce mois n'est pas dépassé. */
+  totaliteJusquAuMois?: number;
+  /** Vrai si la part fixe du barème (bonus, rappel) n'est pas reprise. */
+  horsPartFixe?: boolean;
+  /** Taux de reprise de la 1re année, de la 2e, etc. */
+  tauxParAnnee?: number[];
+  /** Année supplémentaire de reprise pour les gros versements mensuels. */
+  annee5?: { seuilMensuel: number; taux: number };
+  /** Taux linéaire équivalent à chaque précompte, par code d'option. */
+  equivalentsLineaires?: Record<string, number>;
+  aConfirmer?: string[];
+}
+
+/** Partage avec un cabinet d'expertise comptable, par convention de co-courtage. */
+export interface ParametresCoCourtage {
+  /** Part du cabinet d'expertise comptable, sur la commission brute versée par la compagnie. */
+  tauxParDefaut: number;
+  tauxMax: number;
+  source: string;
+}
+
 export interface ContratReferentiel {
   cle: string;
   compagnie: string;
@@ -119,6 +169,7 @@ export interface ContratReferentiel {
   variantes?: Variante[];
   remunerations?: Remuneration[];
   remunerationParDefaut?: string;
+  reprise: RegleReprise;
   /** Hypothèses que le cabinet ou la compagnie doit encore confirmer. */
   aConfirmer?: string[];
 }
@@ -135,5 +186,6 @@ export interface Referentiel {
   coefficientHorsTaxe: number;
   /** Taux de réversion pour lequel les barèmes ont été relevés. */
   tauxReversionReference: number;
+  coCourtage: ParametresCoCourtage;
   contrats: ContratReferentiel[];
 }

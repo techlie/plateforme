@@ -26,6 +26,11 @@ export interface DemandeCalcul {
   partUc?: number;
   /** Versements annuels déjà en place pour ce client sur le même type de contrat, en euros. */
   versementsExistants?: number;
+  /**
+   * Part reversée à un cabinet d'expertise comptable en co-courtage, en décimal, sur la commission
+   * brute versée par la compagnie. Absente ou nulle : pas de co-courtage.
+   */
+  tauxCoCourtage?: number;
   /** Part de la commission du cabinet reversée au mandataire, en décimal. */
   tauxReversion: number;
 }
@@ -58,7 +63,12 @@ export interface ResultatCalcul {
   montantCompagnie: number;
   montantCabinet: number;
   montantMandataire: number;
+  /** Co-courtage : taux et montant reversés au cabinet d'expertise comptable. Zéro sans co-courtage. */
+  tauxCoCourtage: number;
+  montantCoCourtage: number;
   composantes: Composante[];
+  /** Vrai quand la compagnie verse une commission linéaire à la place de l'escompte du barème. */
+  escompteRemplace: boolean;
   varianteRetenue?: string;
   remunerationRetenue?: string;
   avertissements: Avertissement[];
@@ -135,6 +145,7 @@ interface TauxCompagnie {
   libelleSurcommission?: string;
   varianteRetenue?: string;
   remunerationRetenue?: string;
+  escompteRemplace?: boolean;
   avertissements: Avertissement[];
 }
 
@@ -318,7 +329,7 @@ function tauxModeBareme(referentiel: Referentiel, contrat: ContratReferentiel, d
           ? `Assuré de ${regle.ageFin} ans ou plus : la compagnie verse ${formaterPourcent(apres)} par an au lieu de l'escompte.`
           : `Assuré de ${regle.ageFin} ans ou plus : la compagnie ne verse plus l'escompte.`,
     });
-    return { base: Math.min(apres, escompte) + partFixe, surcommission: 0, avertissements };
+    return { base: Math.min(apres, escompte) + partFixe, surcommission: 0, escompteRemplace: true, avertissements };
   }
   avertissements.push({
     code: 'AGE_ESCOMPTE_REDUIT',
@@ -353,9 +364,20 @@ export function calculerCommission(referentiel: Referentiel, cleContrat: string,
     detail = tauxModeTaux(contrat, demande);
   }
 
+  // Co-courtage : la part du cabinet d'expertise comptable se calcule sur la commission brute de la
+  // compagnie. Le mandataire reçoit son taux de reversement sur ce qui reste au cabinet.
+  const tauxCoCourtage = demande.tauxCoCourtage ?? 0;
+  const maxCoCourtage = Math.min(referentiel.coCourtage.tauxMax, referentiel.partCabinet);
+  if (!Number.isFinite(tauxCoCourtage) || tauxCoCourtage < 0 || tauxCoCourtage > maxCoCourtage) {
+    throw new ErreurCalcul(
+      'CO_COURTAGE_INVALIDE',
+      `Indiquez la part du cabinet d'expertise comptable, entre 0 et ${formaterPourcent(maxCoCourtage)}.`,
+    );
+  }
+
   const tauxCompagnie = detail.base + detail.surcommission;
   const tauxCabinet = tauxCompagnie * referentiel.partCabinet;
-  const tauxMandataire = tauxCabinet * reversion;
+  const tauxMandataire = tauxCompagnie * (referentiel.partCabinet - tauxCoCourtage) * reversion;
   const partBase = tauxCompagnie > 0 ? detail.base / tauxCompagnie : 1;
 
   const montantMandataire = arrondirAuCentime(baseCalcul * tauxMandataire);
@@ -387,7 +409,10 @@ export function calculerCommission(referentiel: Referentiel, cleContrat: string,
     montantCompagnie: arrondirAuCentime(baseCalcul * tauxCompagnie),
     montantCabinet: arrondirAuCentime(baseCalcul * tauxCabinet),
     montantMandataire,
+    tauxCoCourtage,
+    montantCoCourtage: arrondirAuCentime(baseCalcul * tauxCompagnie * tauxCoCourtage),
     composantes,
+    escompteRemplace: detail.escompteRemplace ?? false,
     varianteRetenue: detail.varianteRetenue,
     remunerationRetenue: detail.remunerationRetenue,
     avertissements: detail.avertissements,

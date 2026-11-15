@@ -35,3 +35,8 @@ export function normaliser(texte: string): string {
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase();
 }
+
+/** Empêche un retour à la ligne entre un nombre et son unité : « 100 % », « 1 500 € ». */
+export function insecable(texte: string): string {
+  return texte.replace(/ (%|€)/g, '\u00a0$1').replace(/(\d) (\d{3})(?!\d)/g, '$1\u202f$2');
+}

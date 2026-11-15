@@ -142,6 +142,119 @@ h1 {
   line-height: 1.5;
 }
 
+.partage {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--bord);
+}
+
+.bascule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bascule input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.comptable,
+.reprise {
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.comptable__ligne {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-weight: 600;
+}
+
+.comptable__ligne strong {
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.comptable p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--texte-moyen);
+}
+
+.reprise {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reprise h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+
+.reprise__calcul {
+  padding-left: 12px;
+  border-left: 2px solid var(--bord-fort);
+  color: var(--texte-moyen);
+}
+
+.reprise table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.reprise caption {
+  padding-bottom: 6px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.reprise th,
+.reprise td {
+  padding: 8px 0;
+  border-top: 1px solid var(--bord-fort);
+  text-align: right;
+  font-weight: 500;
+}
+
+.reprise thead th {
+  border-top: none;
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+
+.reprise th:first-child {
+  text-align: left;
+}
+
+.reprise td:last-child {
+  font-weight: 700;
+}
+
+.reprise__rappel,
+.reprise__reserve {
+  font-size: 13px;
+  color: var(--texte-moyen);
+}
+
 .reperes {
   margin: 0;
   padding: 18px 20px;

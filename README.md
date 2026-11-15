@@ -59,7 +59,9 @@ Fait :
 Règles du cabinet appliquées, en plus de la grille : surcommission Abeille sur la
 part réelle en unités de compte, baisse selon l'âge de l'assuré (Abeille, Generali,
 Cardif), plafond Abeille de 2 000 € par mois par client et par type de contrat, bonus
-Swiss Life sur la seule part en unités de compte. Le détail, décision par décision,
+Swiss Life sur la seule part en unités de compte, partage de co-courtage avec un
+cabinet d'expertise comptable. L'écran donne aussi la règle de reprise du contrat, son
+calcul et ce qu'elle coûterait sur l'affaire simulée. Le détail, décision par décision,
 est dans [`docs/decisions.md`](docs/decisions.md).
 
 Manque :
@@ -67,6 +69,8 @@ Manque :
 - la connexion : le taux de reversement est pour l'instant celui de référence (70 %) ;
   il viendra de la fiche de chaque mandataire ;
 - les lectures de protocole marquées « à confirmer » dans le référentiel ;
+- les règles de reprise en santé et en assurance de prêt, que les protocoles dont
+  dispose le cabinet ne donnent pas ;
 - le cumul automatique du plafond Abeille entre les contrats d'un même client, qui
   viendra avec le module Affaires (il se saisit à la main pour l'instant) ;
 - le référentiel en base de données, modifiable par un administrateur.

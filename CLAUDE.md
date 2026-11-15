@@ -66,7 +66,8 @@ exporté. C'est ce qui permet d'activer ou non un module par utilisateur.
 - Chacun ne voit que son périmètre. Le filtrage se fait côté serveur, jamais
   seulement à l'écran.
 - La marge du cabinet et le détail compagnie → courtier grossiste → cabinet ne
-  sortent jamais vers un profil mandataire.
+  sortent jamais vers un profil mandataire. Seule exception, voulue par le cabinet :
+  en co-courtage, le mandataire voit la part du cabinet d'expertise comptable.
 - Aucun contenu médical : la plateforme connaît au plus un statut
   (« formalités médicales en cours »).
 - Aucun IBAN enregistré.

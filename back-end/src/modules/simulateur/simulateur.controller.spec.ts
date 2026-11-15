@@ -110,6 +110,36 @@ describe('API du simulateur', () => {
     expect(reponse.body.code).toBe('AGE_MANQUANT');
   });
 
+  it('chiffre le co-courtage : part du cabinet d’expertise comptable et reste du mandataire', async () => {
+    const catalogue = await request(app.getHttpServer()).get('/api/simulateur/contrats').expect(200);
+    expect(catalogue.body.coCourtage).toEqual({ tauxParDefaut: 0.3, tauxMax: 0.5 });
+    const reponse = await request(app.getHttpServer())
+      .post('/api/simulateur/calcul')
+      .send({ cleContrat: 'ALPTIS|PREVOYANCE|PREVOYANCE_PRO_PLUS', montant: 1200, option: '30%/10% PRE', tauxCoCourtage: 0.3 })
+      .expect(200);
+    expect(reponse.body.montant).toBe(120.58);
+    expect(reponse.body.coCourtage).toEqual({ taux: 0.3, montant: 93.96 });
+  });
+
+  it('n’annonce pas de co-courtage quand il n’y en a pas', async () => {
+    const reponse = await request(app.getHttpServer())
+      .post('/api/simulateur/calcul')
+      .send({ cleContrat: 'ALPTIS|PREVOYANCE|PREVOYANCE_PRO_PLUS', montant: 1200, option: '30%/10% PRE' })
+      .expect(200);
+    expect(reponse.body.coCourtage).toBeUndefined();
+  });
+
+  it('donne la règle de reprise du contrat et son effet sur l’affaire', async () => {
+    const reponse = await request(app.getHttpServer())
+      .post('/api/simulateur/calcul')
+      .send({ cleContrat: 'GENERALI|RETRAITE|GENERALI RETRAITE PRO', montant: 6000, option: '2,95 %', age: 40 })
+      .expect(200);
+    expect(reponse.body.reprise.regle).toContain('6 ans');
+    expect(reponse.body.reprise.calcul).toContain('72');
+    expect(reponse.body.reprise.exemples[1]).toMatchObject({ mois: 18, montant: 1633.5 });
+    expect(JSON.stringify(reponse.body.reprise)).not.toContain('"source"');
+  });
+
   it('refuse que l’écran impose un taux de réversion', async () => {
     await request(app.getHttpServer())
       .post('/api/simulateur/calcul')

@@ -58,4 +58,14 @@ export class CalculCommissionDto {
   @Min(0)
   @Max(100_000_000)
   versementsExistants?: number;
+
+  /**
+   * Part reversée au cabinet d'expertise comptable en co-courtage, en décimal, sur la commission brute
+   * de la compagnie. À omettre quand il n'y a pas de convention.
+   */
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  tauxCoCourtage?: number;
 }

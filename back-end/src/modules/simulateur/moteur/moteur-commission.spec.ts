@@ -439,6 +439,55 @@ describe('Chaîne compagnie, cabinet, mandataire', () => {
   });
 });
 
+describe('Co-courtage avec un cabinet d’expertise comptable', () => {
+  const demande = { montant: 1200, option: '30%/10% PRE', tauxReversion: 0.7 };
+
+  it('ne change rien quand il n’y a pas de convention', () => {
+    const r = calculerCommission(referentiel, ALPTIS_PRO_PLUS, demande);
+    expect([r.tauxCoCourtage, r.montantCoCourtage, r.montantMandataire]).toEqual([0, 0, 186.35]);
+  });
+
+  it('verse 30 % de la commission brute de la compagnie au cabinet d’expertise comptable', () => {
+    const r = calculerCommission(referentiel, ALPTIS_PRO_PLUS, { ...demande, tauxCoCourtage: 0.3 });
+    expect(r.montantCompagnie).toBe(313.2);
+    expect(r.montantCoCourtage).toBe(93.96);
+    // Soit un peu plus de 35 % de ce que le cabinet reçoit après la retenue du courtier grossiste.
+    expect(r.montantCoCourtage / r.montantCabinet).toBeCloseTo(0.3 / 0.85, 3);
+  });
+
+  it('paie au mandataire son taux de reversement sur ce qui reste au cabinet', () => {
+    const r = calculerCommission(referentiel, ALPTIS_PRO_PLUS, { ...demande, tauxCoCourtage: 0.3 });
+    // (85 % − 30 %) × 70 % = 38,5 % de la commission brute, au lieu de 59,5 %.
+    expect(r.tauxMandataire / r.tauxCompagnie).toBeCloseTo(0.385, 12);
+    expect(r.montantMandataire).toBe(120.58);
+  });
+
+  it('accepte un autre taux de convention', () => {
+    const r = calculerCommission(referentiel, ALPTIS_PRO_PLUS, { ...demande, tauxCoCourtage: 0.35 });
+    expect(r.montantCoCourtage).toBe(109.62);
+    expect(r.montantMandataire).toBe(109.62);
+  });
+
+  it('s’applique aussi à la surcommission', () => {
+    const r = calculerCommission(referentiel, RETRAITE_PLURIELLE, {
+      ...CAS_GRILLE,
+      montant: 6000,
+      frais: 0.03,
+      variante: 'AVANCE_5_ANS',
+      remuneration: 'ENCOURS_MAX',
+      tauxCoCourtage: 0.3,
+      tauxReversion: 0.7,
+    });
+    expect(r.montantCoCourtage).toBe(902.25); // 30 % de 3 007,50 €
+    expect(r.montantMandataire).toBe(1157.89); // 3 007,50 € × 55 % × 70 %
+    expect(r.composantes.reduce((total, c) => total + c.montant, 0)).toBeCloseTo(1157.89, 2);
+  });
+
+  it('refuse un taux de convention supérieur au maximum du référentiel', () => {
+    expect(() => calculerCommission(referentiel, ALPTIS_PRO_PLUS, { ...demande, tauxCoCourtage: 0.6 })).toThrow('expertise comptable');
+  });
+});
+
 describe('Arrondi', () => {
   it('arrondit au centime le plus proche, moitié vers le haut', () => {
     expect(arrondirAuCentime(1.005)).toBe(1.01);

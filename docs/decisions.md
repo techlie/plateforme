@@ -27,6 +27,9 @@ pas encore construit), **Ouvert** (pas encore tranché).
 | Saisie des frais bornée | audit A14 | Appliqué, de 0 à 4,75 % | Référentiel |
 | Le mandataire ne voit que son montant ; la chaîne complète et la marge sont réservées aux administrateurs | début nov. | Appliqué | Réponse du serveur, test dédié |
 | Abeille prévoyance : taux avant retenue du courtier grossiste, Boost considéré comme inclus | 15 nov. | Appliqué | Référentiel |
+| Co-courtage avec un cabinet d'expertise comptable : case à cocher et taux de la convention (30 % proposé) ; part calculée sur la commission brute de la compagnie ; le mandataire reçoit son taux de reversement sur ce qui reste au cabinet | 15 nov. | Appliqué | Moteur, tests « co-courtage », écran |
+| Co-courtage : la part du cabinet d'expertise comptable est affichée, avec le rappel qu'elle est versée sans avance, au fil des bordereaux reçus | 15 nov. | Appliqué | Écran |
+| Règles de reprise affichées par compagnie, avec le calcul et un exemple chiffré sur l'affaire simulée | 15 nov. | Appliqué pour 40 contrats ; 111 contrats sans règle connue du cabinet | `moteur/reprise.ts`, tests « reprise » |
 
 ### Hypothèses de calcul encore à confirmer
 
@@ -43,6 +46,25 @@ Elles sont marquées `aConfirmer` dans le référentiel et affichées à l'écra
 | Cardif, frais de référence | 2,75 % comme la grille (4,75 % selon le protocole) | Géraldine, Sofraco |
 | Barèmes Generali et Cardif à 80 ou 90 % de reversement | Règle de trois depuis le barème à 70 % | Cabinet |
 | Abeille prévoyance, seuil de 1 700 € | Apprécié sur la cotisation hors taxe | Philippe |
+
+### Règles de reprise connues
+
+Source : protocoles Sofraco Retraite, Épargne et Prévoyance 2026, édition de juin 2026.
+
+| Compagnie, contrat | Règle retenue |
+| --- | --- |
+| Abeille, primes périodiques | Base : prorata des versements non faits sur la durée d'escompte. Surcommission : 100 %, 90 %, 80 %, 70 % les années 1 à 4 ; 60 % la 5e au-delà de 1 500 € par mois |
+| Abeille, versement unique | Surcommission seule, mêmes taux sur 4 ans, en cas de rachat d'au moins 30 000 € à frais de 1,5 % ou moins |
+| Abeille prévoyance | Prorata des primes non payées, la 1re année seulement |
+| Generali Retraite Pro | Totalité la 1re année, puis mois restants sur 72 |
+| Cardif Elite | Mois restants sur 36 ; le bonus n'est pas repris |
+| Swiss Life PER individuel | Mois restants sur 48 |
+| Swiss Life et Cardif, versement unique | Pas de reprise |
+| Alptis prévoyance | Précompte : 100 % de la commission d'apport la 1re année, 50 % la 2e |
+| Swiss Life prévoyance | 100 % de la commission d'apport pendant 3 ans, hors sinistre avec paiement du capital |
+| April prévoyance | Pendant 2 ans, commission versée moins son équivalent linéaire (14 % pour un 30/10, 16 % pour un 40/10) |
+| Entoria prévoyance | Précompte : pendant 2 ans, commission versée moins commission due sur les cotisations encaissées (non chiffré) |
+| Santé, emprunteur, autres compagnies | Règle non connue du cabinet : protocoles à obtenir |
 
 ## 2. Commissions : affaires, bordereau, reprises
 
@@ -117,3 +139,5 @@ Ceux qui touchent le calcul :
 - Version de la grille qui fait foi, puisque deux versions coexistent.
 - Correction des affaires déjà réglées, ou application aux seules affaires nouvelles.
 - Nom du complément versé à un superviseur.
+- Co-courtage : en cas de reprise par la compagnie, la filiale du cabinet comptable rend-elle sa part.
+- Règles de reprise en santé et en assurance de prêt, et pour les compagnies de prévoyance dont le protocole ne dit rien.

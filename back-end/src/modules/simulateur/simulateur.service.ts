@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { CalculCommissionDto } from './dto/calcul-commission.dto';
 import { CatalogueSimulateur, ResultatSimulation } from './dto/simulateur.reponses';
-import { calculerCommission, ErreurCalcul } from './moteur/moteur-commission';
+import { calculerCommission, DemandeCalcul, ErreurCalcul, trouverContrat } from './moteur/moteur-commission';
+import { estimerReprise } from './moteur/reprise';
 import { Referentiel } from './moteur/referentiel.types';
 import { SimulateurRepository } from './simulateur.repository';
 
@@ -26,6 +27,7 @@ export class SimulateurService {
     const referentiel = this.baremeEnVigueur(date);
     return {
       bareme: SimulateurService.enTete(referentiel),
+      coCourtage: { tauxParDefaut: referentiel.coCourtage.tauxParDefaut, tauxMax: referentiel.coCourtage.tauxMax },
       contrats: referentiel.contrats.map((c) => ({
         cle: c.cle,
         compagnie: c.compagnieLibelle,
@@ -60,7 +62,7 @@ export class SimulateurService {
   simuler(demande: CalculCommissionDto, date: string): ResultatSimulation {
     const referentiel = this.baremeEnVigueur(date);
     try {
-      const calcul = calculerCommission(referentiel, demande.cleContrat, {
+      const entree: DemandeCalcul = {
         montant: demande.montant,
         frais: demande.frais,
         option: demande.option,
@@ -70,8 +72,11 @@ export class SimulateurService {
         age: demande.age,
         partUc: demande.partUc,
         versementsExistants: demande.versementsExistants,
+        tauxCoCourtage: demande.tauxCoCourtage,
         tauxReversion: referentiel.tauxReversionReference,
-      });
+      };
+      const calcul = calculerCommission(referentiel, demande.cleContrat, entree);
+      const reprise = estimerReprise(trouverContrat(referentiel, demande.cleContrat), entree, calcul);
       // Vue mandataire : ni la commission versée par la compagnie, ni la part du cabinet.
       return {
         bareme: SimulateurService.enTete(referentiel),
@@ -83,6 +88,9 @@ export class SimulateurService {
         varianteRetenue: calcul.varianteRetenue,
         remunerationRetenue: calcul.remunerationRetenue,
         avertissements: calcul.avertissements,
+        coCourtage:
+          calcul.tauxCoCourtage > 0 ? { taux: calcul.tauxCoCourtage, montant: calcul.montantCoCourtage } : undefined,
+        reprise,
         reserves: calcul.aConfirmer,
       };
     } catch (erreur) {
