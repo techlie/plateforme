@@ -1,0 +1,6345 @@
+{
+  "code": "COMMISSIONS-2026",
+  "libelle": "Barème 2026",
+  "dateEffet": "2026-01-01",
+  "source": "Grille de commissions du cabinet, relevée en novembre 2026",
+  "partCabinet": 0.85,
+  "coefficientHorsTaxe": 0.87,
+  "tauxReversionReference": 0.7,
+  "contrats": [
+    {
+      "cle": "ACPS|MUTUELLE|ACPS_SANTE_INDIVIDUELS",
+      "compagnie": "ACPS",
+      "compagnieLibelle": "ACPS",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ACPS_SANTE_INDIVIDUELS",
+      "libelle": "ACPS Santé Individuels",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ACPS|MUTUELLE|ACPS_SANTE_SENIORS",
+      "compagnie": "ACPS",
+      "compagnieLibelle": "ACPS",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ACPS_SANTE_SENIORS",
+      "libelle": "ACPS Santé Seniors",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ACPS|MUTUELLE|ACPS_SANTE_SENIORS_PLUS",
+      "compagnie": "ACPS",
+      "compagnieLibelle": "ACPS",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ACPS_SANTE_SENIORS_PLUS",
+      "libelle": "ACPS Santé Seniors Plus",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ACPS|MUTUELLE|ACPS_TNS_SANTE",
+      "compagnie": "ACPS",
+      "compagnieLibelle": "ACPS",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ACPS_TNS_SANTE",
+      "libelle": "ACPS TNS Santé",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|ASSURANCE VIE|EPARGNE ACTIVE",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "ASSURANCE VIE",
+      "familleLibelle": "Assurance vie",
+      "nom": "EPARGNE ACTIVE",
+      "libelle": "Épargne Active",
+      "base": "VERSEMENT_ANNUEL",
+      "horsTaxe": false,
+      "aConfirmer": [
+        "Choix entre Acquisition Max et Encours Max non confirmé pour ce contrat : la grille déduit 0,5 point de frais.",
+        "Surcommission de 40 % appliquée sans tenir compte de la part en unités de compte, de l'âge ni du plafond de versement."
+      ],
+      "mode": "ESCOMPTE",
+      "saisie": "FRAIS_LIBRES",
+      "surcommission": 0.4,
+      "variantes": [
+        {
+          "code": "AVANCE_3_ANS",
+          "libelle": "3 ans",
+          "duree": 3,
+          "coefficient": 2.64
+        },
+        {
+          "code": "AVANCE_4_ANS",
+          "libelle": "4 ans",
+          "duree": 4,
+          "coefficient": 3.36
+        },
+        {
+          "code": "AVANCE_5_ANS",
+          "libelle": "5 ans",
+          "duree": 5,
+          "coefficient": 4.05
+        },
+        {
+          "code": "AVANCE_7_ANS",
+          "libelle": "7 ans",
+          "duree": 7,
+          "coefficient": 5.25
+        }
+      ],
+      "remunerations": [
+        {
+          "code": "ENCOURS_MAX",
+          "libelle": "Encours Max",
+          "deductionFrais": 0.005
+        }
+      ],
+      "remunerationParDefaut": "ENCOURS_MAX"
+    },
+    {
+      "cle": "ABEILLE|PREVOYANCE|GARANTIE_EMPRUNTEUR_ABEILLE",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "GARANTIE_EMPRUNTEUR_ABEILLE",
+      "libelle": "Garantie Emprunteur Abeille",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "aConfirmer": [
+        "Seuil de 1 700 € : base hors taxe ou toutes taxes non confirmée."
+      ],
+      "mode": "SEUIL",
+      "saisie": "SEUIL",
+      "seuilMontant": 1700,
+      "variantes": [
+        {
+          "code": "SOUS_SEUIL",
+          "libelle": "Moins de 1 700 € par an",
+          "taux": 0.7
+        },
+        {
+          "code": "SEUIL_ATTEINT",
+          "libelle": "1 700 € par an ou plus",
+          "taux": 0.85
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|PREVOYANCE|PROFIL_CLE_ASSOCIES",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "PROFIL_CLE_ASSOCIES",
+      "libelle": "Profil Clé Associés",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "aConfirmer": [
+        "Seuil de 1 700 € : base hors taxe ou toutes taxes non confirmée."
+      ],
+      "mode": "SEUIL",
+      "saisie": "SEUIL",
+      "seuilMontant": 1700,
+      "variantes": [
+        {
+          "code": "SOUS_SEUIL",
+          "libelle": "Moins de 1 700 € par an",
+          "taux": 0.7
+        },
+        {
+          "code": "SEUIL_ATTEINT",
+          "libelle": "1 700 € par an ou plus",
+          "taux": 0.85
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|PREVOYANCE|SENSEO_AGRICOLE",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SENSEO_AGRICOLE",
+      "libelle": "Senseo Agricole",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "aConfirmer": [
+        "Seuil de 1 700 € : base hors taxe ou toutes taxes non confirmée."
+      ],
+      "mode": "SEUIL",
+      "saisie": "SEUIL",
+      "seuilMontant": 1700,
+      "variantes": [
+        {
+          "code": "SOUS_SEUIL",
+          "libelle": "Moins de 1 700 € par an",
+          "taux": 0.5
+        },
+        {
+          "code": "SEUIL_ATTEINT",
+          "libelle": "1 700 € par an ou plus",
+          "taux": 0.65
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|PREVOYANCE|SENSEO_LIBERAL",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SENSEO_LIBERAL",
+      "libelle": "Senseo Libéral",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "aConfirmer": [
+        "Seuil de 1 700 € : base hors taxe ou toutes taxes non confirmée."
+      ],
+      "mode": "SEUIL",
+      "saisie": "SEUIL",
+      "seuilMontant": 1700,
+      "variantes": [
+        {
+          "code": "SOUS_SEUIL",
+          "libelle": "Moins de 1 700 € par an",
+          "taux": 0.7
+        },
+        {
+          "code": "SEUIL_ATTEINT",
+          "libelle": "1 700 € par an ou plus",
+          "taux": 0.85
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|PREVOYANCE|SENSEO_MEDICAL_INF_KINE",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SENSEO_MEDICAL_INF_KINE",
+      "libelle": "Senseo Médical INF Kiné",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "aConfirmer": [
+        "Seuil de 1 700 € : base hors taxe ou toutes taxes non confirmée."
+      ],
+      "mode": "SEUIL",
+      "saisie": "SEUIL",
+      "seuilMontant": 1700,
+      "variantes": [
+        {
+          "code": "SOUS_SEUIL",
+          "libelle": "Moins de 1 700 € par an",
+          "taux": 0.35
+        },
+        {
+          "code": "SEUIL_ATTEINT",
+          "libelle": "1 700 € par an ou plus",
+          "taux": 0.35
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|PREVOYANCE|SENSEO_MEDICAL_MEDECIN",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SENSEO_MEDICAL_MEDECIN",
+      "libelle": "Senseo Médical Médecin",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "aConfirmer": [
+        "Seuil de 1 700 € : base hors taxe ou toutes taxes non confirmée."
+      ],
+      "mode": "SEUIL",
+      "saisie": "SEUIL",
+      "seuilMontant": 1700,
+      "variantes": [
+        {
+          "code": "SOUS_SEUIL",
+          "libelle": "Moins de 1 700 € par an",
+          "taux": 0.9
+        },
+        {
+          "code": "SEUIL_ATTEINT",
+          "libelle": "1 700 € par an ou plus",
+          "taux": 0.9
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|PREVOYANCE|SENSEO_MEDICAL_HORS_INF_KINE_MEDECIN",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SENSEO_MEDICAL_HORS_INF_KINE_MEDECIN",
+      "libelle": "Senseo Médical hors INF Kiné Médecin",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "aConfirmer": [
+        "Seuil de 1 700 € : base hors taxe ou toutes taxes non confirmée."
+      ],
+      "mode": "SEUIL",
+      "saisie": "SEUIL",
+      "seuilMontant": 1700,
+      "variantes": [
+        {
+          "code": "SOUS_SEUIL",
+          "libelle": "Moins de 1 700 € par an",
+          "taux": 0.7
+        },
+        {
+          "code": "SEUIL_ATTEINT",
+          "libelle": "1 700 € par an ou plus",
+          "taux": 0.85
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|PREVOYANCE|SENSEO_PREVOYANCE",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SENSEO_PREVOYANCE",
+      "libelle": "Senseo Prévoyance",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "aConfirmer": [
+        "Seuil de 1 700 € : base hors taxe ou toutes taxes non confirmée."
+      ],
+      "mode": "SEUIL",
+      "saisie": "SEUIL",
+      "seuilMontant": 1700,
+      "variantes": [
+        {
+          "code": "SOUS_SEUIL",
+          "libelle": "Moins de 1 700 € par an",
+          "taux": 0.6
+        },
+        {
+          "code": "SEUIL_ATTEINT",
+          "libelle": "1 700 € par an ou plus",
+          "taux": 0.75
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|PREVOYANCE|SOLUTION_PREVOYANCE_PRO",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SOLUTION_PREVOYANCE_PRO",
+      "libelle": "Solution Prévoyance Pro",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "aConfirmer": [
+        "Seuil de 1 700 € : base hors taxe ou toutes taxes non confirmée."
+      ],
+      "mode": "SEUIL",
+      "saisie": "SEUIL",
+      "seuilMontant": 1700,
+      "variantes": [
+        {
+          "code": "SOUS_SEUIL",
+          "libelle": "Moins de 1 700 € par an",
+          "taux": 0.6
+        },
+        {
+          "code": "SEUIL_ATTEINT",
+          "libelle": "1 700 € par an ou plus",
+          "taux": 0.6
+        }
+      ]
+    },
+    {
+      "cle": "ABEILLE|RETRAITE|RETRAITE PLURIELLE",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "RETRAITE",
+      "familleLibelle": "Retraite",
+      "nom": "RETRAITE PLURIELLE",
+      "libelle": "Retraite Plurielle",
+      "base": "VERSEMENT_ANNUEL",
+      "horsTaxe": false,
+      "aConfirmer": [
+        "Avec l'option Acquisition Max, maintien de la surcommission de 40 % non confirmé.",
+        "Surcommission de 40 % appliquée sans tenir compte de la part en unités de compte, de l'âge ni du plafond de versement."
+      ],
+      "mode": "ESCOMPTE",
+      "saisie": "FRAIS_LIBRES",
+      "surcommission": 0.4,
+      "variantes": [
+        {
+          "code": "AVANCE_3_ANS",
+          "libelle": "3 ans",
+          "duree": 3,
+          "coefficient": 2.64
+        },
+        {
+          "code": "AVANCE_4_ANS",
+          "libelle": "4 ans",
+          "duree": 4,
+          "coefficient": 3.36
+        },
+        {
+          "code": "AVANCE_5_ANS",
+          "libelle": "5 ans",
+          "duree": 5,
+          "coefficient": 4.05
+        },
+        {
+          "code": "AVANCE_7_ANS",
+          "libelle": "7 ans",
+          "duree": 7,
+          "coefficient": 5.25
+        }
+      ],
+      "remunerations": [
+        {
+          "code": "ACQUISITION_MAX",
+          "libelle": "Acquisition Max",
+          "deductionFrais": 0.0
+        },
+        {
+          "code": "ENCOURS_MAX",
+          "libelle": "Encours Max",
+          "deductionFrais": 0.005
+        }
+      ],
+      "remunerationParDefaut": "ACQUISITION_MAX"
+    },
+    {
+      "cle": "ABEILLE|TRANSFERTS/PU/VL|RP/EA",
+      "compagnie": "ABEILLE",
+      "compagnieLibelle": "Abeille",
+      "famille": "TRANSFERTS/PU/VL",
+      "familleLibelle": "Transferts et versements libres",
+      "nom": "RP/EA",
+      "libelle": "RP / EA",
+      "base": "VERSEMENT_UNIQUE",
+      "horsTaxe": false,
+      "mode": "TAUX",
+      "ajout": 0.039,
+      "multiplicateur": 1,
+      "saisie": "FRAIS_LIBRES",
+      "fraisParDefaut": 0.007
+    },
+    {
+      "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_DYNAMIQUE_GT_6ANS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ALPTIS_ADE_DYNAMIQUE_GT_6ANS",
+      "libelle": "Alptis ADE Dynamique GT 6 ans",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10% PRE (Standard)",
+          "libelle": "40 % / 10 % précompte (Standard)",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15% LI (Standard)",
+          "libelle": "15 % linéaire (Standard)",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "50%/15% PRE (Majoré)",
+          "libelle": "50 % / 15 % précompte (Majoré)",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "20% LI (Majoré)",
+          "libelle": "20 % linéaire (Majoré)",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5% LI (Réduit)",
+          "libelle": "5 % linéaire (Réduit)",
+          "taux": 0.05,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_DYNAMIQUE_LE_6ANS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ALPTIS_ADE_DYNAMIQUE_LE_6ANS",
+      "libelle": "Alptis ADE Dynamique LE 6 ans",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15% LI (Standard)",
+          "libelle": "15 % linéaire (Standard)",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20% LI (Majoré)",
+          "libelle": "20 % linéaire (Majoré)",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5% LI (Réduit)",
+          "libelle": "5 % linéaire (Réduit)",
+          "taux": 0.05,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_IRIADE_MNCAP_MAESTRO_CNP_GT_10ANS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ALPTIS_ADE_IRIADE_MNCAP_MAESTRO_CNP_GT_10ANS",
+      "libelle": "Alptis ADE Iriade MNCAP Maestro CNP GT 10 ans",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10% PRE (Standard)",
+          "libelle": "40 % / 10 % précompte (Standard)",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15% LI (Standard)",
+          "libelle": "15 % linéaire (Standard)",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "50%/15% PRE (Majoré)",
+          "libelle": "50 % / 15 % précompte (Majoré)",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "20% LI (Majoré)",
+          "libelle": "20 % linéaire (Majoré)",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5% LI (Réduit)",
+          "libelle": "5 % linéaire (Réduit)",
+          "taux": 0.05,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_IRIADE_MNCAP_MAESTRO_CNP_LE_10ANS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ALPTIS_ADE_IRIADE_MNCAP_MAESTRO_CNP_LE_10ANS",
+      "libelle": "Alptis ADE Iriade MNCAP Maestro CNP LE 10 ans",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15% LI (Standard)",
+          "libelle": "15 % linéaire (Standard)",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20% LI (Majoré)",
+          "libelle": "20 % linéaire (Majoré)",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5% LI (Réduit)",
+          "libelle": "5 % linéaire (Réduit)",
+          "taux": 0.05,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_6_11ANS_LINEAIRE",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ALPTIS_ADE_SOPRETIS_6_11ANS_LINEAIRE",
+      "libelle": "Alptis ADE Sopretis 6 11 ans Linéaire",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "1 %",
+          "libelle": "1 %",
+          "taux": 0.01,
+          "tauxSuivants": []
+        },
+        {
+          "code": "2 %",
+          "libelle": "2 %",
+          "taux": 0.02,
+          "tauxSuivants": []
+        },
+        {
+          "code": "3 %",
+          "libelle": "3 %",
+          "taux": 0.03,
+          "tauxSuivants": []
+        },
+        {
+          "code": "4 %",
+          "libelle": "4 %",
+          "taux": 0.04,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "6 %",
+          "libelle": "6 %",
+          "taux": 0.06,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7 %",
+          "libelle": "7 %",
+          "taux": 0.07,
+          "tauxSuivants": []
+        },
+        {
+          "code": "8 %",
+          "libelle": "8 %",
+          "taux": 0.08,
+          "tauxSuivants": []
+        },
+        {
+          "code": "9 %",
+          "libelle": "9 %",
+          "taux": 0.09,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "11 %",
+          "libelle": "11 %",
+          "taux": 0.11,
+          "tauxSuivants": []
+        },
+        {
+          "code": "12 %",
+          "libelle": "12 %",
+          "taux": 0.12,
+          "tauxSuivants": []
+        },
+        {
+          "code": "13 %",
+          "libelle": "13 %",
+          "taux": 0.13,
+          "tauxSuivants": []
+        },
+        {
+          "code": "14 %",
+          "libelle": "14 %",
+          "taux": 0.14,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "16 %",
+          "libelle": "16 %",
+          "taux": 0.16,
+          "tauxSuivants": []
+        },
+        {
+          "code": "17 %",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18 %",
+          "libelle": "18 %",
+          "taux": 0.18,
+          "tauxSuivants": []
+        },
+        {
+          "code": "19 %",
+          "libelle": "19 %",
+          "taux": 0.19,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "21 %",
+          "libelle": "21 %",
+          "taux": 0.21,
+          "tauxSuivants": []
+        },
+        {
+          "code": "22 %",
+          "libelle": "22 %",
+          "taux": 0.22,
+          "tauxSuivants": []
+        },
+        {
+          "code": "23 %",
+          "libelle": "23 %",
+          "taux": 0.23,
+          "tauxSuivants": []
+        },
+        {
+          "code": "24 %",
+          "libelle": "24 %",
+          "taux": 0.24,
+          "tauxSuivants": []
+        },
+        {
+          "code": "25 %",
+          "libelle": "25 %",
+          "taux": 0.25,
+          "tauxSuivants": []
+        },
+        {
+          "code": "26 %",
+          "libelle": "26 %",
+          "taux": 0.26,
+          "tauxSuivants": []
+        },
+        {
+          "code": "27 %",
+          "libelle": "27 %",
+          "taux": 0.27,
+          "tauxSuivants": []
+        },
+        {
+          "code": "28 %",
+          "libelle": "28 %",
+          "taux": 0.28,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_6_11ANS_PRECOMPTE",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ALPTIS_ADE_SOPRETIS_6_11ANS_PRECOMPTE",
+      "libelle": "Alptis ADE Sopretis 6 11 ans Précompte",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.18,
+      "tauxMax": 0.48,
+      "aide": "SAISIE MANUELLE : 18 à 48% (année 1) / 0 à 23% (années suivantes)"
+    },
+    {
+      "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_GE_11ANS_LINEAIRE",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ALPTIS_ADE_SOPRETIS_GE_11ANS_LINEAIRE",
+      "libelle": "Alptis ADE Sopretis GE 11 ans Linéaire",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "1 %",
+          "libelle": "1 %",
+          "taux": 0.01,
+          "tauxSuivants": []
+        },
+        {
+          "code": "2 %",
+          "libelle": "2 %",
+          "taux": 0.02,
+          "tauxSuivants": []
+        },
+        {
+          "code": "3 %",
+          "libelle": "3 %",
+          "taux": 0.03,
+          "tauxSuivants": []
+        },
+        {
+          "code": "4 %",
+          "libelle": "4 %",
+          "taux": 0.04,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "6 %",
+          "libelle": "6 %",
+          "taux": 0.06,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7 %",
+          "libelle": "7 %",
+          "taux": 0.07,
+          "tauxSuivants": []
+        },
+        {
+          "code": "8 %",
+          "libelle": "8 %",
+          "taux": 0.08,
+          "tauxSuivants": []
+        },
+        {
+          "code": "9 %",
+          "libelle": "9 %",
+          "taux": 0.09,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "11 %",
+          "libelle": "11 %",
+          "taux": 0.11,
+          "tauxSuivants": []
+        },
+        {
+          "code": "12 %",
+          "libelle": "12 %",
+          "taux": 0.12,
+          "tauxSuivants": []
+        },
+        {
+          "code": "13 %",
+          "libelle": "13 %",
+          "taux": 0.13,
+          "tauxSuivants": []
+        },
+        {
+          "code": "14 %",
+          "libelle": "14 %",
+          "taux": 0.14,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "16 %",
+          "libelle": "16 %",
+          "taux": 0.16,
+          "tauxSuivants": []
+        },
+        {
+          "code": "17 %",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18 %",
+          "libelle": "18 %",
+          "taux": 0.18,
+          "tauxSuivants": []
+        },
+        {
+          "code": "19 %",
+          "libelle": "19 %",
+          "taux": 0.19,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "21 %",
+          "libelle": "21 %",
+          "taux": 0.21,
+          "tauxSuivants": []
+        },
+        {
+          "code": "22 %",
+          "libelle": "22 %",
+          "taux": 0.22,
+          "tauxSuivants": []
+        },
+        {
+          "code": "23 %",
+          "libelle": "23 %",
+          "taux": 0.23,
+          "tauxSuivants": []
+        },
+        {
+          "code": "24 %",
+          "libelle": "24 %",
+          "taux": 0.24,
+          "tauxSuivants": []
+        },
+        {
+          "code": "25 %",
+          "libelle": "25 %",
+          "taux": 0.25,
+          "tauxSuivants": []
+        },
+        {
+          "code": "26 %",
+          "libelle": "26 %",
+          "taux": 0.26,
+          "tauxSuivants": []
+        },
+        {
+          "code": "27 %",
+          "libelle": "27 %",
+          "taux": 0.27,
+          "tauxSuivants": []
+        },
+        {
+          "code": "28 %",
+          "libelle": "28 %",
+          "taux": 0.28,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_GE_11ANS_PRECOMPTE",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ALPTIS_ADE_SOPRETIS_GE_11ANS_PRECOMPTE",
+      "libelle": "Alptis ADE Sopretis GE 11 ans Précompte",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.18,
+      "tauxMax": 0.48,
+      "aide": "SAISIE MANUELLE : 18 à 48% (année 1) / 1 à 24% (années suivantes)"
+    },
+    {
+      "cle": "ALPTIS|ASSURANCE PRÊT|ALPTIS_ADE_SOPRETIS_LE_6ANS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ALPTIS_ADE_SOPRETIS_LE_6ANS",
+      "libelle": "Alptis ADE Sopretis LE 6 ans",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "1 %",
+          "libelle": "1 %",
+          "taux": 0.01,
+          "tauxSuivants": []
+        },
+        {
+          "code": "2 %",
+          "libelle": "2 %",
+          "taux": 0.02,
+          "tauxSuivants": []
+        },
+        {
+          "code": "3 %",
+          "libelle": "3 %",
+          "taux": 0.03,
+          "tauxSuivants": []
+        },
+        {
+          "code": "4 %",
+          "libelle": "4 %",
+          "taux": 0.04,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "6 %",
+          "libelle": "6 %",
+          "taux": 0.06,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7 %",
+          "libelle": "7 %",
+          "taux": 0.07,
+          "tauxSuivants": []
+        },
+        {
+          "code": "8 %",
+          "libelle": "8 %",
+          "taux": 0.08,
+          "tauxSuivants": []
+        },
+        {
+          "code": "9 %",
+          "libelle": "9 %",
+          "taux": 0.09,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "11 %",
+          "libelle": "11 %",
+          "taux": 0.11,
+          "tauxSuivants": []
+        },
+        {
+          "code": "12 %",
+          "libelle": "12 %",
+          "taux": 0.12,
+          "tauxSuivants": []
+        },
+        {
+          "code": "13 %",
+          "libelle": "13 %",
+          "taux": 0.13,
+          "tauxSuivants": []
+        },
+        {
+          "code": "14 %",
+          "libelle": "14 %",
+          "taux": 0.14,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "16 %",
+          "libelle": "16 %",
+          "taux": 0.16,
+          "tauxSuivants": []
+        },
+        {
+          "code": "17 %",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18 %",
+          "libelle": "18 %",
+          "taux": 0.18,
+          "tauxSuivants": []
+        },
+        {
+          "code": "19 %",
+          "libelle": "19 %",
+          "taux": 0.19,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "21 %",
+          "libelle": "21 %",
+          "taux": 0.21,
+          "tauxSuivants": []
+        },
+        {
+          "code": "22 %",
+          "libelle": "22 %",
+          "taux": 0.22,
+          "tauxSuivants": []
+        },
+        {
+          "code": "23 %",
+          "libelle": "23 %",
+          "taux": 0.23,
+          "tauxSuivants": []
+        },
+        {
+          "code": "24 %",
+          "libelle": "24 %",
+          "taux": 0.24,
+          "tauxSuivants": []
+        },
+        {
+          "code": "25 %",
+          "libelle": "25 %",
+          "taux": 0.25,
+          "tauxSuivants": []
+        },
+        {
+          "code": "26 %",
+          "libelle": "26 %",
+          "taux": 0.26,
+          "tauxSuivants": []
+        },
+        {
+          "code": "27 %",
+          "libelle": "27 %",
+          "taux": 0.27,
+          "tauxSuivants": []
+        },
+        {
+          "code": "28 %",
+          "libelle": "28 %",
+          "taux": 0.28,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|MUTUELLE|ALPTIS_LUMINEIS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ALPTIS_LUMINEIS",
+      "libelle": "Alptis Lumineis",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15% LI (socle/packs simultanés)",
+          "libelle": "15 % linéaire (socle/packs simultanés)",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/10% PRE (socle/packs simultanés)",
+          "libelle": "30 % / 10 % précompte (socle/packs simultanés)",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|MUTUELLE|ALPTIS_LUMINEIS_PACK_POST",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ALPTIS_LUMINEIS_PACK_POST",
+      "libelle": "Alptis Lumineis Pack Post",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10% LI (packs postérieurs)",
+          "libelle": "10 % linéaire (packs postérieurs)",
+          "taux": 0.1,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_FRONTALIERS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ALPTIS_SANTE_FRONTALIERS",
+      "libelle": "Alptis Santé Frontaliers",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15% LI",
+          "libelle": "15 % linéaire",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20% LI",
+          "libelle": "20 % linéaire",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/10% PRE",
+          "libelle": "30 % / 10 % précompte",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_PRO_PLUS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ALPTIS_SANTE_PRO_PLUS",
+      "libelle": "Alptis Santé Pro Plus",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/10% PRE",
+          "libelle": "30 % / 10 % précompte",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "40%/10% PRE",
+          "libelle": "40 % / 10 % précompte",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_PROTECT",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ALPTIS_SANTE_PROTECT",
+      "libelle": "Alptis Santé Protect",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15% LI",
+          "libelle": "15 % linéaire",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18% LI",
+          "libelle": "18 % linéaire",
+          "taux": 0.18,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_SELECT",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ALPTIS_SANTE_SELECT",
+      "libelle": "Alptis Santé Select",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0% LI",
+          "libelle": "0 % linéaire",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "1% LI",
+          "libelle": "1 % linéaire",
+          "taux": 0.01,
+          "tauxSuivants": []
+        },
+        {
+          "code": "2% LI",
+          "libelle": "2 % linéaire",
+          "taux": 0.02,
+          "tauxSuivants": []
+        },
+        {
+          "code": "3% LI",
+          "libelle": "3 % linéaire",
+          "taux": 0.03,
+          "tauxSuivants": []
+        },
+        {
+          "code": "4% LI",
+          "libelle": "4 % linéaire",
+          "taux": 0.04,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5% LI",
+          "libelle": "5 % linéaire",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "6% LI",
+          "libelle": "6 % linéaire",
+          "taux": 0.06,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7% LI",
+          "libelle": "7 % linéaire",
+          "taux": 0.07,
+          "tauxSuivants": []
+        },
+        {
+          "code": "8% LI",
+          "libelle": "8 % linéaire",
+          "taux": 0.08,
+          "tauxSuivants": []
+        },
+        {
+          "code": "9% LI",
+          "libelle": "9 % linéaire",
+          "taux": 0.09,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10% LI",
+          "libelle": "10 % linéaire",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "11% LI",
+          "libelle": "11 % linéaire",
+          "taux": 0.11,
+          "tauxSuivants": []
+        },
+        {
+          "code": "12% LI",
+          "libelle": "12 % linéaire",
+          "taux": 0.12,
+          "tauxSuivants": []
+        },
+        {
+          "code": "13% LI",
+          "libelle": "13 % linéaire",
+          "taux": 0.13,
+          "tauxSuivants": []
+        },
+        {
+          "code": "14% LI",
+          "libelle": "14 % linéaire",
+          "taux": 0.14,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15% LI",
+          "libelle": "15 % linéaire",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "16% LI",
+          "libelle": "16 % linéaire",
+          "taux": 0.16,
+          "tauxSuivants": []
+        },
+        {
+          "code": "17% LI",
+          "libelle": "17 % linéaire",
+          "taux": 0.17,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18% LI",
+          "libelle": "18 % linéaire",
+          "taux": 0.18,
+          "tauxSuivants": []
+        },
+        {
+          "code": "19% LI",
+          "libelle": "19 % linéaire",
+          "taux": 0.19,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20% LI",
+          "libelle": "20 % linéaire",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/10% PRE",
+          "libelle": "30 % / 10 % précompte",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "40%/10% PRE",
+          "libelle": "40 % / 10 % précompte",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|MUTUELLE|ALPTIS_SANTE_EQUILIBRE",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ALPTIS_SANTE_EQUILIBRE",
+      "libelle": "Alptis Santé Équilibre",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/10% PRE",
+          "libelle": "30 % / 10 % précompte",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15% LI",
+          "libelle": "15 % linéaire",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18% LI",
+          "libelle": "18 % linéaire",
+          "taux": 0.18,
+          "tauxSuivants": []
+        },
+        {
+          "code": "40%/10% PRE",
+          "libelle": "40 % / 10 % précompte",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|DECES_PLUS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "DECES_PLUS",
+      "libelle": "Décès Plus",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/10% PRE",
+          "libelle": "50 % / 10 % précompte",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "18% LI",
+          "libelle": "18 % linéaire",
+          "taux": 0.18,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|FRAIS_GENERAUX_PLUS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "FRAIS_GENERAUX_PLUS",
+      "libelle": "Frais Généraux Plus",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/10% PRE",
+          "libelle": "30 % / 10 % précompte",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "40%/10% PRE",
+          "libelle": "40 % / 10 % précompte",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|GARANTIE_DEPENDANCE_ALPTIS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "GARANTIE_DEPENDANCE_ALPTIS",
+      "libelle": "Garantie Dépendance Alptis",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "20%/10% PRE",
+          "libelle": "20 % / 10 % précompte",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "60%/5% PRE",
+          "libelle": "60 % / 5 % précompte",
+          "taux": 0.6,
+          "tauxSuivants": [
+            0.05
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_GE_500K_REDUIT",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "HOMME_CLE_GE_500K_REDUIT",
+      "libelle": "Homme Clé GE 500K Réduit",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/10% PRE",
+          "libelle": "30 % / 10 % précompte",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "14% LI",
+          "libelle": "14 % linéaire",
+          "taux": 0.14,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_GE_500K_STANDARD",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "HOMME_CLE_GE_500K_STANDARD",
+      "libelle": "Homme Clé GE 500K Standard",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/10% PRE",
+          "libelle": "50 % / 10 % précompte",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "18% LI",
+          "libelle": "18 % linéaire",
+          "taux": 0.18,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_LT_500K_GE_40_REDUIT",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "HOMME_CLE_LT_500K_GE_40_REDUIT",
+      "libelle": "Homme Clé LT 500K GE 40 Réduit",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/10% PRE",
+          "libelle": "30 % / 10 % précompte",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "14% LI",
+          "libelle": "14 % linéaire",
+          "taux": 0.14,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_LT_500K_GE_40_STANDARD",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "HOMME_CLE_LT_500K_GE_40_STANDARD",
+      "libelle": "Homme Clé LT 500K GE 40 Standard",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/10% PRE",
+          "libelle": "50 % / 10 % précompte",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "18% LI",
+          "libelle": "18 % linéaire",
+          "taux": 0.18,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|HOMME_CLE_LT_500K_LT_40",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "HOMME_CLE_LT_500K_LT_40",
+      "libelle": "Homme Clé LT 500K LT 40",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/10% PRE",
+          "libelle": "50 % / 10 % précompte",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "18% LI",
+          "libelle": "18 % linéaire",
+          "taux": 0.18,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|PREVOYANCE_FRONTALIERS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "PREVOYANCE_FRONTALIERS",
+      "libelle": "Prévoyance Frontaliers",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/10% PRE",
+          "libelle": "50 % / 10 % précompte",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|PREVOYANCE_PRO_PLUS",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "PREVOYANCE_PRO_PLUS",
+      "libelle": "Prévoyance Pro Plus",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/10% PRE",
+          "libelle": "30 % / 10 % précompte",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "40%/10% PRE",
+          "libelle": "40 % / 10 % précompte",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ALPTIS|PREVOYANCE|SPI_V4",
+      "compagnie": "ALPTIS",
+      "compagnieLibelle": "Alptis",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SPI_V4",
+      "libelle": "SPI V4",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/10% PRE",
+          "libelle": "30 % / 10 % précompte",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "40%/10% PRE",
+          "libelle": "40 % / 10 % précompte",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|ASSURANCE PRÊT|APIVIA_EMPRUNTEUR_CHOIX_1",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "APIVIA_EMPRUNTEUR_CHOIX_1",
+      "libelle": "Apivia Emprunteur Choix 1",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|ASSURANCE PRÊT|APIVIA_EMPRUNTEUR_CHOIX_2",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "APIVIA_EMPRUNTEUR_CHOIX_2",
+      "libelle": "Apivia Emprunteur Choix 2",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "12%/12%",
+          "libelle": "12 % / 12 %",
+          "taux": 0.12,
+          "tauxSuivants": [
+            0.12
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|ASSURANCE PRÊT|APIVIA_EMPRUNTEUR_PERTE_EMPLOI",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "APIVIA_EMPRUNTEUR_PERTE_EMPLOI",
+      "libelle": "Apivia Emprunteur Perte Emploi",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "5%/10%",
+          "libelle": "5 % / 10 %",
+          "taux": 0.05,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|ASSURANCE PRÊT|APIVIA_EMPRUNTEUR_RISQUES_AGGRAVES",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "APIVIA_EMPRUNTEUR_RISQUES_AGGRAVES",
+      "libelle": "Apivia Emprunteur Risques Aggravés",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|MUTUELLE|ACS_COULEUR_MUTUELLE",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ACS_COULEUR_MUTUELLE",
+      "libelle": "ACS Couleur Mutuelle",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "5%",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|MUTUELLE|APIVIA_VITAMIN",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "APIVIA_VITAMIN",
+      "libelle": "Apivia Vitamin",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "22%/16%",
+          "libelle": "22 % / 16 %",
+          "taux": 0.22,
+          "tauxSuivants": [
+            0.16
+          ]
+        },
+        {
+          "code": "30%/11%/12%/13%/14%",
+          "libelle": "30 % / 11 % / 12 % / 13 % / 14 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.11,
+            0.12,
+            0.13,
+            0.14
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|MUTUELLE|APIVIA_VITAMIN_HOSPI",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "APIVIA_VITAMIN_HOSPI",
+      "libelle": "Apivia Vitamin Hospi",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "22%/16%",
+          "libelle": "22 % / 16 %",
+          "taux": 0.22,
+          "tauxSuivants": [
+            0.16
+          ]
+        },
+        {
+          "code": "30%/11%/12%/13%/14%",
+          "libelle": "30 % / 11 % / 12 % / 13 % / 14 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.11,
+            0.12,
+            0.13,
+            0.14
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|MUTUELLE|APIVIA_VITAMIN_PRO",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "APIVIA_VITAMIN_PRO",
+      "libelle": "Apivia Vitamin Pro",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/11%/12%/13%/14%",
+          "libelle": "30 % / 11 % / 12 % / 13 % / 14 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.11,
+            0.12,
+            0.13,
+            0.14
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|MUTUELLE|SANTE_PLUS_COLLECTIF_C1",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_PLUS_COLLECTIF_C1",
+      "libelle": "Santé Plus Collectif C1",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "9%",
+          "libelle": "9 %",
+          "taux": 0.09,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|MUTUELLE|SANTE_PLUS_COLLECTIF_C2",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_PLUS_COLLECTIF_C2",
+      "libelle": "Santé Plus Collectif C2",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "20%/10%/5%",
+          "libelle": "20 % / 10 % / 5 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.1,
+            0.05
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_DEPENDANCE_PP",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_DEPENDANCE_PP",
+      "libelle": "Apivia Dépendance PP",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/15%",
+          "libelle": "30 % / 15 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.15
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_DEPENDANCE_PU",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_DEPENDANCE_PU",
+      "libelle": "Apivia Dépendance PU",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_10ANS",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_FRAIS_OBSEQUES_10ANS",
+      "libelle": "Apivia Frais Obsèques 10 ans",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "38%/8%",
+          "libelle": "38 % / 8 %",
+          "taux": 0.38,
+          "tauxSuivants": [
+            0.08
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_15ANS",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_FRAIS_OBSEQUES_15ANS",
+      "libelle": "Apivia Frais Obsèques 15 ans",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "38%/8%",
+          "libelle": "38 % / 8 %",
+          "taux": 0.38,
+          "tauxSuivants": [
+            0.08
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_25ANS",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_FRAIS_OBSEQUES_25ANS",
+      "libelle": "Apivia Frais Obsèques 25 ans",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "45%/8%",
+          "libelle": "45 % / 8 %",
+          "taux": 0.45,
+          "tauxSuivants": [
+            0.08
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_5ANS",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_FRAIS_OBSEQUES_5ANS",
+      "libelle": "Apivia Frais Obsèques 5 ans",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "28%/8%",
+          "libelle": "28 % / 8 %",
+          "taux": 0.28,
+          "tauxSuivants": [
+            0.08
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_FRAIS_OBSEQUES_VIAGERES",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_FRAIS_OBSEQUES_VIAGERES",
+      "libelle": "Apivia Frais Obsèques Viagères",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/8%",
+          "libelle": "50 % / 8 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.08
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_OBSEQUES",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_OBSEQUES",
+      "libelle": "Apivia Obsèques",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_PREV_EMPRUNTEUR_CHOIX_1",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_PREV_EMPRUNTEUR_CHOIX_1",
+      "libelle": "Apivia Prev Emprunteur Choix 1",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_PREV_EMPRUNTEUR_CHOIX_2",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_PREV_EMPRUNTEUR_CHOIX_2",
+      "libelle": "Apivia Prev Emprunteur Choix 2",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "12%/12%",
+          "libelle": "12 % / 12 %",
+          "taux": 0.12,
+          "tauxSuivants": [
+            0.12
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_PREV_EMPRUNTEUR_PERTE_EMPLOI",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_PREV_EMPRUNTEUR_PERTE_EMPLOI",
+      "libelle": "Apivia Prev Emprunteur Perte Emploi",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "5%/10%",
+          "libelle": "5 % / 10 %",
+          "taux": 0.05,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_PREV_EMPRUNTEUR_RISQUES_AGGRAVES",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_PREV_EMPRUNTEUR_RISQUES_AGGRAVES",
+      "libelle": "Apivia Prev Emprunteur Risques Aggravés",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_PREVOYANCE_INDEPENDANTS",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_PREVOYANCE_INDEPENDANTS",
+      "libelle": "Apivia Prévoyance Indépendants",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APIVIA|PREVOYANCE|APIVIA_TEMPO_DECES",
+      "compagnie": "APIVIA",
+      "compagnieLibelle": "Apivia",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "APIVIA_TEMPO_DECES",
+      "libelle": "Apivia Tempo Décès",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "60%/10%",
+          "libelle": "60 % / 10 %",
+          "taux": 0.6,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|ASSURANCE PRÊT|ESSENTIEL",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "ESSENTIEL",
+      "libelle": "Essentiel",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "30%/30%",
+          "libelle": "30 % / 30 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.3
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "12%/12%",
+          "libelle": "12 % / 12 %",
+          "taux": 0.12,
+          "tauxSuivants": [
+            0.12
+          ]
+        },
+        {
+          "code": "8%/8%",
+          "libelle": "8 % / 8 %",
+          "taux": 0.08,
+          "tauxSuivants": [
+            0.08
+          ]
+        },
+        {
+          "code": "50%/20%",
+          "libelle": "50 % / 20 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "50%/15%",
+          "libelle": "50 % / 15 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "50%/10%",
+          "libelle": "50 % / 10 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|ASSURANCE PRÊT|HORIZON",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "HORIZON",
+      "libelle": "Horizon",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "30%/30%",
+          "libelle": "30 % / 30 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.3
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "12%/12%",
+          "libelle": "12 % / 12 %",
+          "taux": 0.12,
+          "tauxSuivants": [
+            0.12
+          ]
+        },
+        {
+          "code": "8%/8%",
+          "libelle": "8 % / 8 %",
+          "taux": 0.08,
+          "tauxSuivants": [
+            0.08
+          ]
+        },
+        {
+          "code": "50%/10%",
+          "libelle": "50 % / 10 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "50%/15%",
+          "libelle": "50 % / 15 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "50%/20%",
+          "libelle": "50 % / 20 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.2
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|ASSURANCE PRÊT|INTEGRALE",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "INTEGRALE",
+      "libelle": "Intégrale",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "50%/10%",
+          "libelle": "50 % / 10 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "50%/15%",
+          "libelle": "50 % / 15 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "8%/8%",
+          "libelle": "8 % / 8 %",
+          "taux": 0.08,
+          "tauxSuivants": [
+            0.08
+          ]
+        },
+        {
+          "code": "12%/12%",
+          "libelle": "12 % / 12 %",
+          "taux": 0.12,
+          "tauxSuivants": [
+            0.12
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "30%/30%",
+          "libelle": "30 % / 30 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.3
+          ]
+        },
+        {
+          "code": "50%/20%",
+          "libelle": "50 % / 20 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.2
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|ASSURANCE PRÊT|OPTIMUM_PLUS",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "OPTIMUM_PLUS",
+      "libelle": "Optimum Plus",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "30%/30%",
+          "libelle": "30 % / 30 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.3
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "12%/12%",
+          "libelle": "12 % / 12 %",
+          "taux": 0.12,
+          "tauxSuivants": [
+            0.12
+          ]
+        },
+        {
+          "code": "8%/8%",
+          "libelle": "8 % / 8 %",
+          "taux": 0.08,
+          "tauxSuivants": [
+            0.08
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "50%/10%",
+          "libelle": "50 % / 10 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "50%/15%",
+          "libelle": "50 % / 15 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "50%/20%",
+          "libelle": "50 % / 20 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.2
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|ASSURANCE PRÊT|EQUILIBRE",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "EQUILIBRE",
+      "libelle": "Équilibre",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "12%/12%",
+          "libelle": "12 % / 12 %",
+          "taux": 0.12,
+          "tauxSuivants": [
+            0.12
+          ]
+        },
+        {
+          "code": "8%/8%",
+          "libelle": "8 % / 8 %",
+          "taux": 0.08,
+          "tauxSuivants": [
+            0.08
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "50%/15%",
+          "libelle": "50 % / 15 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "50%/10%",
+          "libelle": "50 % / 10 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|MUTUELLE|SANTE_MODUL_COLL",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_MODUL_COLL",
+      "libelle": "Santé Modul Coll",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "14%/14%",
+          "libelle": "14 % / 14 %",
+          "taux": 0.14,
+          "tauxSuivants": [
+            0.14
+          ]
+        },
+        {
+          "code": "12%/12%",
+          "libelle": "12 % / 12 %",
+          "taux": 0.12,
+          "tauxSuivants": [
+            0.12
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "8%/8%",
+          "libelle": "8 % / 8 %",
+          "taux": 0.08,
+          "tauxSuivants": [
+            0.08
+          ]
+        },
+        {
+          "code": "7%/7%",
+          "libelle": "7 % / 7 %",
+          "taux": 0.07,
+          "tauxSuivants": [
+            0.07
+          ]
+        },
+        {
+          "code": "6%/6%",
+          "libelle": "6 % / 6 %",
+          "taux": 0.06,
+          "tauxSuivants": [
+            0.06
+          ]
+        },
+        {
+          "code": "5%/5%",
+          "libelle": "5 % / 5 %",
+          "taux": 0.05,
+          "tauxSuivants": [
+            0.05
+          ]
+        },
+        {
+          "code": "4%/4%",
+          "libelle": "4 % / 4 %",
+          "taux": 0.04,
+          "tauxSuivants": [
+            0.04
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|MUTUELLE|SANTE_PARTICULIERS",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_PARTICULIERS",
+      "libelle": "Santé Particuliers",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|MUTUELLE|SANTE_PRIVILEGE",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_PRIVILEGE",
+      "libelle": "Santé Privilège",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0%/0%",
+          "libelle": "0 % / 0 %",
+          "taux": 0.0,
+          "tauxSuivants": [
+            0.0
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|MUTUELLE|SANTE_PRO",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_PRO",
+      "libelle": "Santé Pro",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0%/0%",
+          "libelle": "0 % / 0 %",
+          "taux": 0.0,
+          "tauxSuivants": [
+            0.0
+          ]
+        },
+        {
+          "code": "7%/7%",
+          "libelle": "7 % / 7 %",
+          "taux": 0.07,
+          "tauxSuivants": [
+            0.07
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "18%/18%",
+          "libelle": "18 % / 18 %",
+          "taux": 0.18,
+          "tauxSuivants": [
+            0.18
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "33%/11%",
+          "libelle": "33 % / 11 %",
+          "taux": 0.33,
+          "tauxSuivants": [
+            0.11
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|MUTUELLE|SANTE_SENIORS",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_SENIORS",
+      "libelle": "Santé Seniors",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|MUTUELLE|SANTE_START",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_START",
+      "libelle": "Santé Start",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0%/0%",
+          "libelle": "0 % / 0 %",
+          "taux": 0.0,
+          "tauxSuivants": [
+            0.0
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|MUTUELLE|SANTE_TPE_COLL",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_TPE_COLL",
+      "libelle": "Santé TPE Coll",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "20%/7%",
+          "libelle": "20 % / 7 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.07
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "7%/7%",
+          "libelle": "7 % / 7 %",
+          "taux": 0.07,
+          "tauxSuivants": [
+            0.07
+          ]
+        },
+        {
+          "code": "5%/5%",
+          "libelle": "5 % / 5 %",
+          "taux": 0.05,
+          "tauxSuivants": [
+            0.05
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|PREVOYANCE|ACCIDENT",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "ACCIDENT",
+      "libelle": "Accident",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/10%",
+          "libelle": "50 % / 10 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "100%/10%",
+          "libelle": "100 % / 10 %",
+          "taux": 1.0,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|PREVOYANCE|ASSOCIES_PCLE",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "ASSOCIES_PCLE",
+      "libelle": "Associés Pcle",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|PREVOYANCE|CHOMAGE_DIRIG",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "CHOMAGE_DIRIG",
+      "libelle": "Chômage Dirig",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "0%/0%",
+          "libelle": "0 % / 0 %",
+          "taux": 0.0,
+          "tauxSuivants": [
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|PREVOYANCE|FRAIS_GEN_PERM",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "FRAIS_GEN_PERM",
+      "libelle": "Frais Gen Perm",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|PREVOYANCE|HOSPI_PLUS",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "HOSPI_PLUS",
+      "libelle": "Hospi Plus",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "70%/20%",
+          "libelle": "70 % / 20 %",
+          "taux": 0.7,
+          "tauxSuivants": [
+            0.2
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|PREVOYANCE|OBSEQUES",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "OBSEQUES",
+      "libelle": "Obsèques",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/8%",
+          "libelle": "50 % / 8 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.08
+          ]
+        },
+        {
+          "code": "30%/8%",
+          "libelle": "30 % / 8 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.08
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|PREVOYANCE|PREV_MODUL_COLL",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "PREV_MODUL_COLL",
+      "libelle": "Prev Modul Coll",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "7%/7%",
+          "libelle": "7 % / 7 %",
+          "taux": 0.07,
+          "tauxSuivants": [
+            0.07
+          ]
+        },
+        {
+          "code": "5%/5%",
+          "libelle": "5 % / 5 %",
+          "taux": 0.05,
+          "tauxSuivants": [
+            0.05
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|PREVOYANCE|PRO_PREMIUM",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "PRO_PREMIUM",
+      "libelle": "Pro Premium",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "APRIL|PREVOYANCE|TEMPO_DECES",
+      "compagnie": "APRIL",
+      "compagnieLibelle": "April",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "TEMPO_DECES",
+      "libelle": "Tempo Décès",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "70%/10%",
+          "libelle": "70 % / 10 %",
+          "taux": 0.7,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "50%/10%",
+          "libelle": "50 % / 10 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ASSUREA|ASSURANCE PRÊT|(contrat unique)",
+      "compagnie": "ASSUREA",
+      "compagnieLibelle": "Assurea",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "(contrat unique)",
+      "libelle": "Contrat unique",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 0.7,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "CARDIF|ASSURANCE VIE|CARDIF ELITE",
+      "compagnie": "CARDIF",
+      "compagnieLibelle": "Cardif",
+      "famille": "ASSURANCE VIE",
+      "familleLibelle": "Assurance vie",
+      "nom": "CARDIF ELITE",
+      "libelle": "Cardif Elite",
+      "base": "VERSEMENT_ANNUEL",
+      "horsTaxe": false,
+      "aConfirmer": [
+        "Barème relevé tel quel dans la grille, pour une réversion de 70 %. Ajustement proportionnel pour les autres taux de réversion non confirmé."
+      ],
+      "mode": "BAREME",
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "2,75 %",
+          "libelle": "2,75 % de frais",
+          "frais": 0.0275,
+          "tauxMandataireReference": 0.3332
+        },
+        {
+          "code": "2,5 %",
+          "libelle": "2,5 % de frais",
+          "frais": 0.025,
+          "tauxMandataireReference": 0.3079
+        },
+        {
+          "code": "2 %",
+          "libelle": "2 % de frais",
+          "frais": 0.02,
+          "tauxMandataireReference": 0.2602
+        },
+        {
+          "code": "1,5 %",
+          "libelle": "1,5 % de frais",
+          "frais": 0.015,
+          "tauxMandataireReference": 0.2115
+        },
+        {
+          "code": "1 %",
+          "libelle": "1 % de frais",
+          "frais": 0.01,
+          "tauxMandataireReference": 0.1627
+        },
+        {
+          "code": "0,5 %",
+          "libelle": "0,5 % de frais",
+          "frais": 0.005,
+          "tauxMandataireReference": 0.1141
+        },
+        {
+          "code": "0 %",
+          "libelle": "0 % de frais",
+          "frais": 0,
+          "tauxMandataireReference": 0.0655
+        }
+      ]
+    },
+    {
+      "cle": "CARDIF|PU/VL|CARDIF ELITE",
+      "compagnie": "CARDIF",
+      "compagnieLibelle": "Cardif",
+      "famille": "PU/VL",
+      "familleLibelle": "Versements uniques et libres",
+      "nom": "CARDIF ELITE",
+      "libelle": "Cardif Elite",
+      "base": "VERSEMENT_UNIQUE",
+      "horsTaxe": false,
+      "mode": "TAUX",
+      "ajout": -0.005,
+      "multiplicateur": 1,
+      "saisie": "FRAIS_LIBRES",
+      "fraisParDefaut": 0.03
+    },
+    {
+      "cle": "ENTORIA|MUTUELLE|ENTORIA_SANTE_TNS",
+      "compagnie": "ENTORIA",
+      "compagnieLibelle": "Entoria",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ENTORIA_SANTE_TNS",
+      "libelle": "Entoria Santé TNS",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "1 %",
+          "libelle": "1 %",
+          "taux": 0.01,
+          "tauxSuivants": []
+        },
+        {
+          "code": "2 %",
+          "libelle": "2 %",
+          "taux": 0.02,
+          "tauxSuivants": []
+        },
+        {
+          "code": "3 %",
+          "libelle": "3 %",
+          "taux": 0.03,
+          "tauxSuivants": []
+        },
+        {
+          "code": "4 %",
+          "libelle": "4 %",
+          "taux": 0.04,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "6 %",
+          "libelle": "6 %",
+          "taux": 0.06,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7 %",
+          "libelle": "7 %",
+          "taux": 0.07,
+          "tauxSuivants": []
+        },
+        {
+          "code": "8 %",
+          "libelle": "8 %",
+          "taux": 0.08,
+          "tauxSuivants": []
+        },
+        {
+          "code": "9 %",
+          "libelle": "9 %",
+          "taux": 0.09,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "11 %",
+          "libelle": "11 %",
+          "taux": 0.11,
+          "tauxSuivants": []
+        },
+        {
+          "code": "12 %",
+          "libelle": "12 %",
+          "taux": 0.12,
+          "tauxSuivants": []
+        },
+        {
+          "code": "13 %",
+          "libelle": "13 %",
+          "taux": 0.13,
+          "tauxSuivants": []
+        },
+        {
+          "code": "14 %",
+          "libelle": "14 %",
+          "taux": 0.14,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "16 %",
+          "libelle": "16 %",
+          "taux": 0.16,
+          "tauxSuivants": []
+        },
+        {
+          "code": "17 %",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18 %",
+          "libelle": "18 %",
+          "taux": 0.18,
+          "tauxSuivants": []
+        },
+        {
+          "code": "19 %",
+          "libelle": "19 %",
+          "taux": 0.19,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ENTORIA|MUTUELLE|ENTORIA_TIME_PRO_SANTE",
+      "compagnie": "ENTORIA",
+      "compagnieLibelle": "Entoria",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "ENTORIA_TIME_PRO_SANTE",
+      "libelle": "Entoria Time Pro Santé",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "1 %",
+          "libelle": "1 %",
+          "taux": 0.01,
+          "tauxSuivants": []
+        },
+        {
+          "code": "2 %",
+          "libelle": "2 %",
+          "taux": 0.02,
+          "tauxSuivants": []
+        },
+        {
+          "code": "3 %",
+          "libelle": "3 %",
+          "taux": 0.03,
+          "tauxSuivants": []
+        },
+        {
+          "code": "4 %",
+          "libelle": "4 %",
+          "taux": 0.04,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "6 %",
+          "libelle": "6 %",
+          "taux": 0.06,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7 %",
+          "libelle": "7 %",
+          "taux": 0.07,
+          "tauxSuivants": []
+        },
+        {
+          "code": "8 %",
+          "libelle": "8 %",
+          "taux": 0.08,
+          "tauxSuivants": []
+        },
+        {
+          "code": "9 %",
+          "libelle": "9 %",
+          "taux": 0.09,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "11 %",
+          "libelle": "11 %",
+          "taux": 0.11,
+          "tauxSuivants": []
+        },
+        {
+          "code": "12 %",
+          "libelle": "12 %",
+          "taux": 0.12,
+          "tauxSuivants": []
+        },
+        {
+          "code": "13 %",
+          "libelle": "13 %",
+          "taux": 0.13,
+          "tauxSuivants": []
+        },
+        {
+          "code": "14 %",
+          "libelle": "14 %",
+          "taux": 0.14,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "16 %",
+          "libelle": "16 %",
+          "taux": 0.16,
+          "tauxSuivants": []
+        },
+        {
+          "code": "17 %",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18 %",
+          "libelle": "18 %",
+          "taux": 0.18,
+          "tauxSuivants": []
+        },
+        {
+          "code": "19 %",
+          "libelle": "19 %",
+          "taux": 0.19,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ENTORIA|PREVOYANCE|PROTECFI",
+      "compagnie": "ENTORIA",
+      "compagnieLibelle": "Entoria",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "PROTECFI",
+      "libelle": "Protecfi",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "1 %",
+          "libelle": "1 %",
+          "taux": 0.01,
+          "tauxSuivants": []
+        },
+        {
+          "code": "2 %",
+          "libelle": "2 %",
+          "taux": 0.02,
+          "tauxSuivants": []
+        },
+        {
+          "code": "3 %",
+          "libelle": "3 %",
+          "taux": 0.03,
+          "tauxSuivants": []
+        },
+        {
+          "code": "4 %",
+          "libelle": "4 %",
+          "taux": 0.04,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "6 %",
+          "libelle": "6 %",
+          "taux": 0.06,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7 %",
+          "libelle": "7 %",
+          "taux": 0.07,
+          "tauxSuivants": []
+        },
+        {
+          "code": "8 %",
+          "libelle": "8 %",
+          "taux": 0.08,
+          "tauxSuivants": []
+        },
+        {
+          "code": "9 %",
+          "libelle": "9 %",
+          "taux": 0.09,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "11 %",
+          "libelle": "11 %",
+          "taux": 0.11,
+          "tauxSuivants": []
+        },
+        {
+          "code": "12 %",
+          "libelle": "12 %",
+          "taux": 0.12,
+          "tauxSuivants": []
+        },
+        {
+          "code": "13 %",
+          "libelle": "13 %",
+          "taux": 0.13,
+          "tauxSuivants": []
+        },
+        {
+          "code": "14 %",
+          "libelle": "14 %",
+          "taux": 0.14,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "16 %",
+          "libelle": "16 %",
+          "taux": 0.16,
+          "tauxSuivants": []
+        },
+        {
+          "code": "17 %",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18 %",
+          "libelle": "18 %",
+          "taux": 0.18,
+          "tauxSuivants": []
+        },
+        {
+          "code": "19 %",
+          "libelle": "19 %",
+          "taux": 0.19,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "ENTORIA|PREVOYANCE|PREVOYANCE_TNS",
+      "compagnie": "ENTORIA",
+      "compagnieLibelle": "Entoria",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "PREVOYANCE_TNS",
+      "libelle": "Prévoyance TNS",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/15%",
+          "libelle": "30 % / 15 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "40%/12%",
+          "libelle": "40 % / 12 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.12
+          ]
+        },
+        {
+          "code": "50%/10%",
+          "libelle": "50 % / 10 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "1 %",
+          "libelle": "1 %",
+          "taux": 0.01,
+          "tauxSuivants": []
+        },
+        {
+          "code": "2 %",
+          "libelle": "2 %",
+          "taux": 0.02,
+          "tauxSuivants": []
+        },
+        {
+          "code": "3 %",
+          "libelle": "3 %",
+          "taux": 0.03,
+          "tauxSuivants": []
+        },
+        {
+          "code": "4 %",
+          "libelle": "4 %",
+          "taux": 0.04,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "6 %",
+          "libelle": "6 %",
+          "taux": 0.06,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7 %",
+          "libelle": "7 %",
+          "taux": 0.07,
+          "tauxSuivants": []
+        },
+        {
+          "code": "8 %",
+          "libelle": "8 %",
+          "taux": 0.08,
+          "tauxSuivants": []
+        },
+        {
+          "code": "9 %",
+          "libelle": "9 %",
+          "taux": 0.09,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "11 %",
+          "libelle": "11 %",
+          "taux": 0.11,
+          "tauxSuivants": []
+        },
+        {
+          "code": "12 %",
+          "libelle": "12 %",
+          "taux": 0.12,
+          "tauxSuivants": []
+        },
+        {
+          "code": "13 %",
+          "libelle": "13 %",
+          "taux": 0.13,
+          "tauxSuivants": []
+        },
+        {
+          "code": "14 %",
+          "libelle": "14 %",
+          "taux": 0.14,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "16 %",
+          "libelle": "16 %",
+          "taux": 0.16,
+          "tauxSuivants": []
+        },
+        {
+          "code": "17 %",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        },
+        {
+          "code": "18 %",
+          "libelle": "18 %",
+          "taux": 0.18,
+          "tauxSuivants": []
+        },
+        {
+          "code": "19 %",
+          "libelle": "19 %",
+          "taux": 0.19,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "GENERALI|MUTUELLE|SANTE PRO",
+      "compagnie": "GENERALI",
+      "compagnieLibelle": "Generali",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE PRO",
+      "libelle": "Santé Pro",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "GENERALI|PREVOYANCE|GENERALI_PREVOYANCE",
+      "compagnie": "GENERALI",
+      "compagnieLibelle": "Generali",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "GENERALI_PREVOYANCE",
+      "libelle": "Generali Prévoyance",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/18%",
+          "libelle": "30 % / 18 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.18
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "GENERALI|RETRAITE|GENERALI RETRAITE PRO",
+      "compagnie": "GENERALI",
+      "compagnieLibelle": "Generali",
+      "famille": "RETRAITE",
+      "familleLibelle": "Retraite",
+      "nom": "GENERALI RETRAITE PRO",
+      "libelle": "Generali Retraite Pro",
+      "base": "VERSEMENT_ANNUEL",
+      "horsTaxe": false,
+      "aConfirmer": [
+        "Barème relevé tel quel dans la grille, pour une réversion de 70 %. Ajustement proportionnel pour les autres taux de réversion non confirmé."
+      ],
+      "mode": "BAREME",
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "2,95 %",
+          "libelle": "2,95 % de frais",
+          "frais": 0.0295,
+          "tauxMandataireReference": 0.363
+        },
+        {
+          "code": "0,95 %",
+          "libelle": "0,95 % de frais",
+          "frais": 0.0095,
+          "tauxMandataireReference": 0.238
+        }
+      ]
+    },
+    {
+      "cle": "HENNER|MUTUELLE|SANTE_PRO_H",
+      "compagnie": "HENNER",
+      "compagnieLibelle": "Henner",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_PRO_H",
+      "libelle": "Santé Pro H",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "HENNER|MUTUELLE|SOLUT_ACT_SANTE",
+      "compagnie": "HENNER",
+      "compagnieLibelle": "Henner",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SOLUT_ACT_SANTE",
+      "libelle": "Solut Act Santé",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "25 %",
+          "libelle": "25 %",
+          "taux": 0.25,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "HENNER|MUTUELLE|SOLUT_IND_SANTE",
+      "compagnie": "HENNER",
+      "compagnieLibelle": "Henner",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SOLUT_IND_SANTE",
+      "libelle": "Solut Ind Santé",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "25 %",
+          "libelle": "25 %",
+          "taux": 0.25,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "HODEVA|MUTUELLE|SANTE_SENIOR",
+      "compagnie": "HODEVA",
+      "compagnieLibelle": "Hodeva",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_SENIOR",
+      "libelle": "Santé Senior",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0%/0%",
+          "libelle": "0 % / 0 %",
+          "taux": 0.0,
+          "tauxSuivants": [
+            0.0
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "HODEVA|MUTUELLE|SANTE_TNS",
+      "compagnie": "HODEVA",
+      "compagnieLibelle": "Hodeva",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_TNS",
+      "libelle": "Santé TNS",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0%/0%",
+          "libelle": "0 % / 0 %",
+          "taux": 0.0,
+          "tauxSuivants": [
+            0.0
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "HODEVA|PREVOYANCE|PREV_PRO",
+      "compagnie": "HODEVA",
+      "compagnieLibelle": "Hodeva",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "PREV_PRO",
+      "libelle": "Prev Pro",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/15%",
+          "libelle": "50 % / 15 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "30%/30%",
+          "libelle": "30 % / 30 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.3
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "0%/0%",
+          "libelle": "0 % / 0 %",
+          "taux": 0.0,
+          "tauxSuivants": [
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "HODEVA|PREVOYANCE|TEMPO_DC_HO_CLE",
+      "compagnie": "HODEVA",
+      "compagnieLibelle": "Hodeva",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "TEMPO_DC_HO_CLE",
+      "libelle": "Tempo DC Ho Clé",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "50%/15%",
+          "libelle": "50 % / 15 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "20%/20%",
+          "libelle": "20 % / 20 %",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.2
+          ]
+        },
+        {
+          "code": "15%/15%",
+          "libelle": "15 % / 15 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.15
+          ]
+        },
+        {
+          "code": "10%/10%",
+          "libelle": "10 % / 10 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "0%/0%",
+          "libelle": "0 % / 0 %",
+          "taux": 0.0,
+          "tauxSuivants": [
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "METLIFE|ASSURANCE PRÊT|(contrat unique)",
+      "compagnie": "METLIFE",
+      "compagnieLibelle": "MetLife",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "(contrat unique)",
+      "libelle": "Contrat unique",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 0.7,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "METLIFE|PREVOYANCE|METLIFE_PREVOYANCE",
+      "compagnie": "METLIFE",
+      "compagnieLibelle": "MetLife",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "METLIFE_PREVOYANCE",
+      "libelle": "MetLife Prévoyance",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0.3,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "PAVILLON PREVOYANCE|MUTUELLE|LOURMEL",
+      "compagnie": "PAVILLON PREVOYANCE",
+      "compagnieLibelle": "Pavillon Prévoyance",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "LOURMEL",
+      "libelle": "Lourmel",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "PAVILLON PREVOYANCE|MUTUELLE|SERINIS",
+      "compagnie": "PAVILLON PREVOYANCE",
+      "compagnieLibelle": "Pavillon Prévoyance",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SERINIS",
+      "libelle": "Serinis",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "PAVILLON PREVOYANCE|MUTUELLE|TERRI",
+      "compagnie": "PAVILLON PREVOYANCE",
+      "compagnieLibelle": "Pavillon Prévoyance",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "TERRI",
+      "libelle": "Terri",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "PAVILLON PREVOYANCE|MUTUELLE|UNICA",
+      "compagnie": "PAVILLON PREVOYANCE",
+      "compagnieLibelle": "Pavillon Prévoyance",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "UNICA",
+      "libelle": "Unica",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30 %",
+          "libelle": "30 %",
+          "taux": 0.3,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|ASSURANCE PRÊT|REPAM_EMPRUNTEUR",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "REPAM_EMPRUNTEUR",
+      "libelle": "Repam Emprunteur",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "25 %",
+          "libelle": "25 %",
+          "taux": 0.25,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30 %",
+          "libelle": "30 %",
+          "taux": 0.3,
+          "tauxSuivants": []
+        },
+        {
+          "code": "35 %",
+          "libelle": "35 %",
+          "taux": 0.35,
+          "tauxSuivants": []
+        },
+        {
+          "code": "40 %",
+          "libelle": "40 %",
+          "taux": 0.4,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "40%/10%",
+          "libelle": "40 % / 10 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|MUTUELLE|REPAM_SANTE_ATMP",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "REPAM_SANTE_ATMP",
+      "libelle": "Repam Santé ATMP",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|MUTUELLE|REPAM_SANTE_ENTREPRISE",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "REPAM_SANTE_ENTREPRISE",
+      "libelle": "Repam Santé Entreprise",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7,5 %",
+          "libelle": "7,5 %",
+          "taux": 0.075,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|MUTUELLE|REPAM_SANTE_FRONTALIER",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "REPAM_SANTE_FRONTALIER",
+      "libelle": "Repam Santé Frontalier",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|MUTUELLE|REPAM_SANTE_SURCO",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "REPAM_SANTE_SURCO",
+      "libelle": "Repam Santé Surco",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|MUTUELLE|REPAM_SANTE_SYNTEC",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "REPAM_SANTE_SYNTEC",
+      "libelle": "Repam Santé Syntec",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "7 %",
+          "libelle": "7 %",
+          "taux": 0.07,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|MUTUELLE|REPAM_SURCO_COLLECTIF",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "REPAM_SURCO_COLLECTIF",
+      "libelle": "Repam Surco Collectif",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|MUTUELLE|SANTE_PARTICULIER",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SANTE_PARTICULIER",
+      "libelle": "Santé Particulier",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "7,5 %",
+          "libelle": "7,5 %",
+          "taux": 0.075,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|PREVOYANCE|DEPENDANCE",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "DEPENDANCE",
+      "libelle": "Dépendance",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/15%",
+          "libelle": "30 % / 15 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.15
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|PREVOYANCE|OBSEQUES",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "OBSEQUES",
+      "libelle": "Obsèques",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "50%/10%",
+          "libelle": "50 % / 10 %",
+          "taux": 0.5,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "70%/10%",
+          "libelle": "70 % / 10 %",
+          "taux": 0.7,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "REPAM|PREVOYANCE|PREV_TNS",
+      "compagnie": "REPAM",
+      "compagnieLibelle": "Repam",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "PREV_TNS",
+      "libelle": "Prev TNS",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0 %",
+          "libelle": "0 %",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5 %",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15 %",
+          "libelle": "15 %",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20 %",
+          "libelle": "20 %",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30 %",
+          "libelle": "30 %",
+          "taux": 0.3,
+          "tauxSuivants": []
+        },
+        {
+          "code": "35%/10%",
+          "libelle": "35 % / 10 %",
+          "taux": 0.35,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "40%/15%",
+          "libelle": "40 % / 15 %",
+          "taux": 0.4,
+          "tauxSuivants": [
+            0.15
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "SIMULASSUR|ASSURANCE PRÊT|(contrat unique)",
+      "compagnie": "SIMULASSUR",
+      "compagnieLibelle": "Simulassur",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "(contrat unique)",
+      "libelle": "Contrat unique",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 0.7,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_ANCIENNES_OFFRES",
+      "compagnie": "SOLLY AZAR",
+      "compagnieLibelle": "Solly Azar",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "SOLLY_ADE_ANCIENNES_OFFRES",
+      "libelle": "Solly ADE Anciennes Offres",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 1.0,
+      "aide": "SAISIE SELON TARIFICATEUR : précompte jusqu'à 55/20"
+    },
+    {
+      "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_NOUVELLES_OFFRES",
+      "compagnie": "SOLLY AZAR",
+      "compagnieLibelle": "Solly Azar",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "SOLLY_ADE_NOUVELLES_OFFRES",
+      "libelle": "Solly ADE Nouvelles Offres",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 1.0,
+      "aide": "SAISIE SELON TARIFICATEUR : linéaire <=35% ou précompte <=50/20"
+    },
+    {
+      "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_PRIME_UNIQUE",
+      "compagnie": "SOLLY AZAR",
+      "compagnieLibelle": "Solly Azar",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "SOLLY_ADE_PRIME_UNIQUE",
+      "libelle": "Solly ADE Prime Unique",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 1.0,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "SOLLY AZAR|ASSURANCE PRÊT|SOLLY_ADE_PRET_RELAIS",
+      "compagnie": "SOLLY AZAR",
+      "compagnieLibelle": "Solly Azar",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "SOLLY_ADE_PRET_RELAIS",
+      "libelle": "Solly ADE Prêt Relais",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 1.0,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "SOLLY AZAR|MUTUELLE|SOLLY_SANTE_SENIOR",
+      "compagnie": "SOLLY AZAR",
+      "compagnieLibelle": "Solly Azar",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SOLLY_SANTE_SENIOR",
+      "libelle": "Solly Santé Senior",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0% LI",
+          "libelle": "0 % linéaire",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5% LI",
+          "libelle": "5 % linéaire",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10% LI",
+          "libelle": "10 % linéaire",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15% LI",
+          "libelle": "15 % linéaire",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20% LI",
+          "libelle": "20 % linéaire",
+          "taux": 0.2,
+          "tauxSuivants": []
+        },
+        {
+          "code": "30%/10% PRE (formules classiques/Eco, sauf F1)",
+          "libelle": "30 % / 10 % précompte (formules classiques/Eco, sauf F1)",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        },
+        {
+          "code": "20%/10% PRE (formules Eco Budget, sauf F1)",
+          "libelle": "20 % / 10 % précompte (formules Eco Budget, sauf F1)",
+          "taux": 0.2,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "SOLLY AZAR|MUTUELLE|SOLLY_SANTE_TNS",
+      "compagnie": "SOLLY AZAR",
+      "compagnieLibelle": "Solly Azar",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "SOLLY_SANTE_TNS",
+      "libelle": "Solly Santé TNS",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "0% LI",
+          "libelle": "0 % linéaire",
+          "taux": 0.0,
+          "tauxSuivants": []
+        },
+        {
+          "code": "5% LI",
+          "libelle": "5 % linéaire",
+          "taux": 0.05,
+          "tauxSuivants": []
+        },
+        {
+          "code": "10% LI",
+          "libelle": "10 % linéaire",
+          "taux": 0.1,
+          "tauxSuivants": []
+        },
+        {
+          "code": "15% LI",
+          "libelle": "15 % linéaire",
+          "taux": 0.15,
+          "tauxSuivants": []
+        },
+        {
+          "code": "20% LI",
+          "libelle": "20 % linéaire",
+          "taux": 0.2,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "SOLLY AZAR|PREVOYANCE|SOLLY_PREVOYANCE_TNS",
+      "compagnie": "SOLLY AZAR",
+      "compagnieLibelle": "Solly Azar",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SOLLY_PREVOYANCE_TNS",
+      "libelle": "Solly Prévoyance TNS",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 1.0,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "SWISSLIFE|MUTUELLE|(contrat unique)",
+      "compagnie": "SWISSLIFE",
+      "compagnieLibelle": "Swiss Life",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "(contrat unique)",
+      "libelle": "Contrat unique",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 0.7,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "SWISSLIFE|PREVOYANCE|SLPI",
+      "compagnie": "SWISSLIFE",
+      "compagnieLibelle": "Swiss Life",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "SLPI",
+      "libelle": "SLPI",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "70%/10%",
+          "libelle": "70 % / 10 %",
+          "taux": 0.7,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "SWISSLIFE|PREV-MUT|COLLECTIF",
+      "compagnie": "SWISSLIFE",
+      "compagnieLibelle": "Swiss Life",
+      "famille": "PREV-MUT",
+      "familleLibelle": "Prévoyance et mutuelle collectives",
+      "nom": "COLLECTIF",
+      "libelle": "Collectif",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10 %",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "SWISSLIFE|RETRAITE|PER INDIVIDUEL",
+      "compagnie": "SWISSLIFE",
+      "compagnieLibelle": "Swiss Life",
+      "famille": "RETRAITE",
+      "familleLibelle": "Retraite",
+      "nom": "PER INDIVIDUEL",
+      "libelle": "PER Individuel",
+      "base": "VERSEMENT_ANNUEL",
+      "horsTaxe": false,
+      "mode": "TAUX",
+      "ajout": 0.09,
+      "multiplicateur": 4,
+      "saisie": "FRAIS_LIBRES",
+      "fraisParDefaut": 0.0
+    },
+    {
+      "cle": "SWISSLIFE|TRANSFERTS/PU/VL|PERIN",
+      "compagnie": "SWISSLIFE",
+      "compagnieLibelle": "Swiss Life",
+      "famille": "TRANSFERTS/PU/VL",
+      "familleLibelle": "Transferts et versements libres",
+      "nom": "PERIN",
+      "libelle": "PERIN",
+      "base": "VERSEMENT_UNIQUE",
+      "horsTaxe": false,
+      "mode": "TAUX",
+      "ajout": 0.0325,
+      "multiplicateur": 1,
+      "saisie": "FRAIS_LIBRES",
+      "fraisParDefaut": 0.0
+    },
+    {
+      "cle": "SWISSLIFE|EPARGNE|STRATEGIC PREMIUM / CAPI",
+      "compagnie": "SWISSLIFE",
+      "compagnieLibelle": "Swiss Life",
+      "famille": "EPARGNE",
+      "familleLibelle": "Épargne",
+      "nom": "STRATEGIC PREMIUM / CAPI",
+      "libelle": "Strategic Premium / CAPI",
+      "base": "VERSEMENT_UNIQUE",
+      "horsTaxe": false,
+      "mode": "TAUX",
+      "ajout": 0.036,
+      "multiplicateur": 1,
+      "saisie": "FRAIS_LIBRES",
+      "fraisParDefaut": 0.01
+    },
+    {
+      "cle": "UNIM|MUTUELLE|(contrat unique)",
+      "compagnie": "UNIM",
+      "compagnieLibelle": "UNIM",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "(contrat unique)",
+      "libelle": "Contrat unique",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 0.7,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "UNIM|PREVOYANCE|UNIM_UNICED",
+      "compagnie": "UNIM",
+      "compagnieLibelle": "UNIM",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "UNIM_UNICED",
+      "libelle": "UNIM Uniced",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "35%/15%",
+          "libelle": "35 % / 15 %",
+          "taux": 0.35,
+          "tauxSuivants": [
+            0.15
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "UTWIN|ASSURANCE PRÊT|(contrat unique)",
+      "compagnie": "UTWIN",
+      "compagnieLibelle": "Utwin",
+      "famille": "ASSURANCE PRÊT",
+      "familleLibelle": "Assurance de prêt",
+      "nom": "(contrat unique)",
+      "libelle": "Contrat unique",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 0.7,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "UTWIN|MUTUELLE|(contrat unique)",
+      "compagnie": "UTWIN",
+      "compagnieLibelle": "Utwin",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "(contrat unique)",
+      "libelle": "Contrat unique",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 0.7,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    },
+    {
+      "cle": "VERALTI|MUTUELLE|VERALTI_API_SANTE",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "VERALTI_API_SANTE",
+      "libelle": "Veralti API Santé",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "17%",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "VERALTI|MUTUELLE|VERALTI_ESSENTIO",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "VERALTI_ESSENTIO",
+      "libelle": "Veralti Essentio",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "17%",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "VERALTI|MUTUELLE|VERALTI_PROFIL_R_CO",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "MUTUELLE",
+      "familleLibelle": "Mutuelle",
+      "nom": "VERALTI_PROFIL_R_CO",
+      "libelle": "Veralti Profil R CO",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10%/5%",
+          "libelle": "10 % / 5 %",
+          "taux": 0.1,
+          "tauxSuivants": [
+            0.05
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "VERALTI|PREVOYANCE|VERALTI_ACCIDENT",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "VERALTI_ACCIDENT",
+      "libelle": "Veralti Accident",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "30%/10%",
+          "libelle": "30 % / 10 %",
+          "taux": 0.3,
+          "tauxSuivants": [
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "VERALTI|PREVOYANCE|VERALTI_ALLOC_DECES",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "VERALTI_ALLOC_DECES",
+      "libelle": "Veralti Alloc Décès",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10%",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "VERALTI|PREVOYANCE|VERALTI_HOSPITALISATION",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "VERALTI_HOSPITALISATION",
+      "libelle": "Veralti Hospitalisation",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "10%",
+          "libelle": "10 %",
+          "taux": 0.1,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "VERALTI|PREVOYANCE|VERALTI_SOL_150_CADRES",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "VERALTI_SOL_150_CADRES",
+      "libelle": "Veralti Sol 150 Cadres",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "5%",
+          "libelle": "5 %",
+          "taux": 0.05,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "VERALTI|PREVOYANCE|VERALTI_TANDEM",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "VERALTI_TANDEM",
+      "libelle": "Veralti Tandem",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "17%",
+          "libelle": "17 %",
+          "taux": 0.17,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "VERALTI|PREVOYANCE|VERALTI_TOTEM",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "VERALTI_TOTEM",
+      "libelle": "Veralti Totem",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "8%",
+          "libelle": "8 %",
+          "taux": 0.08,
+          "tauxSuivants": []
+        }
+      ]
+    },
+    {
+      "cle": "VERALTI|PREVOYANCE|VERALTI_TREMPLIN",
+      "compagnie": "VERALTI",
+      "compagnieLibelle": "Veralti",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "VERALTI_TREMPLIN",
+      "libelle": "Veralti Tremplin",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "LISTE",
+      "options": [
+        {
+          "code": "15%/7%",
+          "libelle": "15 % / 7 %",
+          "taux": 0.15,
+          "tauxSuivants": [
+            0.07
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "ZEPHIR|PREVOYANCE|(contrat unique)",
+      "compagnie": "ZEPHIR",
+      "compagnieLibelle": "Zéphir",
+      "famille": "PREVOYANCE",
+      "familleLibelle": "Prévoyance",
+      "nom": "(contrat unique)",
+      "libelle": "Contrat unique",
+      "base": "COTISATION_ANNUELLE",
+      "horsTaxe": true,
+      "mode": "TAUX",
+      "ajout": 0,
+      "multiplicateur": 1,
+      "saisie": "TAUX_MANUEL",
+      "tauxMin": 0.0,
+      "tauxMax": 0.7,
+      "aide": "Taux de commission prévu par la compagnie, à saisir."
+    }
+  ]
+}
