@@ -99,6 +99,7 @@ Source : protocoles Sofraco Retraite, Épargne et Prévoyance 2026, édition de 
 | Contrôle « mise à jour du patrimoine » propre aux produits Swiss Life | 12 nov. | À faire |
 | Fiabilité : statistiques remises à zéro à la mise en service ; annulation comptée, avec un poids qui croît à l'approche de la clôture | 12 nov. | À faire |
 | Deux campagnes menées en même temps dans deux compagnies | 15 nov. | À faire |
+| Entités du groupe à créer : SR CONSEIL, Label Assurances, Label Santé, RJ Assurances, Nembrini Colombani, A2C Courtage, A3C (Midi Courtage) | 16 nov. | À faire (référentiel des entités) |
 | À l'ouverture d'une campagne : avenant pré-rempli, mail hebdomadaire, clients confiés, liste d'attente, indicateurs de fiabilité | 15 nov. | À faire |
 | Annulation après opération par le back-office, commission reprise | début nov. | À faire |
 
