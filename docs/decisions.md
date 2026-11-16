@@ -108,7 +108,7 @@ Source : protocoles Sofraco Retraite, Épargne et Prévoyance 2026, édition de 
 | Décision | Date | État |
 | --- | --- | --- |
 | Même technologie que le socle des développeurs, habillage des maquettes | 15 nov. | Appliqué (`CLAUDE.md`) |
-| Hébergement sur un serveur propre, dépôt privé | 15 nov. | Dépôt fait ; serveur à créer |
+| Hébergement sur un serveur propre, dépôt privé | 15 nov. | Dépôt privé vérifié invisible de l'extérieur le 16 nov. ; serveur : proposition de Willie d'utiliser l'infrastructure IONOS de Label, conditions à confirmer (compte au nom du groupe, machine et base propres, centre de données en France ou en Allemagne, sauvegarde quotidienne) |
 | Connexion à deux étapes par code envoyé par courriel | 15 nov. | À faire |
 | Modules activables par utilisateur, par case à cocher | 15 nov. | À faire |
 | Un mandataire ne voit que ses clients et ses commissions | 15 nov. | À faire |
@@ -141,4 +141,7 @@ Ceux qui touchent le calcul :
 - Correction des affaires déjà réglées, ou application aux seules affaires nouvelles.
 - Nom du complément versé à un superviseur.
 - Co-courtage : en cas de reprise par la compagnie, la filiale du cabinet comptable rend-elle sa part.
+- Co-courtage : base du taux. Le simulateur applique 30 % sur la commission brute de la compagnie (35,3 % de ce que reçoit le cabinet) ; confirmer qu'aucune convention n'est exprimée sur le net ou à 35 %.
+- Contrôle du patrimoine Swiss Life : bloquant ou simple alerte.
+- Délai standard pour honorer une réservation, avant l'ouverture des deux prochaines campagnes.
 - Règles de reprise en santé et en assurance de prêt, et pour les compagnies de prévoyance dont le protocole ne dit rien.
