@@ -12,6 +12,8 @@ import { ContratReferentiel } from './referentiel.types';
 export interface ExempleReprise {
   /** Mois d'arrêt du contrat, compté depuis sa date d'effet. */
   mois: number;
+  /** Moment de l'arrêt, en clair : « 1re année » pour une règle par année, « 18e mois » sinon. */
+  libelle: string;
   /** Part de la commission du mandataire qui serait reprise. */
   taux: number;
   montant: number;
@@ -25,6 +27,11 @@ export interface EstimationReprise {
   /** Précision propre à l'affaire simulée. */
   note?: string;
   aConfirmer: string[];
+}
+
+/** Écrit un nombre entier avec une espace fine entre les milliers, sans dépendre de la langue du serveur. */
+function milliers(nombre: number): string {
+  return String(Math.round(nombre)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f');
 }
 
 function anneeDuMois(mois: number): number {
@@ -45,16 +52,16 @@ export function estimerReprise(contrat: ContratReferentiel, demande: DemandeCalc
     exemples: [],
     aConfirmer: regle.aConfirmer ?? [],
   };
-  const exemple = (mois: number, montant: number): ExempleReprise => {
+  const exemple = (mois: number, montant: number, parAnnee = false): ExempleReprise => {
     const arrondi = arrondirAuCentime(Math.min(Math.max(montant, 0), total));
-    return { mois, taux: total > 0 ? arrondi / total : 0, montant: arrondi };
+    const annee = anneeDuMois(mois);
+    const libelle = parAnnee ? `${annee}${annee === 1 ? 're' : 'e'} année` : `${mois}e mois`;
+    return { mois, libelle, taux: total > 0 ? arrondi / total : 0, montant: arrondi };
   };
   if (total <= 0) {
     return estimation;
   }
 
-  const base = calcul.composantes.find((c) => c.code === 'BASE')?.montant ?? total;
-  const surcommission = calcul.composantes.find((c) => c.code === 'SURCOMMISSION')?.montant ?? 0;
   const tauxAnnee = (mois: number): number => regle.tauxParAnnee?.[anneeDuMois(mois) - 1] ?? 0;
 
   switch (regle.type) {
@@ -73,21 +80,17 @@ export function estimerReprise(contrat: ContratReferentiel, demande: DemandeCalc
       return estimation;
     }
 
-    case 'ESCOMPTE_ET_SURCOMMISSION': {
-      const variante = (contrat.variantes ?? []).find((v) => v.code === calcul.varianteRetenue);
-      const duree = (variante?.duree ?? 0) * 12;
+    case 'PAR_ANNEE': {
+      // Taux de l'année d'arrêt appliqué à toute la commission, quel que soit le mois.
       const grosVersement = regle.annee5 !== undefined && demande.montant / 12 > regle.annee5.seuilMensuel;
-      const tauxSurcommission = (m: number): number =>
-        anneeDuMois(m) === 5 && grosVersement && regle.annee5 ? regle.annee5.taux : tauxAnnee(m);
-      const mois = grosVersement ? [6, 18, 30, 42, 54] : [6, 18, 30, 42];
-      estimation.exemples = mois.map((m) =>
-        exemple(m, (m < duree ? (base * (duree - m)) / duree : 0) + surcommission * tauxSurcommission(m)),
-      );
-      return estimation;
-    }
-
-    case 'SURCOMMISSION_PAR_ANNEE': {
-      estimation.exemples = [6, 18, 30, 42].map((m) => exemple(m, surcommission * tauxAnnee(m)));
+      const taux = [...(regle.tauxParAnnee ?? [])];
+      if (grosVersement && regle.annee5) {
+        taux.push(regle.annee5.taux);
+      }
+      estimation.exemples = taux.map((t, i) => exemple(12 * i + 6, total * t, true));
+      if (regle.annee5 && !grosVersement) {
+        estimation.note = `Versement de ${milliers(regle.annee5.seuilMensuel)} € par mois ou moins : pas de reprise la 5e année.`;
+      }
       return estimation;
     }
 
@@ -101,7 +104,7 @@ export function estimerReprise(contrat: ContratReferentiel, demande: DemandeCalc
       }
       const apport = (total * (premiere - suivantes)) / premiere;
       const annees = regle.tauxParAnnee?.length ?? 0;
-      estimation.exemples = [6, 18, 30].slice(0, annees).map((m) => exemple(m, apport * tauxAnnee(m)));
+      estimation.exemples = [6, 18, 30].slice(0, annees).map((m) => exemple(m, apport * tauxAnnee(m), true));
       return estimation;
     }
 

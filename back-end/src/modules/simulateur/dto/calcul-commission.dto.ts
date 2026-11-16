@@ -68,4 +68,14 @@ export class CalculCommissionDto {
   @Min(0)
   @Max(1)
   tauxCoCourtage?: number;
+
+  /**
+   * Taux de reversement du mandataire, en décimal, choisi parmi ceux que propose le barème.
+   * Provisoire : quand les comptes mandataires existeront, le taux viendra de la fiche du mandataire.
+   */
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  tauxReversion?: number;
 }

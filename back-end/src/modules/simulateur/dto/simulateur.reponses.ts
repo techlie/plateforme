@@ -40,6 +40,8 @@ export interface ContratSimulateur {
 
 export interface CatalogueSimulateur {
   bareme: { code: string; libelle: string; dateEffet: string };
+  /** Taux de reversement proposés au choix, en attendant les fiches mandataires. */
+  tauxReversion: { proposes: number[]; parDefaut: number };
   /** Co-courtage : taux proposé par défaut et taux maximal accepté. */
   coCourtage: { tauxParDefaut: number; tauxMax: number };
   contrats: ContratSimulateur[];
@@ -56,6 +58,8 @@ export interface ResultatSimulation {
   cleContrat: string;
   /** Commission estimée pour le mandataire, en euros. */
   montant: number;
+  /** Taux de reversement retenu pour le calcul. */
+  tauxReversion: number;
   /** Montant sur lequel la commission est calculée. */
   baseCalcul: number;
   baseHorsTaxe: boolean;
@@ -69,7 +73,7 @@ export interface ResultatSimulation {
   reprise: {
     regle: string;
     calcul?: string;
-    exemples: { mois: number; taux: number; montant: number }[];
+    exemples: { mois: number; libelle: string; taux: number; montant: number }[];
     note?: string;
     aConfirmer: string[];
   };

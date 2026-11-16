@@ -27,6 +27,7 @@ export class SimulateurService {
     const referentiel = this.baremeEnVigueur(date);
     return {
       bareme: SimulateurService.enTete(referentiel),
+      tauxReversion: { proposes: referentiel.tauxReversionProposes, parDefaut: referentiel.tauxReversionReference },
       coCourtage: { tauxParDefaut: referentiel.coCourtage.tauxParDefaut, tauxMax: referentiel.coCourtage.tauxMax },
       contrats: referentiel.contrats.map((c) => ({
         cle: c.cle,
@@ -56,11 +57,18 @@ export class SimulateurService {
   /**
    * Estime la commission du mandataire.
    *
-   * Tant que les espaces mandataires n'existent pas, le taux de réversion est celui de référence
-   * du barème. Il viendra ensuite de la fiche du mandataire connecté, jamais de l'écran.
+   * Tant que les espaces mandataires n'existent pas, le taux de reversement se choisit parmi ceux que
+   * propose le barème (70, 80 ou 90 %). Il viendra ensuite de la fiche du mandataire connecté.
    */
   simuler(demande: CalculCommissionDto, date: string): ResultatSimulation {
     const referentiel = this.baremeEnVigueur(date);
+    const tauxReversion = demande.tauxReversion ?? referentiel.tauxReversionReference;
+    if (!referentiel.tauxReversionProposes.some((t) => Math.abs(t - tauxReversion) < 1e-9)) {
+      throw new BadRequestException({
+        code: 'REVERSION_NON_PROPOSEE',
+        message: 'Choisissez un taux de reversement proposé par le simulateur.',
+      });
+    }
     try {
       const entree: DemandeCalcul = {
         montant: demande.montant,
@@ -73,7 +81,7 @@ export class SimulateurService {
         partUc: demande.partUc,
         versementsExistants: demande.versementsExistants,
         tauxCoCourtage: demande.tauxCoCourtage,
-        tauxReversion: referentiel.tauxReversionReference,
+        tauxReversion,
       };
       const calcul = calculerCommission(referentiel, demande.cleContrat, entree);
       const reprise = estimerReprise(trouverContrat(referentiel, demande.cleContrat), entree, calcul);
@@ -82,6 +90,7 @@ export class SimulateurService {
         bareme: SimulateurService.enTete(referentiel),
         cleContrat: calcul.cleContrat,
         montant: calcul.montantMandataire,
+        tauxReversion,
         baseCalcul: calcul.baseCalcul,
         baseHorsTaxe: calcul.baseHorsTaxe,
         lignes: calcul.composantes.map((c) => ({ code: c.code, libelle: c.libelle, montant: c.montant })),

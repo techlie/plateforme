@@ -69,38 +69,35 @@ describe('Reprise au prorata du temps restant', () => {
 describe('Reprise Abeille, primes périodiques', () => {
   const base = { frais: 0.03, variante: 'AVANCE_5_ANS', remuneration: 'ENCOURS_MAX', partUc: 1, age: 40 };
 
-  it('reprend la base au prorata de la durée d’escompte et la surcommission selon l’année', () => {
+  it('reprend toute la commission selon l’année d’arrêt : 100, 90, 80 puis 70 %', () => {
     const { calcul, estimation } = reprise('ABEILLE|RETRAITE|RETRAITE PLURIELLE', { ...base, montant: 6000 });
-    expect(calcul.composantes.map((c) => c.montant)).toEqual([361.46, 1428]);
-    expect(montants(estimation)).toEqual([
-      [6, 1753.31], // 361,46 × 54/60 + 1 428 × 100 %
-      [18, 1538.22], // 361,46 × 42/60 + 1 428 × 90 %
-      [30, 1323.13], // 361,46 × 30/60 + 1 428 × 80 %
-      [42, 1108.04], // 361,46 × 18/60 + 1 428 × 70 %
+    expect(calcul.montantMandataire).toBe(1789.46);
+    expect(estimation.exemples.map((x) => [x.libelle, x.montant])).toEqual([
+      ['1re année', 1789.46],
+      ['2e année', 1610.51],
+      ['3e année', 1431.57],
+      ['4e année', 1252.62],
     ]);
+    expect(estimation.note).toContain('pas de reprise la 5e année');
+  });
+
+  it('reprend 100 % la 1re année, quel que soit le mois', () => {
+    const { estimation } = reprise('ABEILLE|ASSURANCE VIE|EPARGNE ACTIVE', { ...base, montant: 6000 });
+    expect(estimation.exemples[0].taux).toBe(1);
   });
 
   it('ajoute une 5e année à 60 % au-delà de 1 500 € par mois', () => {
     const { calcul, estimation } = reprise('ABEILLE|RETRAITE|RETRAITE PLURIELLE', { ...base, montant: 24000 });
-    const [commissionBase, surcommission] = calcul.composantes.map((c) => c.montant);
-    expect(estimation.exemples.map((x) => x.mois)).toEqual([6, 18, 30, 42, 54]);
-    expect(estimation.exemples[4].montant).toBeCloseTo((commissionBase * 6) / 60 + surcommission * 0.6, 1);
+    expect(estimation.exemples.map((x) => x.libelle)).toEqual(['1re année', '2e année', '3e année', '4e année', '5e année']);
+    expect(estimation.exemples[4].montant).toBe(Math.round(calcul.montantMandataire * 0.6 * 100) / 100);
+    expect(estimation.note).toBeUndefined();
   });
 
-  it('ne reprend plus la base une fois la durée d’escompte passée', () => {
-    const { calcul, estimation } = reprise('ABEILLE|RETRAITE|RETRAITE PLURIELLE', { ...base, variante: 'AVANCE_3_ANS', montant: 6000 });
-    const surcommission = calcul.composantes[1].montant;
-    expect(estimation.exemples[3]).toMatchObject({ mois: 42, montant: Math.round(surcommission * 0.7 * 100) / 100 });
-  });
-
-  it('versement unique : seule la surcommission peut être reprise', () => {
+  it('versement unique : règle affichée sans exemple chiffré, en attendant la réponse du cabinet', () => {
     const { estimation } = reprise('ABEILLE|TRANSFERTS/PU/VL|RP/EA', { montant: 100000, frais: 0.007, partUc: 1, age: 40 });
-    expect(montants(estimation)).toEqual([
-      [6, 2618],
-      [18, 2356.2],
-      [30, 2094.4],
-      [42, 1832.6],
-    ]);
+    expect(estimation.exemples).toEqual([]);
+    expect(estimation.regle).toContain('30 000 €');
+    expect(estimation.aConfirmer.length).toBeGreaterThan(0);
   });
 });
 
@@ -113,6 +110,7 @@ describe('Reprise en prévoyance', () => {
       [6, 124.23],
       [18, 62.12],
     ]);
+    expect(estimation.exemples.map((x) => x.libelle)).toEqual(['1re année', '2e année']);
   });
 
   it('Alptis en linéaire : pas de reprise', () => {
@@ -121,11 +119,17 @@ describe('Reprise en prévoyance', () => {
     expect(estimation.note).toContain('pas de reprise');
   });
 
-  it('Swiss Life prévoyance : commission d’apport reprise pendant 3 ans', () => {
+  it('Swiss Life prévoyance : règle affichée sans exemple chiffré, en attendant la réponse du cabinet', () => {
     const { estimation } = reprise('SWISSLIFE|PREVOYANCE|SLPI', { montant: 1200, option: '70%/10%' });
-    expect(estimation.exemples.map((x) => x.mois)).toEqual([6, 18, 30]);
-    expect(new Set(estimation.exemples.map((x) => x.montant)).size).toBe(1);
-    expect(estimation.exemples[0].taux).toBeCloseTo(6 / 7, 3);
+    expect(estimation.exemples).toEqual([]);
+    expect(estimation.regle).toContain('3 premières années');
+  });
+
+  it('signale sur chaque gamme de prévoyance que la règle vient du protocole de la compagnie', () => {
+    for (const cle of ['ALPTIS|PREVOYANCE|SPI_V4', 'APRIL|PREVOYANCE|OBSEQUES', 'ABEILLE|PREVOYANCE|GARANTIE_EMPRUNTEUR_ABEILLE']) {
+      const contrat = trouverContrat(referentiel, cle);
+      expect(contrat.reprise.aConfirmer?.some((a) => a.includes('à vérifier pour cette gamme'))).toBe(true);
+    }
   });
 
   it('April : retrouve l’exemple du protocole, 160 € repris sur 300 € au 12e mois', () => {

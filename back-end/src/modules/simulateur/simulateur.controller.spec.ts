@@ -140,11 +140,21 @@ describe('API du simulateur', () => {
     expect(JSON.stringify(reponse.body.reprise)).not.toContain('"source"');
   });
 
-  it('refuse que l’écran impose un taux de réversion', async () => {
-    await request(app.getHttpServer())
+  it('accepte un taux de reversement proposé et refuse les autres', async () => {
+    const base = { cleContrat: 'ALPTIS|PREVOYANCE|PREVOYANCE_PRO_PLUS', montant: 1200, option: '30%/10% PRE' };
+    const catalogue = await request(app.getHttpServer()).get('/api/simulateur/contrats').expect(200);
+    expect(catalogue.body.tauxReversion).toEqual({ proposes: [0.7, 0.8, 0.9], parDefaut: 0.7 });
+    const a80 = await request(app.getHttpServer())
       .post('/api/simulateur/calcul')
-      .send({ cleContrat: 'ALPTIS|PREVOYANCE|PREVOYANCE_PRO_PLUS', montant: 1200, option: '30%/10% PRE', tauxReversion: 1 })
+      .send({ ...base, tauxReversion: 0.8 })
+      .expect(200);
+    expect(a80.body.montant).toBe(212.98);
+    expect(a80.body.tauxReversion).toBe(0.8);
+    const refus = await request(app.getHttpServer())
+      .post('/api/simulateur/calcul')
+      .send({ ...base, tauxReversion: 1 })
       .expect(400);
+    expect(refus.body.code).toBe('REVERSION_NON_PROPOSEE');
   });
 
   it('explique le refus quand l’option n’existe pas', async () => {

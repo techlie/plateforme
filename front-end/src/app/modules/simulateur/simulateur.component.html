@@ -149,6 +149,18 @@
           <p class="champ__aide">{{ c.aide }}</p>
         }
 
+        @if (tauxReversionProposes().length > 1) {
+          <div class="groupe" role="group" aria-labelledby="titre-reversion">
+            <div class="groupe__libelle" id="titre-reversion">Votre taux de reversement</div>
+            <div class="pastilles">
+              @for (t of tauxReversionProposes(); track t.taux) {
+                <button type="button" class="pastille" [attr.aria-pressed]="t.taux === tauxReversionChoisi()" (click)="tauxReversion.set(t.taux)">{{ t.libelle }}</button>
+              }
+            </div>
+            <p class="champ__aide">Part de la commission du cabinet qui vous revient, selon votre contrat de mandataire.</p>
+          </div>
+        }
+
         <div class="partage">
           <label class="bascule">
             <input type="checkbox" [checked]="coCourtage()" (change)="basculerCoCourtage($event)" />
@@ -244,7 +256,7 @@
               <tbody>
                 @for (exemple of exemplesReprise(); track exemple.mois) {
                   <tr>
-                    <th scope="row">{{ exemple.mois }}<sup>e</sup> mois</th>
+                    <th scope="row">{{ exemple.libelle }}</th>
                     <td class="montant">{{ exemple.part }}</td>
                     <td class="montant">{{ exemple.montant }}</td>
                   </tr>

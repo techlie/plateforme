@@ -6,6 +6,11 @@
   "partCabinet": 0.85,
   "coefficientHorsTaxe": 0.87,
   "tauxReversionReference": 0.7,
+  "tauxReversionProposes": [
+    0.7,
+    0.8,
+    0.9
+  ],
   "coCourtage": {
     "tauxParDefaut": 0.3,
     "tauxMax": 0.5,
@@ -244,9 +249,9 @@
       ],
       "remunerationParDefaut": "ENCOURS_MAX",
       "reprise": {
-        "type": "ESCOMPTE_ET_SURCOMMISSION",
-        "resume": "Commission de base : si le contrat s'arrête pendant la durée d'escompte, la compagnie reprend la part qui correspond aux versements non faits. Surcommission : reprise de 100 % la 1re année, 90 % la 2e, 80 % la 3e et 70 % la 4e ; au-delà de 1 500 € de versement par mois, encore 60 % la 5e année.",
-        "calcul": "Base reprise = commission de base × mois non versés ÷ mois de la durée d'escompte. Surcommission reprise = surcommission × taux de l'année d'arrêt.",
+        "type": "PAR_ANNEE",
+        "resume": "La compagnie reprend toute la commission, base et surcommission, selon l'année d'arrêt : 100 % la 1re année, 90 % la 2e, 80 % la 3e, 70 % la 4e. Au-delà de 1 500 € de versement par mois, 60 % la 5e année.",
+        "calcul": "Reprise = commission reçue × taux de l'année d'arrêt. Le taux est le même quel que soit le mois de l'année.",
         "tauxParAnnee": [
           1.0,
           0.9,
@@ -257,7 +262,7 @@
           "seuilMensuel": 1500,
           "taux": 0.6
         },
-        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Abeille"
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Abeille ; application décidée par le cabinet le 16 novembre 2026"
       }
     },
     {
@@ -292,9 +297,10 @@
         "type": "PRORATA_PREMIERE_ANNEE",
         "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
         "calcul": "Reprise = commission × mois non payés ÷ 12.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille ; application confirmée par le cabinet le 16 novembre 2026",
         "aConfirmer": [
-          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+          "Le taux du barème regroupe commission, surcommission et Boost, alors que la surcommission n'est pas reprise : l'exemple, calculé sur le tout, est un maximum.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Abeille dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -330,9 +336,10 @@
         "type": "PRORATA_PREMIERE_ANNEE",
         "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
         "calcul": "Reprise = commission × mois non payés ÷ 12.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille ; application confirmée par le cabinet le 16 novembre 2026",
         "aConfirmer": [
-          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+          "Le taux du barème regroupe commission, surcommission et Boost, alors que la surcommission n'est pas reprise : l'exemple, calculé sur le tout, est un maximum.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Abeille dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -368,9 +375,10 @@
         "type": "PRORATA_PREMIERE_ANNEE",
         "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
         "calcul": "Reprise = commission × mois non payés ÷ 12.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille ; application confirmée par le cabinet le 16 novembre 2026",
         "aConfirmer": [
-          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+          "Le taux du barème regroupe commission, surcommission et Boost, alors que la surcommission n'est pas reprise : l'exemple, calculé sur le tout, est un maximum.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Abeille dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -406,9 +414,10 @@
         "type": "PRORATA_PREMIERE_ANNEE",
         "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
         "calcul": "Reprise = commission × mois non payés ÷ 12.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille ; application confirmée par le cabinet le 16 novembre 2026",
         "aConfirmer": [
-          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+          "Le taux du barème regroupe commission, surcommission et Boost, alors que la surcommission n'est pas reprise : l'exemple, calculé sur le tout, est un maximum.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Abeille dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -444,9 +453,10 @@
         "type": "PRORATA_PREMIERE_ANNEE",
         "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
         "calcul": "Reprise = commission × mois non payés ÷ 12.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille ; application confirmée par le cabinet le 16 novembre 2026",
         "aConfirmer": [
-          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+          "Le taux du barème regroupe commission, surcommission et Boost, alors que la surcommission n'est pas reprise : l'exemple, calculé sur le tout, est un maximum.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Abeille dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -482,9 +492,10 @@
         "type": "PRORATA_PREMIERE_ANNEE",
         "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
         "calcul": "Reprise = commission × mois non payés ÷ 12.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille ; application confirmée par le cabinet le 16 novembre 2026",
         "aConfirmer": [
-          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+          "Le taux du barème regroupe commission, surcommission et Boost, alors que la surcommission n'est pas reprise : l'exemple, calculé sur le tout, est un maximum.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Abeille dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -520,9 +531,10 @@
         "type": "PRORATA_PREMIERE_ANNEE",
         "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
         "calcul": "Reprise = commission × mois non payés ÷ 12.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille ; application confirmée par le cabinet le 16 novembre 2026",
         "aConfirmer": [
-          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+          "Le taux du barème regroupe commission, surcommission et Boost, alors que la surcommission n'est pas reprise : l'exemple, calculé sur le tout, est un maximum.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Abeille dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -558,9 +570,10 @@
         "type": "PRORATA_PREMIERE_ANNEE",
         "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
         "calcul": "Reprise = commission × mois non payés ÷ 12.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille ; application confirmée par le cabinet le 16 novembre 2026",
         "aConfirmer": [
-          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+          "Le taux du barème regroupe commission, surcommission et Boost, alors que la surcommission n'est pas reprise : l'exemple, calculé sur le tout, est un maximum.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Abeille dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -596,9 +609,10 @@
         "type": "PRORATA_PREMIERE_ANNEE",
         "resume": "Reprise si le contrat s'arrête, part chez un autre apporteur ou voit ses garanties baisser pendant la 1re année, au prorata des primes non payées. Pas de reprise ensuite.",
         "calcul": "Reprise = commission × mois non payés ÷ 12.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille",
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Abeille ; application confirmée par le cabinet le 16 novembre 2026",
         "aConfirmer": [
-          "Le taux du barème regroupe commission, surcommission et Boost. La surcommission n'est pas reprise par la compagnie : l'exemple, calculé sur le tout, est un maximum."
+          "Le taux du barème regroupe commission, surcommission et Boost, alors que la surcommission n'est pas reprise : l'exemple, calculé sur le tout, est un maximum.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Abeille dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -679,9 +693,9 @@
       ],
       "remunerationParDefaut": "ACQUISITION_MAX",
       "reprise": {
-        "type": "ESCOMPTE_ET_SURCOMMISSION",
-        "resume": "Commission de base : si le contrat s'arrête pendant la durée d'escompte, la compagnie reprend la part qui correspond aux versements non faits. Surcommission : reprise de 100 % la 1re année, 90 % la 2e, 80 % la 3e et 70 % la 4e ; au-delà de 1 500 € de versement par mois, encore 60 % la 5e année.",
-        "calcul": "Base reprise = commission de base × mois non versés ÷ mois de la durée d'escompte. Surcommission reprise = surcommission × taux de l'année d'arrêt.",
+        "type": "PAR_ANNEE",
+        "resume": "La compagnie reprend toute la commission, base et surcommission, selon l'année d'arrêt : 100 % la 1re année, 90 % la 2e, 80 % la 3e, 70 % la 4e. Au-delà de 1 500 € de versement par mois, 60 % la 5e année.",
+        "calcul": "Reprise = commission reçue × taux de l'année d'arrêt. Le taux est le même quel que soit le mois de l'année.",
         "tauxParAnnee": [
           1.0,
           0.9,
@@ -692,7 +706,7 @@
           "seuilMensuel": 1500,
           "taux": 0.6
         },
-        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Abeille"
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Abeille ; application décidée par le cabinet le 16 novembre 2026"
       }
     },
     {
@@ -731,16 +745,12 @@
         "source": "Protocole Abeille : au-delà de 57 ans, les surcommissions diminuent jusqu'à 66 ans, de manière proratisée ; 0 % à partir de 67 ans."
       },
       "reprise": {
-        "type": "SURCOMMISSION_PAR_ANNEE",
-        "resume": "Pas de reprise sur la commission de base. La surcommission peut être reprise pendant 4 ans, seulement en cas de rachat d'au moins 30 000 € sur un versement à frais de 1,5 % ou moins : 100 % la 1re année, 90 % la 2e, 80 % la 3e, 70 % la 4e.",
-        "calcul": "Surcommission reprise = surcommission × taux de l'année du rachat.",
-        "tauxParAnnee": [
-          1.0,
-          0.9,
-          0.8,
-          0.7
-        ],
-        "source": "Protocole Sofraco Épargne 2026, édition de juin 2026, Abeille"
+        "type": "TEXTE",
+        "resume": "Reprise seulement en cas de rachat d'au moins 30 000 € sur un versement à frais de 1,5 % ou moins : 100 % la 1re année, 90 % la 2e, 80 % la 3e, 70 % la 4e.",
+        "source": "Protocole Sofraco Épargne 2026, édition de juin 2026, Abeille",
+        "aConfirmer": [
+          "Ces taux s'appliquent-ils à toute la commission ou à la seule surcommission ? Pas d'exemple chiffré avant la réponse."
+        ]
       }
     },
     {
@@ -2029,7 +2039,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2102,7 +2115,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2145,7 +2161,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2186,7 +2205,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2227,7 +2249,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2268,7 +2293,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2309,7 +2337,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2350,7 +2381,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2385,7 +2419,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2458,7 +2495,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -2531,7 +2571,10 @@
           1.0,
           0.5
         ],
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Alptis",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Alptis dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4179,7 +4222,10 @@
           "30%/10%": 0.14,
           "40%/10%": 0.16
         },
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance April dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4231,7 +4277,10 @@
           "30%/10%": 0.14,
           "40%/10%": 0.16
         },
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance April dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4291,7 +4340,10 @@
           "30%/10%": 0.14,
           "40%/10%": 0.16
         },
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance April dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4343,7 +4395,10 @@
           "30%/10%": 0.14,
           "40%/10%": 0.16
         },
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance April dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4379,7 +4434,10 @@
           "30%/10%": 0.14,
           "40%/10%": 0.16
         },
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance April dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4423,7 +4481,10 @@
           "30%/10%": 0.14,
           "40%/10%": 0.16
         },
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance April dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4483,7 +4544,10 @@
           "30%/10%": 0.14,
           "40%/10%": 0.16
         },
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance April dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4535,7 +4599,10 @@
           "30%/10%": 0.14,
           "40%/10%": 0.16
         },
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance April dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4587,7 +4654,10 @@
           "30%/10%": 0.14,
           "40%/10%": 0.16
         },
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, April",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance April dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -4691,10 +4761,7 @@
         "horsPartFixe": true,
         "resume": "Reprise pendant 3 ans si le contrat s'arrête, au prorata du temps restant. Le bonus n'est pas repris.",
         "calcul": "Reprise = commission hors bonus × mois restants ÷ 36.",
-        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Cardif",
-        "aConfirmer": [
-          "Le protocole indique « N/36e sur la base du linéaire » : lecture au prorata du temps restant, à confirmer."
-        ]
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Cardif ; N = mois restant à courir, confirmé par le cabinet le 16 novembre 2026"
       }
     },
     {
@@ -5160,7 +5227,10 @@
       "reprise": {
         "type": "TEXTE",
         "resume": "Commission en précompte : pendant 2 ans, la compagnie reprend la différence entre la commission versée et la commission réellement due sur les cotisations encaissées depuis la date d'effet. Commission linéaire : pas de reprise.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Entoria"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Entoria",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Entoria dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -5332,7 +5402,10 @@
       "reprise": {
         "type": "TEXTE",
         "resume": "Commission en précompte : pendant 2 ans, la compagnie reprend la différence entre la commission versée et la commission réellement due sur les cotisations encaissées depuis la date d'effet. Commission linéaire : pas de reprise.",
-        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Entoria"
+        "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Entoria",
+        "aConfirmer": [
+          "Règle donnée par le protocole Sofraco pour la prévoyance Entoria dans son ensemble : à vérifier pour cette gamme."
+        ]
       }
     },
     {
@@ -5443,7 +5516,7 @@
         "totaliteJusquAuMois": 12,
         "resume": "Reprise en totalité si le contrat s'arrête la 1re année, puis au prorata du temps restant jusqu'à 6 ans.",
         "calcul": "Reprise = commission × mois restants ÷ 72.",
-        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Generali",
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Generali ; N = mois restant à courir, confirmé par le cabinet le 16 novembre 2026",
         "aConfirmer": [
           "Reprise du rappel de 25 % en même temps que l'escompte : à confirmer."
         ]
@@ -6866,17 +6939,12 @@
         }
       ],
       "reprise": {
-        "type": "PAR_ANNEE_APPORT",
-        "resume": "Reprise de 100 % de la commission d'apport si le contrat s'arrête pendant les 3 premières années, sauf sinistre avec paiement du capital. La commission d'apport est la part versée en plus la 1re année.",
-        "calcul": "Reprise = commission reçue × (taux de 1re année − taux des années suivantes) ÷ taux de 1re année.",
-        "tauxParAnnee": [
-          1.0,
-          1.0,
-          1.0
-        ],
+        "type": "TEXTE",
+        "resume": "Commission d'apport reprise à 100 % si le contrat s'arrête pendant les 3 premières années, sauf sinistre avec paiement du capital. Surcommission reprise à 100 % la 1re année, puis de façon dégressive de 50 % à 0 % la 2e année.",
         "source": "Protocole Sofraco Prévoyance 2026, édition de juin 2026, Swiss Life",
         "aConfirmer": [
-          "Le taux du barème regroupe commission et surcommission. La surcommission n'est reprise que 2 ans : 100 % la 1re année, de 50 % à 0 % la 2e."
+          "Le taux de la grille (70 % / 10 %) mélange commission d'apport et surcommission, et la dégressivité de la 2e année n'est pas précisée. Pas d'exemple chiffré avant la réponse.",
+          "Règle donnée par le protocole Sofraco pour la prévoyance Swiss Life dans son ensemble : à vérifier pour cette gamme."
         ]
       }
     },
@@ -6938,7 +7006,7 @@
         "dureeMois": 48,
         "resume": "Reprise pendant 4 ans si le contrat s'arrête, au prorata du temps restant.",
         "calcul": "Reprise = commission × mois restants ÷ 48.",
-        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Swiss Life"
+        "source": "Protocole Sofraco Retraite 2026, édition de juin 2026, Swiss Life ; N = mois restant à courir, confirmé par le cabinet le 16 novembre 2026"
       }
     },
     {

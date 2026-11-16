@@ -100,10 +100,8 @@ export type TypeReprise =
   | 'TEXTE'
   /** Au prorata du temps restant sur une durée fixe. */
   | 'PRORATA_DUREE'
-  /** Base au prorata de la durée d'escompte, surcommission selon l'année d'arrêt. */
-  | 'ESCOMPTE_ET_SURCOMMISSION'
-  /** Surcommission seule, selon l'année d'arrêt. */
-  | 'SURCOMMISSION_PAR_ANNEE'
+  /** Toute la commission, selon un taux fixé pour chaque année d'arrêt. */
+  | 'PAR_ANNEE'
   /** Commission d'apport d'un précompte, selon l'année d'arrêt. */
   | 'PAR_ANNEE_APPORT'
   /** Au prorata des primes non payées, la première année seulement. */
@@ -186,6 +184,8 @@ export interface Referentiel {
   coefficientHorsTaxe: number;
   /** Taux de réversion pour lequel les barèmes ont été relevés. */
   tauxReversionReference: number;
+  /** Taux de reversement que le simulateur propose, en attendant les fiches mandataires. */
+  tauxReversionProposes: number[];
   coCourtage: ParametresCoCourtage;
   contrats: ContratReferentiel[];
 }

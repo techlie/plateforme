@@ -45,6 +45,12 @@ export class SimulateurComponent {
   readonly age = signal('');
   readonly partUc = signal('100');
   readonly dejaVerse = signal('');
+  /** Taux de reversement choisi ; vide = taux par défaut du barème. Provisoire, en attendant les fiches mandataires. */
+  readonly tauxReversion = signal<number | null>(null);
+  readonly tauxReversionChoisi = computed(() => this.tauxReversion() ?? this.catalogue()?.tauxReversion.parDefaut ?? null);
+  readonly tauxReversionProposes = computed(() =>
+    (this.catalogue()?.tauxReversion.proposes ?? []).map((t) => ({ taux: t, libelle: `${ecrirePourcent(t)} %` })),
+  );
   readonly coCourtage = signal(false);
   readonly tauxCoCourtage = signal('');
   readonly option = signal<string | null>(null);
@@ -133,6 +139,10 @@ export class SimulateurComponent {
       }
       demande.taux = taux;
     }
+    const reversion = this.tauxReversionChoisi();
+    if (reversion !== null) {
+      demande.tauxReversion = reversion;
+    }
     if (this.coCourtage()) {
       const taux = lirePourcent(this.tauxCoCourtage());
       const max = this.catalogue()?.coCourtage.tauxMax ?? 1;
@@ -210,6 +220,7 @@ export class SimulateurComponent {
   readonly exemplesReprise = computed(() =>
     (this.resultat()?.reprise.exemples ?? []).map((e) => ({
       mois: e.mois,
+      libelle: e.libelle,
       part: `${Math.round(e.taux * 100)} %`,
       montant: formaterEuros(e.montant),
     })),
