@@ -93,8 +93,14 @@ mandataires », pas le thème du socle.
 - Une décision du cabinet s'inscrit d'abord dans `docs/decisions.md`, avec sa date,
   puis se code. Avant de construire un module, relire ce registre en entier : une
   décision déjà prise ne se redemande pas et ne se laisse pas de côté.
-- Une formule de protocole incertaine ne bloque pas une décision : on applique la
-  lecture la plus naturelle, on la marque `aConfirmer`, on l'affiche.
+- Une règle de protocole s'applique telle qu'elle est écrite, sans interprétation.
+  En cas de doute, la question est posée au cabinet avant de coder. En attendant la
+  réponse, la règle est affichée telle qu'écrite, marquée `aConfirmer`, sans exemple
+  chiffré.
+- Une règle de reprise est portée par chaque contrat (gamme) du référentiel daté :
+  une compagnie peut appliquer des protocoles différents selon la gamme, et une
+  affaire garde la règle de son année.
+- Pour un écran construit, l'écran fait référence ; la maquette n'est plus suivie.
 - `main` est la version en service. Tout travail se fait sur une branche.
 - Rien n'est fusionné dans `main` si un test échoue.
 - Un message d'enregistrement dit ce qui change et pourquoi, en français.

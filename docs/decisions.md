@@ -12,7 +12,8 @@ pas encore construit), **Ouvert** (pas encore tranché).
 | Décision | Date | État | Où |
 | --- | --- | --- | --- |
 | Chaîne compagnie → courtier grossiste (retenue de 15 %) → cabinet → mandataire | début nov. | Appliqué | Moteur du simulateur |
-| Taux de reversement propre à chaque mandataire, fixé à la création de son espace (70 % chez SR CONSEIL, différent chez Label Assurances) | 12 nov. | Appliqué dans le calcul ; 70 % pour tous tant que la connexion n'existe pas | Moteur, puis fiche mandataire |
+| Taux de reversement propre à chaque mandataire, fixé à la création de son espace (70 % chez SR CONSEIL, différent chez Label Assurances) | 12 nov. | Appliqué dans le calcul | Moteur, puis fiche mandataire |
+| Simulateur : choix du taux de reversement entre 70, 80 et 90 %, certains mandataires de Label Assurances étant à 80 ou 90 % ; le serveur refuse tout autre taux. Provisoire : le taux viendra de la fiche du mandataire | 16 nov. | Appliqué | Référentiel, service, écran, test dédié |
 | Coefficient 0,87 conservé en première version pour passer du TTC au hors taxe | début nov. | Appliqué | Référentiel |
 | Référentiel versionné par année ; un nouveau barème ne modifie pas un calcul passé | début nov. | Appliqué | Référentiel daté |
 | Surcommission payée comme acquise si et seulement si elle est reprise dans la grille | début nov. | Appliqué | Référentiel |
@@ -30,6 +31,12 @@ pas encore construit), **Ouvert** (pas encore tranché).
 | Co-courtage avec un cabinet d'expertise comptable : case à cocher et taux de la convention (30 % proposé) ; part calculée sur la commission brute de la compagnie ; le mandataire reçoit son taux de reversement sur ce qui reste au cabinet | 15 nov. | Appliqué | Moteur, tests « co-courtage », écran |
 | Co-courtage : la part du cabinet d'expertise comptable est affichée, avec le rappel qu'elle est versée sans avance, au fil des bordereaux reçus | 15 nov. | Appliqué | Écran |
 | Règles de reprise affichées par compagnie, avec le calcul et un exemple chiffré sur l'affaire simulée | 15 nov. | Appliqué pour 40 contrats ; 111 contrats sans règle connue du cabinet | `moteur/reprise.ts`, tests « reprise » |
+| Une règle de protocole s'applique telle qu'elle est écrite, sans interprétation. En cas de doute, la question est posée au cabinet avant de coder ; en attendant, la règle est affichée sans exemple chiffré | 16 nov. | Appliqué | `CLAUDE.md`, référentiel (`TEXTE`) |
+| Abeille épargne et retraite : reprise de toute la commission selon l'année d'arrêt, quel que soit le mois : 100 %, 90 %, 80 %, 70 % les années 1 à 4 ; 60 % la 5e au-delà de 1 500 € de versement par mois | 16 nov. | Appliqué | Référentiel (`PAR_ANNEE`), tests « reprise » |
+| N/72 (Generali), N/48 (Swiss Life PER), N/36 (Cardif) : N est le nombre de mois restant à courir | 16 nov. | Appliqué | Référentiel, tests « reprise » |
+| Abeille prévoyance : reprise au prorata des primes non payées, la 1re année | 16 nov. | Appliqué | Référentiel, tests « reprise » |
+| Une compagnie peut appliquer des protocoles différents selon la gamme, et les reprises peuvent évoluer : la règle de reprise est portée par chaque contrat du référentiel daté. Une règle donnée pour toute une compagnie est affichée « à vérifier pour cette gamme » | 16 nov. | Appliqué pour 32 gammes de prévoyance | Référentiel, test dédié |
+| Le simulateur sort des maquettes : l'écran construit fait référence | 16 nov. | Appliqué | Écran du simulateur |
 
 ### Hypothèses de calcul encore à confirmer
 
@@ -53,18 +60,20 @@ Source : protocoles Sofraco Retraite, Épargne et Prévoyance 2026, édition de 
 
 | Compagnie, contrat | Règle retenue |
 | --- | --- |
-| Abeille, primes périodiques | Base : prorata des versements non faits sur la durée d'escompte. Surcommission : 100 %, 90 %, 80 %, 70 % les années 1 à 4 ; 60 % la 5e au-delà de 1 500 € par mois |
-| Abeille, versement unique | Surcommission seule, mêmes taux sur 4 ans, en cas de rachat d'au moins 30 000 € à frais de 1,5 % ou moins |
-| Abeille prévoyance | Prorata des primes non payées, la 1re année seulement |
-| Generali Retraite Pro | Totalité la 1re année, puis mois restants sur 72 |
-| Cardif Elite | Mois restants sur 36 ; le bonus n'est pas repris |
-| Swiss Life PER individuel | Mois restants sur 48 |
+| Abeille, primes périodiques | Toute la commission, base et surcommission : 100 %, 90 %, 80 %, 70 % selon l'année d'arrêt, le même taux quel que soit le mois ; 60 % la 5e année au-delà de 1 500 € par mois. Confirmé le 16 nov. |
+| Abeille, versement unique et transfert | En cas de rachat d'au moins 30 000 € à frais de 1,5 % ou moins : 100 %, 90 %, 80 %, 70 % sur 4 ans. Affichée sans exemple chiffré : question posée (toute la commission ou surcommission seule) |
+| Abeille prévoyance | Prorata des primes non payées, la 1re année seulement. Confirmé le 16 nov. |
+| Generali Retraite Pro | Totalité la 1re année, puis N/72, N étant le nombre de mois restant à courir |
+| Cardif Elite | N/36, N étant le nombre de mois restant à courir ; le bonus n'est pas repris (à confirmer) |
+| Swiss Life PER individuel | N/48, N étant le nombre de mois restant à courir |
 | Swiss Life et Cardif, versement unique | Pas de reprise |
 | Alptis prévoyance | Précompte : 100 % de la commission d'apport la 1re année, 50 % la 2e |
-| Swiss Life prévoyance | 100 % de la commission d'apport pendant 3 ans, hors sinistre avec paiement du capital |
+| Swiss Life prévoyance | 100 % de la commission d'apport pendant 3 ans, hors sinistre avec paiement du capital ; surcommission 100 % la 1re année, puis de 50 % à 0 % la 2e. Affichée sans exemple chiffré : question posée (répartition du taux de la grille, baisse de la 2e année) |
 | April prévoyance | Pendant 2 ans, commission versée moins son équivalent linéaire (14 % pour un 30/10, 16 % pour un 40/10) |
 | Entoria prévoyance | Précompte : pendant 2 ans, commission versée moins commission due sur les cotisations encaissées (non chiffré) |
 | Santé, emprunteur, autres compagnies | Règle non connue du cabinet : protocoles à obtenir |
+
+Les règles de prévoyance ci-dessus viennent du protocole Sofraco, qui les donne par compagnie. Chaque gamme concernée est signalée « à vérifier pour cette gamme ».
 
 ## 2. Commissions : affaires, bordereau, reprises
 
@@ -101,6 +110,8 @@ Source : protocoles Sofraco Retraite, Épargne et Prévoyance 2026, édition de 
 | Deux campagnes menées en même temps dans deux compagnies | 15 nov. | À faire |
 | Entités du groupe à créer : SR CONSEIL, Label Assurances, Label Santé, RJ Assurances, Nembrini Colombani, A2C Courtage, A3C (Midi Courtage) | 16 nov. | À faire (référentiel des entités) |
 | À l'ouverture d'une campagne : avenant pré-rempli, mail hebdomadaire, clients confiés, liste d'attente, indicateurs de fiabilité | 15 nov. | À faire |
+| Avenant pré-rempli produit seulement quand le commercial, mandataire ou salarié, déclare que le client a accepté l'arbitrage ; il est alors mis en téléchargement. Rien n'est produit avant | 16 nov. | À faire |
+| 27 novembre 2026 : présentation et lancement officiel d'au moins une des deux campagnes | 16 nov. | À faire |
 | Annulation après opération par le back-office, commission reprise | début nov. | À faire |
 
 ## 4. Socle, sécurité, données
@@ -108,7 +119,8 @@ Source : protocoles Sofraco Retraite, Épargne et Prévoyance 2026, édition de 
 | Décision | Date | État |
 | --- | --- | --- |
 | Même technologie que le socle des développeurs, habillage des maquettes | 15 nov. | Appliqué (`CLAUDE.md`) |
-| Hébergement sur un serveur propre, dépôt privé | 15 nov. | Dépôt privé vérifié invisible de l'extérieur le 16 nov. ; serveur : proposition de Willie d'utiliser l'infrastructure IONOS de Label, conditions à confirmer (compte au nom du groupe, machine et base propres, centre de données en France ou en Allemagne, sauvegarde quotidienne) |
+| Dépôt de code privé | 15 nov. | Appliqué : vérifié invisible de l'extérieur le 16 nov. |
+| Hébergement chez IONOS, sur l'infrastructure déjà utilisée par Label, sans surcoût technique | 16 nov. | À faire ; réglages à voir avec Willie (machine et base propres, centre de données, sauvegarde quotidienne) |
 | Connexion à deux étapes par code envoyé par courriel | 15 nov. | À faire |
 | Modules activables par utilisateur, par case à cocher | 15 nov. | À faire |
 | Un mandataire ne voit que ses clients et ses commissions | 15 nov. | À faire |
@@ -117,7 +129,14 @@ Source : protocoles Sofraco Retraite, Épargne et Prévoyance 2026, édition de 
 | Conventions et protocoles signés versés dans la plateforme, consultables par l'administrateur et le mandataire concerné | 15 nov. | À faire |
 | Aucune donnée médicale, aucun IBAN | 15 nov. | Appliqué (`CLAUDE.md`) |
 
-## 5. Version pour d'autres cabinets
+## 5. Synthèse des contrats (bilan client)
+
+| Décision | Date | État |
+| --- | --- | --- |
+| Pas de calcul du régime obligatoire. Il figure dans le bilan seulement s'il est dans les documents fournis ; sinon, le bilan reprend les éléments disponibles | 16 nov. | À faire |
+| Pour chaque contrat : les garanties et le coût, avec un échéancier ; pour l'assurance vie et le PER : l'encours et le montant des versements réguliers | 16 nov. | À faire |
+
+## 6. Version pour d'autres cabinets
 
 | Décision | Date | État |
 | --- | --- | --- |
@@ -130,7 +149,7 @@ Source : protocoles Sofraco Retraite, Épargne et Prévoyance 2026, édition de 
 | IARD : commission d'apporteur, forfaitaire en général, en pourcentage par exception | 15 nov. | À faire |
 | Cabinet comptable partenaire : accès à la plateforme | 15 nov. | À faire |
 
-## 6. Points encore ouverts
+## 7. Points encore ouverts
 
 La liste complète est tenue dans le document « SR CONSEIL — Questions en attente ».
 Ceux qui touchent le calcul :
@@ -145,3 +164,9 @@ Ceux qui touchent le calcul :
 - Contrôle du patrimoine Swiss Life : bloquant ou simple alerte.
 - Délai standard pour honorer une réservation, avant l'ouverture des deux prochaines campagnes.
 - Règles de reprise en santé et en assurance de prêt, et pour les compagnies de prévoyance dont le protocole ne dit rien.
+- Abeille, versement unique et transfert : reprise sur toute la commission ou sur la surcommission seule.
+- Swiss Life prévoyance : répartition du taux de la grille entre commission d'apport et surcommission, et baisse de la reprise la 2e année.
+- Generali : le rappel de 25 % est-il repris avec l'escompte.
+- Cardif : le bonus non repris.
+- Prévoyance : règle de reprise de chaque gamme à vérifier.
+- Versement libre et affaire nouvelle : le document pré-rempli attend-il aussi l'accord du client.

@@ -4,17 +4,17 @@ Espace de travail des mandataires et du back-office : simulateur de commission,
 enveloppes de produits structurés, affaires et bordereau mensuel, synthèse des
 contrats avant rendez-vous.
 
-Ce dépôt est privé. Il appartient à l'organisation REKA-Consulting.
+Ce dépôt est privé.
 
 ## Modules prévus
 
 | Module | Contenu | État |
 | --- | --- | --- |
 | Socle applicatif | Connexion, double authentification par code mail, profils, modules activables par utilisateur, journal des actions | À construire |
-| Simulateur | Commission estimée d'une affaire, selon le référentiel de l'année | Première version : 151 contrats du barème 2026, sans connexion |
+| Simulateur | Commission estimée d'une affaire, selon le référentiel de l'année, et ce qui est repris si le contrat s'arrête | Construit et testé : 151 contrats du barème 2026, reprises, co-courtage, reversement à 70, 80 ou 90 % ; sans connexion |
 | Enveloppes | Réservations, compteurs théorique et réel, validation, relances, avenant pré-rempli | À construire |
 | Affaires et bordereau | Saisie des affaires, étapes de validation, bordereau mensuel du mandataire | À construire |
-| Synthèse des contrats | Récapitulatif des contrats d'un client avant rendez-vous | À construire |
+| Synthèse des contrats | Récapitulatif des contrats d'un client avant rendez-vous : garanties et coût avec échéancier, encours et versements réguliers en assurance vie et PER | À construire |
 
 ## Choix techniques
 
@@ -66,9 +66,10 @@ est dans [`docs/decisions.md`](docs/decisions.md).
 
 Manque :
 
-- la connexion : le taux de reversement est pour l'instant celui de référence (70 %) ;
+- la connexion : le taux de reversement se choisit pour l'instant entre 70, 80 et 90 % ;
   il viendra de la fiche de chaque mandataire ;
-- les lectures de protocole marquées « à confirmer » dans le référentiel ;
+- les réponses aux questions marquées « à confirmer » dans le référentiel ; en
+  attendant, la règle concernée est affichée sans exemple chiffré ;
 - les règles de reprise en santé et en assurance de prêt, que les protocoles dont
   dispose le cabinet ne donnent pas ;
 - le cumul automatique du plafond Abeille entre les contrats d'un même client, qui
