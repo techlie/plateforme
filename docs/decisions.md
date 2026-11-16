@@ -91,6 +91,19 @@ Les règles de prévoyance ci-dessus viennent du protocole Sofraco, qui les donn
 | Blocage signalé avec son motif : devoir de conseil non signé, arbitrage non signé, formalités médicales en cours | 15 nov. | À faire (module Affaires) |
 | Un mois de fonctionnement en double avec le fichier Excel avant bascule | 15 nov. | À faire |
 
+### Code apporteur partagé par plusieurs mandataires
+
+Cas d'une structure du groupe, par exemple RJ Assurances : un seul code apporteur chez
+une compagnie, plusieurs mandataires qui se le partagent.
+
+| Décision | Date | État |
+| --- | --- | --- |
+| Chaque contrat d'un code partagé est affecté à un seul mandataire. L'affectation se fait contrat par contrat, plus fiable ; un raccourci affecte en une fois tous les contrats d'un client | 16 nov. | À faire (module Affaires) |
+| Contrat sans mandataire affecté : par défaut, la structure garde toute la commission | 16 nov. | À faire |
+| À l'affectation, la part du mandataire est paramétrable : une partie ou toute la commission, selon un protocole qui peut différer de son taux habituel, y compris sur le récurrent | 16 nov. | À faire |
+| Date d'effet d'une affectation ou d'un changement de mandataire fixée par l'administrateur à chaque fois ; un rattrapage passe par une ligne de régularisation | 16 nov. | À faire |
+| Seul l'administrateur affecte un contrat ou change son mandataire ; chaque affectation est tracée | 16 nov. | À faire |
+
 ## 3. Enveloppes de produits structurés
 
 | Décision | Date | État |
@@ -170,3 +183,5 @@ Ceux qui touchent le calcul :
 - Cardif : le bonus non repris.
 - Prévoyance : règle de reprise de chaque gamme à vérifier.
 - Versement libre et affaire nouvelle : le document pré-rempli attend-il aussi l'accord du client.
+- Code partagé : à l'affectation, quelle part par défaut pour le mandataire (son taux habituel ?), et la part peut-elle différer entre commission d'acquisition et récurrent.
+- Code partagé : un mandataire peut-il réserver un arbitrage sur un contrat affecté à un autre mandataire.
