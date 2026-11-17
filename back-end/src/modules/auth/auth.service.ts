@@ -249,8 +249,15 @@ export class AuthService {
     });
   }
 
-  /** Mot de passe oublié. La réponse est la même que l'adresse existe ou non. */
-  async demanderReinitialisation(emailSaisi: string, origine: Origine): Promise<void> {
+  /**
+   * Mot de passe oublié, ou lien envoyé par un administrateur (envoyePar).
+   * La réponse est la même que l'adresse existe ou non.
+   */
+  async demanderReinitialisation(
+    emailSaisi: string,
+    origine: Origine,
+    envoyePar?: { id: string; prenom: string; nom: string },
+  ): Promise<void> {
     const email = normaliserAdresse(emailSaisi);
     const utilisateur = await this.repository.trouverParEmail(email);
     if (!utilisateur || !utilisateur.actif) {
@@ -283,11 +290,12 @@ export class AuthService {
       await this.courriel.envoyerReinitialisation(utilisateur.email, utilisateur.prenom, jeton, validiteMinutes);
     }
     await this.journal.ecrire({
-      action: 'REINITIALISATION_DEMANDEE',
-      message: activation ? "Lien d'activation renvoyé." : 'Lien de nouveau mot de passe envoyé.',
+      action: envoyePar ? 'LIEN_ENVOYE' : 'REINITIALISATION_DEMANDEE',
+      message: `${activation ? "Lien d'activation" : 'Lien de nouveau mot de passe'} envoyé à ${nomComplet(utilisateur)}.`,
       succes: true,
-      userId: utilisateur.id,
-      auteur: nomComplet(utilisateur),
+      userId: envoyePar?.id ?? utilisateur.id,
+      auteur: nomComplet(envoyePar ?? utilisateur),
+      cible: utilisateur.id,
       ...origine,
     });
   }

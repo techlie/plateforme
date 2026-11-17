@@ -1,15 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ENTREES_ADMINISTRATION, ENTREES_MODULES, EntreeMenu, ORDRE_MODULES } from '../../core/menu';
+import { SessionService } from '../../core/session.service';
 import { ThemeService } from '../../core/theme.service';
 
-interface EntreeMenu {
-  libelle: string;
-  /** Tracé de l'icône, dans une grille de 24 × 24. */
-  icone: string[];
-  lien?: string;
-}
-
-/** Cadre commun à tous les écrans : menu latéral et zone de contenu. */
+/** Cadre commun aux écrans de la plateforme : menu latéral, selon les droits du compte, et zone de contenu. */
 @Component({
   selector: 'app-coque',
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
@@ -19,24 +14,20 @@ interface EntreeMenu {
 })
 export class CoqueComponent {
   private readonly themes = inject(ThemeService);
+  private readonly session = inject(SessionService);
+  private readonly router = inject(Router);
 
   readonly ouvert = signal(true);
   readonly sombre = computed(() => this.themes.theme() === 'dark');
   readonly libelleTheme = computed(() => (this.sombre() ? 'Mode clair' : 'Mode sombre'));
+  readonly utilisateur = this.session.utilisateur;
 
-  /** Les modules sans lien ne sont pas encore construits : ils sont annoncés, pas cliquables. */
-  readonly menu: EntreeMenu[] = [
-    { libelle: 'Accueil', icone: ['M3 11l9-7 9 7', 'M5 10v10h14V10'] },
-    { libelle: 'Enveloppes', icone: ['M12 3l9 5-9 5-9-5z', 'M3 13l9 5 9-5'] },
-    {
-      libelle: 'Simulateur',
-      lien: '/simulateur',
-      icone: ['M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z', 'M8 7h8', 'M8 12h2', 'M14 12h2', 'M8 16h2', 'M14 16h2'],
-    },
-    { libelle: 'Mes affaires', icone: ['M8 6h12', 'M8 12h12', 'M8 18h12', 'M4 6h.01', 'M4 12h.01', 'M4 18h.01'] },
-    { libelle: 'Bordereau', icone: ['M5 6h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z', 'M3 10h18', 'M16 15h2'] },
-    { libelle: 'Documents', icone: ['M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z', 'M14 3v5h5'] },
-  ];
+  readonly menu = computed<EntreeMenu[]>(() => {
+    const u = this.utilisateur();
+    if (!u) return [];
+    const modules = ORDRE_MODULES.filter((m) => u.modules.includes(m)).map((m) => ENTREES_MODULES[m]);
+    return this.session.estAdministrateur() ? [...modules, ...ENTREES_ADMINISTRATION] : modules;
+  });
 
   basculerMenu(): void {
     this.ouvert.update((o) => !o);
@@ -44,5 +35,10 @@ export class CoqueComponent {
 
   basculerTheme(): void {
     this.themes.basculer();
+  }
+
+  async deconnecter(): Promise<void> {
+    await this.session.deconnexion();
+    await this.router.navigateByUrl('/connexion');
   }
 }

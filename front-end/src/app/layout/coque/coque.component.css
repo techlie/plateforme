@@ -106,8 +106,50 @@ svg {
   font-weight: 600;
 }
 
-.menu__theme {
+.menu__personne {
   margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 8px;
+}
+
+.menu__initiales {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--rayon-pastille);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.menu__identite {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.menu__identite strong {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu__identite span {
+  color: var(--texte-doux);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu__theme,
+.menu > .menu__lien {
   cursor: pointer;
 }
 
@@ -160,7 +202,19 @@ svg {
     justify-content: center;
   }
 
-  .menu__theme {
-    margin-top: 0;
+  .menu__personne {
+    display: none;
+  }
+
+  .menu,
+  .coque--replie .menu {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .menu__liste {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
   }
 }

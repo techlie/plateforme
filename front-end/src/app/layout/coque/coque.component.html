@@ -16,7 +16,13 @@
     </div>
 
     <ul class="menu__liste">
-      @for (entree of menu; track entree.libelle) {
+      <li>
+        <a class="menu__lien" routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="menu__lien--actif" ariaCurrentWhenActive="page" title="Accueil">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /></svg>
+          <span class="menu__texte">Accueil</span>
+        </a>
+      </li>
+      @for (entree of menu(); track entree.libelle) {
         <li>
           @if (entree.lien) {
             <a class="menu__lien" [routerLink]="entree.lien" routerLinkActive="menu__lien--actif" ariaCurrentWhenActive="page" [attr.title]="entree.libelle">
@@ -25,7 +31,7 @@
                   <path [attr.d]="trace" />
                 }
               </svg>
-              <span class="menu__texte">{{ entree.libelle }}</span>
+              <span class="menu__texte">{{ entree.libelleCourt ?? entree.libelle }}</span>
             </a>
           } @else {
             <span class="menu__lien menu__lien--a-venir" [attr.title]="entree.libelle + ' : bientôt disponible'">
@@ -34,13 +40,23 @@
                   <path [attr.d]="trace" />
                 }
               </svg>
-              <span class="menu__texte">{{ entree.libelle }}</span>
+              <span class="menu__texte">{{ entree.libelleCourt ?? entree.libelle }}</span>
               <span class="menu__etiquette">Bientôt</span>
             </span>
           }
         </li>
       }
     </ul>
+
+    @if (utilisateur(); as u) {
+      <div class="menu__personne" [attr.title]="u.prenom + ' ' + u.nom">
+        <span class="menu__initiales" aria-hidden="true">{{ u.prenom.charAt(0) }}{{ u.nom.charAt(0) }}</span>
+        <span class="menu__texte menu__identite">
+          <strong>{{ u.prenom }} {{ u.nom }}</strong>
+          <span>{{ u.entite?.nom ?? 'SR CONSEIL' }}</span>
+        </span>
+      </div>
+    }
 
     <button type="button" class="menu__lien menu__theme" (click)="basculerTheme()" [attr.aria-label]="libelleTheme()" [attr.title]="libelleTheme()">
       <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
@@ -53,6 +69,11 @@
         }
       </svg>
       <span class="menu__texte">{{ libelleTheme() }}</span>
+    </button>
+
+    <button type="button" class="menu__lien" (click)="deconnecter()" aria-label="Se déconnecter" title="Se déconnecter">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></svg>
+      <span class="menu__texte">Se déconnecter</span>
     </button>
   </nav>
 

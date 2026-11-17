@@ -1,0 +1,168 @@
+<div class="page">
+  <header class="entete">
+    <div>
+      <p class="surtitre">Administration</p>
+      <h1 class="titre">Utilisateurs</h1>
+    </div>
+    <div class="entete__actions">
+      <a class="bouton" routerLink="/administration/journal">Journal</a>
+      <button type="button" class="bouton bouton--principal" (click)="ouvrirCreation()">Ajouter une personne</button>
+    </div>
+  </header>
+
+  @if (confirmation(); as message) {
+    <p class="note note--succes" role="status">{{ message }}</p>
+  }
+
+  @if (edition(); as e) {
+    <section class="fiche" aria-labelledby="titre-fiche">
+      <div class="fiche__tete">
+        <h2 id="titre-fiche">{{ e.mode === 'creation' ? 'Nouvelle personne' : prenom() + ' ' + nom() }}</h2>
+        <button type="button" class="lien-texte" (click)="fermer()">Annuler</button>
+      </div>
+
+      @if (ficheVerrouillee()) {
+        <p class="note note--alerte">Seul un super administrateur peut modifier un super administrateur.</p>
+      }
+
+      <form class="fiche__formulaire" (submit)="enregistrer($event)" novalidate>
+        <div class="grille">
+          <div class="champ">
+            <label class="champ__libelle" for="prenom">Prénom</label>
+            <div class="champ__zone">
+              <input id="prenom" class="champ__saisie" type="text" autocomplete="off" required [disabled]="ficheVerrouillee()"
+                [value]="prenom()" (input)="prenom.set(valeur($event))" />
+            </div>
+          </div>
+          <div class="champ">
+            <label class="champ__libelle" for="nom">Nom</label>
+            <div class="champ__zone">
+              <input id="nom" class="champ__saisie" type="text" autocomplete="off" required [disabled]="ficheVerrouillee()"
+                [value]="nom()" (input)="nom.set(valeur($event))" />
+            </div>
+          </div>
+          <div class="champ champ--large">
+            <label class="champ__libelle" for="email">Adresse de connexion</label>
+            <div class="champ__zone">
+              <input id="email" class="champ__saisie" type="email" autocomplete="off" required [disabled]="e.mode === 'modification'"
+                [value]="email()" (input)="email.set(valeur($event))" />
+            </div>
+            <span class="champ__aide">
+              {{ e.mode === 'creation' ? 'Propre à la personne : les codes de connexion y sont envoyés.' : 'L’adresse de connexion ne se modifie pas ici.' }}
+            </span>
+          </div>
+          <div class="champ">
+            <label class="champ__libelle" for="profil">Profil</label>
+            <div class="champ__zone">
+              <select id="profil" class="champ__saisie" [disabled]="soiMeme() || ficheVerrouillee()" [value]="profil()" (change)="changerProfil(valeur($event))">
+                @for (p of profilsProposes(); track p) {
+                  <option [value]="p" [selected]="p === profil()">{{ libellesProfils[p] }}</option>
+                }
+                @if (profil() === 'SUPER_ADMINISTRATEUR' && !estSuperAdministrateur()) {
+                  <option value="SUPER_ADMINISTRATEUR" selected>{{ libellesProfils.SUPER_ADMINISTRATEUR }}</option>
+                }
+              </select>
+            </div>
+            @if (soiMeme()) {
+              <span class="champ__aide">Vous ne pouvez pas changer votre propre profil.</span>
+            }
+          </div>
+          <div class="champ">
+            <label class="champ__libelle" for="entite">Entité</label>
+            <div class="champ__zone">
+              <select id="entite" class="champ__saisie" [disabled]="ficheVerrouillee()" [value]="entiteId()" (change)="entiteId.set(valeur($event))">
+                <option value="" [selected]="!entiteId()">Aucune</option>
+                @for (entite of entitesActives(); track entite.id) {
+                  <option [value]="entite.id" [selected]="entite.id === entiteId()">{{ entite.nom }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <fieldset class="modules">
+          <legend class="groupe__libelle">Modules ouverts</legend>
+          @if (profil() === 'SUPER_ADMINISTRATEUR') {
+            <p class="champ__aide">Un super administrateur a accès à tous les modules.</p>
+          } @else {
+            <div class="modules__liste">
+              @for (m of modules; track m) {
+                <label class="case">
+                  <input type="checkbox" [checked]="modulesCoches().includes(m)" [disabled]="ficheVerrouillee()"
+                    (change)="basculerModule(m, coche($event))" />
+                  <span>{{ libellesModules[m] }}</span>
+                </label>
+              }
+            </div>
+          }
+        </fieldset>
+
+        @if (e.mode === 'modification' && !soiMeme()) {
+          <label class="case case--seule">
+            <input type="checkbox" [checked]="actif()" [disabled]="ficheVerrouillee()" (change)="actif.set(coche($event))" />
+            <span>Compte actif. Décocher coupe l’accès aussitôt ; l’historique est conservé.</span>
+          </label>
+        }
+
+        @if (erreurFiche(); as message) {
+          <p class="note note--danger" role="alert">{{ message }}</p>
+        }
+
+        <div class="fiche__actions">
+          <button class="bouton bouton--principal" type="submit"
+            [disabled]="envoi() || ficheVerrouillee() || !prenom().trim() || !nom().trim() || !email().trim()">
+            {{ e.mode === 'creation' ? 'Créer et envoyer l’invitation' : 'Enregistrer' }}
+          </button>
+          @if (e.mode === 'modification' && ficheEnCours()?.actif && !ficheVerrouillee()) {
+            <button type="button" class="bouton" (click)="renvoyerLien()">
+              {{ ficheEnCours()?.compteActive ? 'Envoyer un lien de nouveau mot de passe' : 'Renvoyer l’invitation' }}
+            </button>
+          }
+        </div>
+      </form>
+    </section>
+  }
+
+  <section class="liste" aria-labelledby="titre-liste">
+    <div class="liste__tete">
+      <h2 id="titre-liste">{{ utilisateurs().length }} compte{{ utilisateurs().length > 1 ? 's' : '' }}</h2>
+      <div class="champ recherche">
+        <label class="sr-seulement" for="recherche">Rechercher un compte</label>
+        <div class="champ__zone">
+          <input id="recherche" class="champ__saisie" type="search" placeholder="Rechercher" [value]="recherche()" (input)="recherche.set(valeur($event))" />
+        </div>
+      </div>
+    </div>
+
+    @if (erreurListe(); as message) {
+      <p class="note note--danger" role="alert">{{ message }}</p>
+    }
+    @if (chargement()) {
+      <p class="champ__aide" role="status">Chargement…</p>
+    } @else if (!erreurListe()) {
+      <ul class="comptes">
+        @for (u of liste(); track u.id) {
+          <li>
+            <button type="button" class="compte" (click)="ouvrirModification(u)" [attr.aria-label]="'Modifier le compte de ' + u.prenom + ' ' + u.nom">
+              <span class="compte__nom">
+                <strong>{{ u.prenom }} {{ u.nom }}</strong>
+                <span>{{ u.email }}</span>
+              </span>
+              <span class="compte__profil">
+                <strong>{{ libellesProfils[u.profil] }}</strong>
+                <span>{{ u.entite?.nom ?? 'Sans entité' }}</span>
+              </span>
+              <span class="compte__modules">{{ libelleModules(u) }}</span>
+              <span class="compte__etat">
+                <span class="etat" [class]="'etat ' + etat(u).classe">{{ etat(u).libelle }}</span>
+                <span class="compte__date">Dernière connexion : {{ dateLisible(u.derniereConnexion) }}</span>
+              </span>
+            </button>
+          </li>
+        } @empty {
+          <li class="champ__aide">Aucun compte ne correspond à la recherche.</li>
+        }
+      </ul>
+    }
+  </section>
+</div>

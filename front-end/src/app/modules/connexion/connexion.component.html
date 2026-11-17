@@ -1,0 +1,65 @@
+<div class="acces">
+  <span class="acces__marque">SR CONSEIL</span>
+
+  @if (!demande()) {
+    <div>
+      <h1 class="acces__titre">Connexion</h1>
+      <p class="acces__texte">Saisissez votre adresse et votre mot de passe. Un code vous sera ensuite envoyé par courriel.</p>
+    </div>
+
+    <form class="acces__formulaire" (submit)="envoyerIdentifiants($event)" novalidate>
+      <div class="champ">
+        <label class="champ__libelle" for="email">Adresse électronique</label>
+        <div class="champ__zone">
+          <input id="email" class="champ__saisie" type="email" autocomplete="username" required
+            [value]="email()" (input)="saisir('email', $event)" />
+        </div>
+      </div>
+      <div class="champ">
+        <label class="champ__libelle" for="mot-de-passe">Mot de passe</label>
+        <div class="champ__zone">
+          <input id="mot-de-passe" class="champ__saisie" type="password" autocomplete="current-password" required
+            [value]="motDePasse()" (input)="saisir('motDePasse', $event)" />
+        </div>
+      </div>
+      @if (erreur(); as message) {
+        <p class="note note--danger" role="alert">{{ message }}</p>
+      }
+      <button class="bouton bouton--principal" type="submit" [disabled]="envoi() || !email() || !motDePasse()">
+        {{ envoi() ? 'Vérification…' : 'Continuer' }}
+      </button>
+    </form>
+
+    <div class="acces__pied">
+      <a class="lien-texte" routerLink="/mot-de-passe-oublie">Mot de passe oublié ?</a>
+    </div>
+  } @else {
+    <div>
+      <h1 class="acces__titre">Code de connexion</h1>
+      <p class="acces__texte">
+        Un code à six chiffres vient d’être envoyé à <strong>{{ demande()!.adresseMasquee }}</strong>.
+        Il est valable {{ demande()!.validiteMinutes }} minutes.
+      </p>
+    </div>
+
+    <form class="acces__formulaire" (submit)="envoyerCode($event)" novalidate>
+      <div class="champ">
+        <label class="champ__libelle" for="code">Code reçu</label>
+        <div class="champ__zone">
+          <input #champCode id="code" class="champ__saisie saisie-code chiffres" type="text" inputmode="numeric"
+            autocomplete="one-time-code" maxlength="6" required [value]="code()" (input)="saisir('code', $event)" />
+        </div>
+      </div>
+      @if (erreur(); as message) {
+        <p class="note note--danger" role="alert">{{ message }}</p>
+      }
+      <button class="bouton bouton--principal" type="submit" [disabled]="envoi() || code().length !== 6">
+        {{ envoi() ? 'Vérification…' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <div class="acces__pied">
+      <button type="button" class="lien-texte" (click)="recommencer()">Recommencer</button>
+    </div>
+  }
+</div>

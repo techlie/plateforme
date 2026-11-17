@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { modulesEffectifs, nomComplet, UtilisateurConnecte } from '../../shared/acces/acces.types';
+import { LIBELLES_PROFILS, modulesEffectifs, nomComplet, UtilisateurConnecte } from '../../shared/acces/acces.types';
 import { JournalService } from '../../shared/journal/journal.service';
 import { normaliserAdresse } from '../../shared/securite/securite';
 import { AuthService } from '../auth/auth.service';
@@ -70,7 +70,7 @@ export class UtilisateursService {
     });
     await this.journal.ecrire({
       action: 'UTILISATEUR_CREE',
-      message: `Compte créé pour ${nomComplet(cree)} (${cree.profil}).`,
+      message: `Compte créé pour ${nomComplet(cree)}, ${LIBELLES_PROFILS[cree.profil]}.`,
       succes: true,
       userId: auteur.id,
       auteur: nomComplet(auteur),
@@ -78,7 +78,7 @@ export class UtilisateursService {
       details: { email, profil: cree.profil, modules: dto.modules, entiteId: dto.entiteId ?? null },
     });
     // L'invitation part aussitôt : la personne choisit elle-même son mot de passe.
-    await this.auth.demanderReinitialisation(email, { adresseIp: null, navigateur: null });
+    await this.auth.demanderReinitialisation(email, { adresseIp: null, navigateur: null }, auteur);
     return fiche(cree);
   }
 
@@ -135,14 +135,6 @@ export class UtilisateursService {
     if (cible.profil === 'SUPER_ADMINISTRATEUR' && auteur.profil !== 'SUPER_ADMINISTRATEUR') {
       throw new ForbiddenException({ code: 'SUPER_ADMIN', message: 'Seul un super administrateur peut agir sur un super administrateur.' });
     }
-    await this.auth.demanderReinitialisation(cible.email, { adresseIp: null, navigateur: null });
-    await this.journal.ecrire({
-      action: 'LIEN_RENVOYE',
-      message: `Lien envoyé à ${nomComplet(cible)}.`,
-      succes: true,
-      userId: auteur.id,
-      auteur: nomComplet(auteur),
-      cible: id,
-    });
+    await this.auth.demanderReinitialisation(cible.email, { adresseIp: null, navigateur: null }, auteur);
   }
 }

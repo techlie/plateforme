@@ -1,10 +1,14 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CoqueComponent } from './layout/coque/coque.component';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { ThemeService } from './core/theme.service';
 
 @Component({
   selector: 'app-root',
-  imports: [CoqueComponent],
-  template: '<app-coque />',
+  imports: [RouterOutlet],
+  template: '<router-outlet />',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {}
+export class AppComponent {
+  // Le thème choisi s'applique aussi aux écrans de connexion, hors du cadre principal.
+  private readonly theme = inject(ThemeService);
+}

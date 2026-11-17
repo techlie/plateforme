@@ -10,7 +10,7 @@ Ce dépôt est privé.
 
 | Module | Contenu | État |
 | --- | --- | --- |
-| Socle applicatif | Connexion, double authentification par code mail, profils, modules activables par utilisateur, journal des actions | À construire |
+| Socle applicatif | Connexion, double authentification par code mail, profils, modules activables par utilisateur, journal des actions | Construit et testé : connexion en deux étapes, comptes, entités, journal, écrans d'administration |
 | Simulateur | Commission estimée d'une affaire, selon le référentiel de l'année, et ce qui est repris si le contrat s'arrête | Construit et testé : 151 contrats du barème 2026, reprises, co-courtage, reversement à 70, 80 ou 90 % ; sans connexion |
 | Enveloppes | Réservations, compteurs théorique et réel, validation, relances, avenant pré-rempli | À construire |
 | Affaires et bordereau | Saisie des affaires, étapes de validation, bordereau mensuel du mandataire | À construire |
@@ -27,15 +27,23 @@ applications plus tard :
 
 ## Lancer l'application sur un poste
 
-Il faut Node.js 22. Dans deux fenêtres de terminal :
+Il faut Node.js 22 et PostgreSQL 16, avec une base pour l'application et une base de
+test dont le nom contient « test ».
 
 ```bash
 # Serveur, sur le port 3000
 cd back-end
 npm install
-cp .env.example .env
+cp .env.example .env          # puis renseigner DATABASE_URL, CLE_SECRETE, URL_APPLICATION
+npx prisma generate
+npx prisma migrate deploy     # crée les tables
+npm run build
+npm run initialiser -- --email vous@exemple.fr --prenom Prénom --nom Nom
 npm run start:dev
 ```
+
+Sans serveur de messagerie configuré, sur un poste de développement, les courriels
+(lien d'activation, codes de connexion) s'affichent dans la console du serveur.
 
 ```bash
 # Interface, sur http://localhost:4200
@@ -44,7 +52,12 @@ npm install
 npm start
 ```
 
-Tests : `npm test` dans `back-end`, `npm test -- --watch=false` dans `front-end`.
+Tests : dans `back-end`, `npm test` (calculs) et `npm run test:e2e` (connexion et
+droits, sur la base de test, avec `DATABASE_URL_TEST`) ; dans `front-end`,
+`npm test -- --watch=false`.
+
+La mise en service sur le serveur est décrite dans
+[`docs/deploiement.md`](docs/deploiement.md).
 
 ## Simulateur : ce qui est fait, ce qui manque
 

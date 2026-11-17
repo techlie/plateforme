@@ -1,0 +1,300 @@
+.page {
+  max-width: 1120px;
+  padding: 40px 48px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.entete__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.surtitre {
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+.titre {
+  margin-top: 8px;
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.fiche {
+  padding: 24px;
+  border-radius: var(--rayon-grand);
+  border: 1px solid var(--bord-fort);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fiche__tete,
+.liste__tete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.fiche__formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.champ--large {
+  grid-column: 1 / -1;
+}
+
+.champ__saisie:disabled {
+  color: var(--texte-doux);
+  cursor: not-allowed;
+}
+
+.modules {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modules__liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.case {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--rayon-pastille);
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.case--seule {
+  border-radius: var(--rayon);
+  padding: 10px 16px;
+  line-height: 1.5;
+}
+
+.case input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.fiche__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recherche {
+  width: 280px;
+  max-width: 100%;
+}
+
+.recherche .champ__saisie {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.comptes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--bord);
+}
+
+.compte {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  min-height: 64px;
+  padding: 12px 8px;
+  border: none;
+  border-bottom: 1px solid var(--bord);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.compte:hover {
+  background: var(--surface-douce);
+}
+
+.compte__nom,
+.compte__profil,
+.compte__etat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.compte strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.compte__nom span,
+.compte__profil span,
+.compte__modules,
+.compte__date {
+  font-size: 13px;
+  color: var(--texte-doux);
+  overflow-wrap: anywhere;
+}
+
+.etat {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: var(--rayon-pastille);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface);
+}
+
+.etat--actif {
+  background: var(--succes-fond);
+  color: var(--succes-texte);
+}
+
+.etat--attente {
+  background: var(--alerte-fond);
+  color: var(--alerte-texte);
+}
+
+.etat--alerte {
+  background: var(--danger-fond);
+  color: var(--danger-texte);
+}
+
+.etat--eteint {
+  color: var(--texte-doux);
+}
+
+/* Journal */
+.filtres {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filtres .champ {
+  width: 280px;
+  max-width: 100%;
+}
+
+.evenements {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--bord);
+}
+
+.evenement {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr) minmax(0, 220px);
+  gap: 16px;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--bord);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.evenement__date,
+.evenement__auteur {
+  color: var(--texte-doux);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.evenement__action {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.evenement--echec .evenement__action {
+  color: var(--danger-texte);
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 860px) {
+  .page {
+    padding: 24px 16px 48px;
+  }
+
+  .titre {
+    font-size: 30px;
+  }
+
+  .grille,
+  .compte,
+  .evenement {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .fiche {
+    padding: 16px;
+  }
+
+  .recherche {
+    width: 100%;
+  }
+}

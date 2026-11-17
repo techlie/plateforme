@@ -167,3 +167,53 @@ select.champ__saisie {
   background: var(--danger-fond);
   color: var(--danger-texte);
 }
+
+/* Boutons */
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: none;
+  border-radius: var(--rayon-pastille);
+  background: var(--surface);
+  color: var(--texte);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bouton--principal {
+  background: var(--accent);
+  color: var(--sur-accent);
+}
+
+.bouton:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.lien-texte {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--texte-moyen);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.note--succes {
+  background: var(--succes-fond);
+  color: var(--succes-texte);
+}
+
+textarea {
+  font: inherit;
+  color: inherit;
+}

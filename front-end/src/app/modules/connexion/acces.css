@@ -1,0 +1,62 @@
+/* Mise en page commune aux écrans d'accès : une seule question, au centre. */
+:host {
+  display: flex;
+  min-height: 100vh;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+.acces {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.acces__marque {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+
+.acces__titre {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.acces__texte {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--texte-moyen);
+}
+
+.acces__formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.acces__formulaire .bouton {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.acces__pied {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.saisie-code {
+  letter-spacing: 0.4em;
+  font-size: 24px;
+}
+
+.acces__texte strong {
+  white-space: nowrap;
+}

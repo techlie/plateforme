@@ -24,3 +24,11 @@ export function modulesEffectifs(profil: Profil, coches: ModulePlateforme[]): Mo
 export function nomComplet(u: { prenom: string; nom: string }): string {
   return `${u.prenom} ${u.nom}`.trim();
 }
+
+export const LIBELLES_PROFILS: Record<Profil, string> = {
+  SUPER_ADMINISTRATEUR: 'super administrateur',
+  ADMINISTRATEUR: 'administrateur',
+  BACK_OFFICE: 'back-office',
+  MANDATAIRE: 'mandataire',
+  GESTIONNAIRE_PORTEFEUILLE: 'gestionnaire de portefeuille',
+};

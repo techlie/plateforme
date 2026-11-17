@@ -146,13 +146,14 @@ une compagnie, plusieurs mandataires qui se le partagent.
 | Même technologie que le socle des développeurs, habillage des maquettes | 15 nov. | Appliqué (`CLAUDE.md`) |
 | Dépôt de code privé | 15 nov. | Appliqué : vérifié invisible de l'extérieur le 16 nov. |
 | Hébergement chez IONOS, sur l'infrastructure déjà utilisée par Label, sans surcoût technique | 16 nov. | À faire ; réglages à voir avec Willie (machine et base propres, centre de données, sauvegarde quotidienne) |
-| Connexion à deux étapes par code envoyé par courriel | 15 nov. | À faire |
-| Une adresse de connexion par personne : le code y est envoyé et chaque acte est tracé à son nom, back-office compris. Une adresse commune reste possible comme simple contact d'une société | 17 nov. | À faire |
+| Connexion à deux étapes par code envoyé par courriel | 15 nov. | Appliqué : mot de passe, puis code à six chiffres envoyé par courriel |
+| Réglages de sécurité retenus par défaut, à valider par le cabinet : code valable 10 minutes et 5 essais ; compte bloqué 15 minutes après 5 mots de passe faux ; session de 12 heures, fermée après 2 heures sans activité ; mot de passe de 12 caractères au moins ; seul un super administrateur agit sur un super administrateur ; personne ne change son propre profil ni ne se désactive | 17 nov. | Appliqué, tests de bout en bout |
+| Une adresse de connexion par personne : le code y est envoyé et chaque acte est tracé à son nom, back-office compris. Une adresse commune reste possible comme simple contact d'une société | 17 nov. | Appliqué pour l'adresse de connexion ; contact de société à faire avec les fiches mandataires |
 | Un mandataire a un seul espace, qui regroupe ses sociétés et ses codes apporteur | 17 nov. | À faire |
 | Pas d'étage intermédiaire (directeur de cabinet) pour l'instant : les chiffres du groupe, marge et trésorerie, sont gérés par les deux associés seuls | 17 nov. | À faire |
 | Le mandataire voit les bordereaux de ses codes | 17 nov. | À faire |
 | Onglet protocoles : le mandataire voit les protocoles des compagnies traduits à ses conditions, selon son protocole signé avec le cabinet. Le protocole dépend du cabinet : celui de RJ Assurances peut différer de celui de SR CONSEIL | 17 nov. | À faire |
-| Modules activables par utilisateur, par case à cocher | 15 nov. | À faire |
+| Modules activables par utilisateur, par case à cocher | 15 nov. | Appliqué : vérifié par le serveur à chaque demande ; le simulateur demande son module |
 | Un mandataire ne voit que ses clients et ses commissions | 15 nov. | À faire |
 | Un mandataire peut avoir plusieurs codes apporteur chez une même compagnie | 15 nov. | À faire |
 | Conservation des données : durée du contrat puis dix ans ; trois ans sans contact pour un prospect | 15 nov. | À faire ; à valider par le conseil RGPD |
