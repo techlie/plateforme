@@ -30,6 +30,7 @@ pas encore construit), **Ouvert** (pas encore tranché).
 | Abeille prévoyance : taux avant retenue du courtier grossiste, Boost considéré comme inclus | 15 nov. | Appliqué | Référentiel |
 | Co-courtage avec un cabinet d'expertise comptable : case à cocher et taux de la convention (30 % proposé) ; part calculée sur la commission brute de la compagnie ; le mandataire reçoit son taux de reversement sur ce qui reste au cabinet | 15 nov. | Appliqué | Moteur, tests « co-courtage », écran |
 | Co-courtage : la part du cabinet d'expertise comptable est affichée, avec le rappel qu'elle est versée sans avance, au fil des bordereaux reçus | 15 nov. | Appliqué | Écran |
+| Co-courtage : en cas de reprise par la compagnie, chacun est impacté proportionnellement à sa part, cabinet d'expertise comptable compris | 17 nov. | Appliqué dans le rappel de l'écran ; calcul à faire (module Bordereau) | Écran |
 | Règles de reprise affichées par compagnie, avec le calcul et un exemple chiffré sur l'affaire simulée | 15 nov. | Appliqué pour 40 contrats ; 111 contrats sans règle connue du cabinet | `moteur/reprise.ts`, tests « reprise » |
 | Une règle de protocole s'applique telle qu'elle est écrite, sans interprétation. En cas de doute, la question est posée au cabinet avant de coder ; en attendant, la règle est affichée sans exemple chiffré | 16 nov. | Appliqué | `CLAUDE.md`, référentiel (`TEXTE`) |
 | Abeille épargne et retraite : reprise de toute la commission selon l'année d'arrêt, quel que soit le mois : 100 %, 90 %, 80 %, 70 % les années 1 à 4 ; 60 % la 5e au-delà de 1 500 € de versement par mois | 16 nov. | Appliqué | Référentiel (`PAR_ANNEE`), tests « reprise » |
@@ -188,7 +189,6 @@ Ceux qui touchent le calcul :
 - Version de la grille qui fait foi, puisque deux versions coexistent.
 - Correction des affaires déjà réglées, ou application aux seules affaires nouvelles.
 - Nom du complément versé à un superviseur.
-- Co-courtage : en cas de reprise par la compagnie, la filiale du cabinet comptable rend-elle sa part.
 - Co-courtage : base du taux. Le simulateur applique 30 % sur la commission brute de la compagnie (35,3 % de ce que reçoit le cabinet) ; confirmer qu'aucune convention n'est exprimée sur le net ou à 35 %.
 - Délai standard pour honorer une réservation, avant l'ouverture des deux prochaines campagnes.
 - Règles de reprise en santé et en assurance de prêt, et pour les compagnies de prévoyance dont le protocole ne dit rien.
