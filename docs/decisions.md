@@ -124,11 +124,12 @@ une compagnie, plusieurs mandataires qui se le partagent.
 | Un taux par enveloppe, le même pour tous | début nov. | À faire |
 | Client confié : taux minoré de 0,5 % par défaut, modifiable | 15 nov. | À faire |
 | Client confié : le mandataire propose, le client valide, le mandataire notifie, le back-office gère la signature, le mandataire est informé du montant réel | 15 nov. | À faire |
+| Client confié : signature par l'outil de signature électronique de la compagnie ; si le client signe sur papier, l'opérateur le précise | 17 nov. | À faire |
 | Réservation globale puis affectation ligne par ligne ; réservations « à prévendre » libres | début nov. | À faire |
 | Concentration limitée à 15 % de l'encours total du client | début nov. | À faire |
 | Anomalie dès 5 % d'écart entre réservé et validé, dans les deux sens | 12 nov. | À faire |
 | Validations des super administrateurs tracées et visibles de l'autre ; aucun ne valide son propre règlement | 12 nov. | À faire |
-| Contrôle « mise à jour du patrimoine » propre aux produits Swiss Life | 12 nov. | À faire |
+| Contrôle « mise à jour du patrimoine » propre aux produits Swiss Life, bloquant : sans situation patrimoniale à jour, l'opération ne peut pas être déclarée | 12 et 17 nov. | À faire |
 | Fiabilité : statistiques remises à zéro à la mise en service ; annulation comptée, avec un poids qui croît à l'approche de la clôture | 12 nov. | À faire |
 | Deux campagnes menées en même temps dans deux compagnies | 15 nov. | À faire |
 | Entités du groupe à créer : SR CONSEIL, Label Assurances, Label Santé, RJ Assurances, Nembrini Colombani, A2C Courtage, A3C (Midi Courtage) ; ajout le 17 nov. de TC2K, cabinet de co-courtage avec un cabinet d'expertise comptable. Pas CPA pour l'instant. Liste non définitive : l'administrateur peut ajouter une entité | 16 et 17 nov. | À faire (référentiel des entités) |
@@ -189,7 +190,6 @@ Ceux qui touchent le calcul :
 - Nom du complément versé à un superviseur.
 - Co-courtage : en cas de reprise par la compagnie, la filiale du cabinet comptable rend-elle sa part.
 - Co-courtage : base du taux. Le simulateur applique 30 % sur la commission brute de la compagnie (35,3 % de ce que reçoit le cabinet) ; confirmer qu'aucune convention n'est exprimée sur le net ou à 35 %.
-- Contrôle du patrimoine Swiss Life : bloquant ou simple alerte.
 - Délai standard pour honorer une réservation, avant l'ouverture des deux prochaines campagnes.
 - Règles de reprise en santé et en assurance de prêt, et pour les compagnies de prévoyance dont le protocole ne dit rien.
 - Abeille, versement unique et transfert : reprise sur toute la commission ou sur la surcommission seule.
