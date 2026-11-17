@@ -1,4 +1,5 @@
 import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { ModuleRequis } from '../../shared/acces/acces.decorateurs';
 import { CalculCommissionDto } from './dto/calcul-commission.dto';
 import type { CatalogueSimulateur, ResultatSimulation } from './dto/simulateur.reponses';
 import { SimulateurService } from './simulateur.service';
@@ -9,6 +10,7 @@ function aujourdhui(): string {
 }
 
 @Controller('simulateur')
+@ModuleRequis('SIMULATEUR')
 export class SimulateurController {
   constructor(private readonly service: SimulateurService) {}
 

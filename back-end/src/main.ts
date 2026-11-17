@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
@@ -9,6 +10,10 @@ async function bootstrap() {
 
   app.use(helmet());
   app.disable('x-powered-by');
+  // Derrière le serveur frontal d'IONOS : l'adresse du visiteur vient de l'en-tête transmis.
+  if (process.env.CONFIANCE_PROXY === 'true') {
+    app.set('trust proxy', 1);
+  }
 
   // Seules les adresses déclarées peuvent appeler le serveur depuis un navigateur.
   const origines = (process.env.ORIGINES_AUTORISEES ?? '')

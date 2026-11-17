@@ -1,0 +1,165 @@
+// Schéma de la base de la plateforme SR CONSEIL.
+// Conventions du socle : modèles en PascalCase, champs en camelCase, tables en
+// snake_case au pluriel, identifiants uuid, createdAt et updatedAt partout.
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+/// Profil d'un utilisateur. Les droits fins se règlent ensuite personne par personne.
+enum Profil {
+    SUPER_ADMINISTRATEUR
+    ADMINISTRATEUR
+    BACK_OFFICE
+    MANDATAIRE
+    GESTIONNAIRE_PORTEFEUILLE
+}
+
+/// Modules métier activables pour chaque utilisateur, par case à cocher.
+enum ModulePlateforme {
+    SIMULATEUR
+    ENVELOPPES
+    AFFAIRES
+    BORDEREAU
+    SYNTHESE_CONTRATS
+}
+
+enum MotifJeton {
+    ACTIVATION
+    REINITIALISATION
+}
+
+enum StatutJournal {
+    SUCCES
+    ECHEC
+}
+
+/// Entité du groupe (cabinet). La liste est ouverte : l'administrateur peut en ajouter.
+model Entite {
+    id            String   @id @default(uuid()) @db.Uuid
+    nom           String   @unique
+    orias         String?
+    membreSofraco Boolean  @default(false)
+    actif         Boolean  @default(true)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    utilisateurs  User[]
+
+    @@map("entites")
+}
+
+/// Une personne. L'adresse de connexion lui est propre : le code y est envoyé
+/// et chaque acte est tracé à son nom.
+model User {
+    id                String              @id @default(uuid()) @db.Uuid
+    email             String              @unique
+    nom               String
+    prenom            String
+    profil            Profil
+    /// Empreinte bcrypt du mot de passe ; vide tant que le compte n'est pas activé.
+    motDePasse        String?
+    actif             Boolean             @default(true)
+    entiteId          String?             @db.Uuid
+    entite            Entite?             @relation(fields: [entiteId], references: [id], onDelete: SetNull)
+    echecsConnexion   Int                 @default(0)
+    bloqueJusqua      DateTime?
+    derniereConnexion DateTime?
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    modules           ModuleUtilisateur[]
+    sessions          Session[]
+    codesConnexion    CodeConnexion[]
+    jetons            JetonMotDePasse[]
+    journal           Log[]
+
+    @@index([entiteId])
+    @@map("users")
+}
+
+model ModuleUtilisateur {
+    id        String           @id @default(uuid()) @db.Uuid
+    userId    String           @db.Uuid
+    user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    module    ModulePlateforme
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
+
+    @@unique([userId, module])
+    @@map("modules_utilisateurs")
+}
+
+/// Code de connexion envoyé par courriel (deuxième étape). Seule son empreinte est gardée.
+model CodeConnexion {
+    id         String    @id @default(uuid()) @db.Uuid
+    userId     String    @db.Uuid
+    user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    empreinte  String
+    expireLe   DateTime
+    tentatives Int       @default(0)
+    utiliseLe  DateTime?
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+
+    @@index([userId])
+    @@map("codes_connexion")
+}
+
+/// Session ouverte après les deux étapes. Le jeton reste dans un cookie ; seule son empreinte est gardée.
+model Session {
+    id               String    @id @default(uuid()) @db.Uuid
+    userId           String    @db.Uuid
+    user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    empreinteJeton   String    @unique
+    expireLe         DateTime
+    derniereActivite DateTime
+    revoqueeLe       DateTime?
+    adresseIp        String?
+    navigateur       String?
+    createdAt        DateTime  @default(now())
+    updatedAt        DateTime  @updatedAt
+
+    @@index([userId])
+    @@map("sessions")
+}
+
+/// Lien d'activation ou de réinitialisation du mot de passe, à usage unique.
+model JetonMotDePasse {
+    id        String     @id @default(uuid()) @db.Uuid
+    userId    String     @db.Uuid
+    user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    empreinte String     @unique
+    motif     MotifJeton
+    expireLe  DateTime
+    utiliseLe DateTime?
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+
+    @@index([userId])
+    @@map("jetons_mot_de_passe")
+}
+
+/// Journal des actions sensibles : qui, quoi, quand. On n'y modifie ni n'y supprime rien.
+model Log {
+    id        String        @id @default(uuid()) @db.Uuid
+    date      DateTime      @default(now())
+    action    String
+    message   String
+    statut    StatutJournal
+    userId    String?       @db.Uuid
+    user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+    /// Nom de l'auteur figé au moment de l'action, lisible même si le compte disparaît.
+    auteur    String?
+    cible     String?
+    details   Json?
+    adresseIp String?
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
+
+    @@index([date])
+    @@index([userId])
+    @@map("logs")
+}
