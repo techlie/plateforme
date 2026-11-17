@@ -1,7 +1,8 @@
 /**
  * Initialisation d'une base neuve, à lancer une fois après la première migration :
  *   node dist/scripts/initialiser.js --email adresse@exemple.fr --prenom Prénom --nom Nom
- * Crée les entités du groupe qui manquent, puis le premier super administrateur, qui
+ * Crée les entités du groupe qui manquent, les paramètres et motifs de départ du module
+ * Enveloppes, puis le premier super administrateur, qui
  * reçoit par courriel le lien pour choisir son mot de passe. Aucun mot de passe ne
  * passe par ce script ni par le dépôt.
  */
@@ -9,6 +10,7 @@ import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module';
 import { AuthService } from '../modules/auth/auth.service';
+import { MOTIFS_INITIAUX, PARAMETRES_INITIAUX } from '../modules/enveloppes/parametres-initiaux';
 import { JournalService } from '../shared/journal/journal.service';
 import { PrismaService } from '../shared/prisma/prisma.service';
 import { normaliserAdresse } from '../shared/securite/securite';
@@ -40,6 +42,18 @@ async function initialiser(): Promise<void> {
     if (!existe) {
       await prisma.entite.create({ data: { nom } });
       console.log(`Entité créée : ${nom}`);
+    }
+  }
+
+  if ((await prisma.parametresEnveloppes.count()) === 0) {
+    await prisma.parametresEnveloppes.create({ data: PARAMETRES_INITIAUX });
+    console.log('Paramètres du module Enveloppes créés.');
+  }
+  for (const motif of MOTIFS_INITIAUX) {
+    const existe = await prisma.motif.findUnique({ where: { categorie_libelle: { categorie: motif.categorie, libelle: motif.libelle } } });
+    if (!existe) {
+      await prisma.motif.create({ data: motif });
+      console.log(`Motif créé : ${motif.libelle}`);
     }
   }
 

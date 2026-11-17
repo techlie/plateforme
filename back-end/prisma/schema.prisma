@@ -3,163 +3,723 @@
 // snake_case au pluriel, identifiants uuid, createdAt et updatedAt partout.
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
+  provider = "postgresql"
 }
 
 /// Profil d'un utilisateur. Les droits fins se règlent ensuite personne par personne.
 enum Profil {
-    SUPER_ADMINISTRATEUR
-    ADMINISTRATEUR
-    BACK_OFFICE
-    MANDATAIRE
-    GESTIONNAIRE_PORTEFEUILLE
+  SUPER_ADMINISTRATEUR
+  ADMINISTRATEUR
+  BACK_OFFICE
+  MANDATAIRE
+  GESTIONNAIRE_PORTEFEUILLE
 }
 
 /// Modules métier activables pour chaque utilisateur, par case à cocher.
 enum ModulePlateforme {
-    SIMULATEUR
-    ENVELOPPES
-    AFFAIRES
-    BORDEREAU
-    SYNTHESE_CONTRATS
+  SIMULATEUR
+  ENVELOPPES
+  AFFAIRES
+  BORDEREAU
+  SYNTHESE_CONTRATS
 }
 
 enum MotifJeton {
-    ACTIVATION
-    REINITIALISATION
+  ACTIVATION
+  REINITIALISATION
 }
 
 enum StatutJournal {
-    SUCCES
-    ECHEC
+  SUCCES
+  ECHEC
 }
 
 /// Entité du groupe (cabinet). La liste est ouverte : l'administrateur peut en ajouter.
 model Entite {
-    id            String   @id @default(uuid()) @db.Uuid
-    nom           String   @unique
-    orias         String?
-    membreSofraco Boolean  @default(false)
-    actif         Boolean  @default(true)
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
-    utilisateurs  User[]
+  id            String        @id @default(uuid()) @db.Uuid
+  nom           String        @unique
+  orias         String?
+  membreSofraco Boolean       @default(false)
+  actif         Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  utilisateurs  User[]
+  apporteurs    Apporteur[]
+  reservations  Reservation[]
 
-    @@map("entites")
+  @@map("entites")
 }
 
 /// Une personne. L'adresse de connexion lui est propre : le code y est envoyé
 /// et chaque acte est tracé à son nom.
 model User {
-    id                String              @id @default(uuid()) @db.Uuid
-    email             String              @unique
-    nom               String
-    prenom            String
-    profil            Profil
-    /// Empreinte bcrypt du mot de passe ; vide tant que le compte n'est pas activé.
-    motDePasse        String?
-    actif             Boolean             @default(true)
-    entiteId          String?             @db.Uuid
-    entite            Entite?             @relation(fields: [entiteId], references: [id], onDelete: SetNull)
-    echecsConnexion   Int                 @default(0)
-    bloqueJusqua      DateTime?
-    derniereConnexion DateTime?
-    createdAt         DateTime            @default(now())
-    updatedAt         DateTime            @updatedAt
-    modules           ModuleUtilisateur[]
-    sessions          Session[]
-    codesConnexion    CodeConnexion[]
-    jetons            JetonMotDePasse[]
-    journal           Log[]
+  id                String              @id @default(uuid()) @db.Uuid
+  email             String              @unique
+  nom               String
+  prenom            String
+  profil            Profil
+  /// Empreinte bcrypt du mot de passe ; vide tant que le compte n'est pas activé.
+  motDePasse        String?
+  actif             Boolean             @default(true)
+  entiteId          String?             @db.Uuid
+  entite            Entite?             @relation(fields: [entiteId], references: [id], onDelete: SetNull)
+  echecsConnexion   Int                 @default(0)
+  bloqueJusqua      DateTime?
+  derniereConnexion DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  modules           ModuleUtilisateur[]
+  sessions          Session[]
+  codesConnexion    CodeConnexion[]
+  jetons            JetonMotDePasse[]
+  journal           Log[]
+  apporteur         Apporteur?
 
-    @@index([entiteId])
-    @@map("users")
+  @@index([entiteId])
+  @@map("users")
 }
 
 model ModuleUtilisateur {
-    id        String           @id @default(uuid()) @db.Uuid
-    userId    String           @db.Uuid
-    user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-    module    ModulePlateforme
-    createdAt DateTime         @default(now())
-    updatedAt DateTime         @updatedAt
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @db.Uuid
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module    ModulePlateforme
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
-    @@unique([userId, module])
-    @@map("modules_utilisateurs")
+  @@unique([userId, module])
+  @@map("modules_utilisateurs")
 }
 
 /// Code de connexion envoyé par courriel (deuxième étape). Seule son empreinte est gardée.
 model CodeConnexion {
-    id         String    @id @default(uuid()) @db.Uuid
-    userId     String    @db.Uuid
-    user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    empreinte  String
-    expireLe   DateTime
-    tentatives Int       @default(0)
-    utiliseLe  DateTime?
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  empreinte  String
+  expireLe   DateTime
+  tentatives Int       @default(0)
+  utiliseLe  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-    @@index([userId])
-    @@map("codes_connexion")
+  @@index([userId])
+  @@map("codes_connexion")
 }
 
 /// Session ouverte après les deux étapes. Le jeton reste dans un cookie ; seule son empreinte est gardée.
 model Session {
-    id               String    @id @default(uuid()) @db.Uuid
-    userId           String    @db.Uuid
-    user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    empreinteJeton   String    @unique
-    expireLe         DateTime
-    derniereActivite DateTime
-    revoqueeLe       DateTime?
-    adresseIp        String?
-    navigateur       String?
-    createdAt        DateTime  @default(now())
-    updatedAt        DateTime  @updatedAt
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @db.Uuid
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  empreinteJeton   String    @unique
+  expireLe         DateTime
+  derniereActivite DateTime
+  revoqueeLe       DateTime?
+  adresseIp        String?
+  navigateur       String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-    @@index([userId])
-    @@map("sessions")
+  @@index([userId])
+  @@map("sessions")
 }
 
 /// Lien d'activation ou de réinitialisation du mot de passe, à usage unique.
 model JetonMotDePasse {
-    id        String     @id @default(uuid()) @db.Uuid
-    userId    String     @db.Uuid
-    user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-    empreinte String     @unique
-    motif     MotifJeton
-    expireLe  DateTime
-    utiliseLe DateTime?
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+  id        String     @id @default(uuid()) @db.Uuid
+  userId    String     @db.Uuid
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  empreinte String     @unique
+  motif     MotifJeton
+  expireLe  DateTime
+  utiliseLe DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
-    @@index([userId])
-    @@map("jetons_mot_de_passe")
+  @@index([userId])
+  @@map("jetons_mot_de_passe")
 }
 
 /// Journal des actions sensibles : qui, quoi, quand. On n'y modifie ni n'y supprime rien.
 model Log {
-    id        String        @id @default(uuid()) @db.Uuid
-    date      DateTime      @default(now())
-    action    String
-    message   String
-    statut    StatutJournal
-    userId    String?       @db.Uuid
-    user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-    /// Nom de l'auteur figé au moment de l'action, lisible même si le compte disparaît.
-    auteur    String?
-    cible     String?
-    details   Json?
-    adresseIp String?
-    createdAt DateTime      @default(now())
-    updatedAt DateTime      @updatedAt
+  id        String        @id @default(uuid()) @db.Uuid
+  date      DateTime      @default(now())
+  action    String
+  message   String
+  statut    StatutJournal
+  userId    String?       @db.Uuid
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  /// Nom de l'auteur figé au moment de l'action, lisible même si le compte disparaît.
+  auteur    String?
+  cible     String?
+  details   Json?
+  adresseIp String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
-    @@index([date])
-    @@index([userId])
-    @@map("logs")
+  @@index([date])
+  @@index([userId])
+  @@map("logs")
+}
+
+// ---------------------------------------------------------------------------
+// Référentiels partagés : compagnies, gammes, apporteurs, codes apporteur, fonds.
+// ---------------------------------------------------------------------------
+
+enum NatureCodeApporteur {
+  PROPRE
+  PARTENARIAT
+  ENTITE
+}
+
+enum RoleApporteur {
+  MANDATAIRE
+  ASSOCIE
+  SALARIE
+}
+
+enum OrigineFonds {
+  IMPORT
+  SAISIE
+}
+
+model Compagnie {
+  id                   String          @id @default(uuid()) @db.Uuid
+  nom                  String          @unique
+  /// Expression régulière du numéro de contrat ; vide tant que le format n'est pas connu.
+  formatNumeroContrat  String?
+  /// Exemple affiché sous le champ, pour aider à la saisie.
+  exempleNumeroContrat String?
+  actif                Boolean         @default(true)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  gammes               Gamme[]
+  codes                CodeApporteur[]
+  fonds                Fonds[]
+  enveloppes           Enveloppe[]
+
+  @@map("compagnies")
+}
+
+/// Gamme de contrats d'une compagnie ; sert au contrôle d'éligibilité d'une enveloppe.
+model Gamme {
+  id           String                 @id @default(uuid()) @db.Uuid
+  compagnieId  String                 @db.Uuid
+  compagnie    Compagnie              @relation(fields: [compagnieId], references: [id], onDelete: Restrict)
+  nom          String
+  actif        Boolean                @default(true)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  exclusions   EnveloppeGammeExclue[]
+  reservations Reservation[]
+
+  @@unique([compagnieId, nom])
+  @@map("gammes")
+}
+
+/// Personne qui apporte les affaires : mandataire, associé ou salarié. Un compte de
+/// connexion peut lui être rattaché ; ce n'est pas obligatoire.
+model Apporteur {
+  id                         String                  @id @default(uuid()) @db.Uuid
+  nom                        String
+  prenom                     String
+  email                      String?
+  role                       RoleApporteur
+  entiteId                   String?                 @db.Uuid
+  entite                     Entite?                 @relation(fields: [entiteId], references: [id], onDelete: SetNull)
+  userId                     String?                 @unique @db.Uuid
+  user                       User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  /// Réservations soumises à l'accord de l'administrateur.
+  restreint                  Boolean                 @default(false)
+  habiliteReservationGlobale Boolean                 @default(false)
+  actif                      Boolean                 @default(true)
+  createdAt                  DateTime                @default(now())
+  updatedAt                  DateTime                @updatedAt
+  codes                      CodeApporteurAutorise[]
+  reservations               Reservation[]
+  reservationsGlobales       ReservationGlobale[]
+  clientsConfies             ClientConfie[]
+
+  @@index([entiteId])
+  @@map("apporteurs")
+}
+
+/// Code apporteur chez une compagnie. Un code de partenariat ou d'entité peut servir à plusieurs apporteurs.
+model CodeApporteur {
+  id           String                  @id @default(uuid()) @db.Uuid
+  compagnieId  String                  @db.Uuid
+  compagnie    Compagnie               @relation(fields: [compagnieId], references: [id], onDelete: Restrict)
+  code         String
+  nature       NatureCodeApporteur
+  dateDebut    DateTime?               @db.Date
+  dateFin      DateTime?               @db.Date
+  actif        Boolean                 @default(true)
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  autorises    CodeApporteurAutorise[]
+  reservations Reservation[]
+
+  @@unique([compagnieId, code])
+  @@map("codes_apporteur")
+}
+
+model CodeApporteurAutorise {
+  id          String        @id @default(uuid()) @db.Uuid
+  codeId      String        @db.Uuid
+  code        CodeApporteur @relation(fields: [codeId], references: [id], onDelete: Cascade)
+  apporteurId String        @db.Uuid
+  apporteur   Apporteur     @relation(fields: [apporteurId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([codeId, apporteurId])
+  @@index([apporteurId])
+  @@map("codes_apporteur_autorises")
+}
+
+/// Fonds (support) d'une compagnie. Jamais supprimé : un fonds absent d'une nouvelle liste
+/// passe « fermé à l'investissement » et reste proposé pour un désinvestissement.
+model Fonds {
+  id            String       @id @default(uuid()) @db.Uuid
+  compagnieId   String       @db.Uuid
+  compagnie     Compagnie    @relation(fields: [compagnieId], references: [id], onDelete: Restrict)
+  nom           String
+  isin          String?
+  /// Clé de rapprochement : l'ISIN quand il existe, sinon le nom normalisé.
+  cle           String
+  ouvert        Boolean      @default(true)
+  dateAjout     DateTime     @default(now())
+  dateFermeture DateTime?
+  origine       OrigineFonds
+  anciensNoms   String[]     @default([])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  lignes        LigneFonds[]
+
+  @@unique([compagnieId, cle])
+  @@map("fonds")
+}
+
+// ---------------------------------------------------------------------------
+// Module Enveloppes de produits structurés.
+// ---------------------------------------------------------------------------
+
+enum StatutEnveloppe {
+  EN_PREPARATION
+  OUVERTE
+  FERMEE
+  CLOTUREE
+  ANNULEE
+  REPORTEE
+}
+
+enum TypeMouvement {
+  RALLONGE
+  RESTITUTION
+}
+
+enum TypeOperation {
+  ARBITRAGE
+  VERSEMENT_LIBRE
+  AFFAIRE_NOUVELLE
+}
+
+enum TypeClient {
+  PHYSIQUE
+  MORALE
+}
+
+enum OrigineClient {
+  MANDATAIRE
+  CONFIE
+}
+
+enum SourceReservation {
+  ENVELOPPE
+  RESERVATION_GLOBALE
+}
+
+enum StatutReservation {
+  SOUMISE
+  LISTE_ATTENTE
+  RENVOYEE
+  REFUSEE
+  VALIDEE
+  OPERATION_PASSEE
+  VERIFIEE
+  ECART_A_JUSTIFIER
+  ECHUE
+  LIBEREE
+  ANNULEE
+  ANNULEE_APRES_OPERATION
+}
+
+enum ModeArbitrage {
+  GLOBAL
+  PAR_FONDS
+}
+
+enum ModeOperation {
+  DEMATERIALISE
+  PAPIER
+}
+
+enum CategorieMotif {
+  REFUS
+  RENVOI
+  ANNULATION
+  ECART
+}
+
+enum StatutReservationGlobale {
+  ACTIVE
+  ECHUE
+  SOLDEE
+}
+
+enum StatutClientConfie {
+  CONFIE
+  ACCEPTE
+  RETIRE
+}
+
+enum CategorieDocument {
+  DOCUMENTATION_TECHNIQUE
+  AVENANT_COMPAGNIE
+  FICHE_PRODUIT
+  AVENANT_VIERGE
+  PREUVE_VERIFICATION
+  JUSTIFICATIF_OPERATION
+}
+
+/// Paramètres du module, réglés par l'administrateur. Une seule ligne.
+model ParametresEnveloppes {
+  id                           String    @id @default(uuid()) @db.Uuid
+  /// Délai standard pour honorer une réservation, en jours ; vide tant qu'il n'est pas fixé.
+  delaiHonorerJours            Int?
+  /// Rappel au mandataire, en jours avant l'échéance ; vide tant qu'il n'est pas fixé.
+  rappelAvantEcheanceJours     Int?
+  seuilEcart                   Decimal   @db.Decimal(9, 6)
+  seuilEstimationArbitrage     Decimal   @db.Decimal(9, 6)
+  delaiAnnulationTardiveJours  Int
+  tauxClientsConfiesDefaut     Decimal   @db.Decimal(9, 6)
+  tauxClientsConfiesAConfirmer Boolean   @default(true)
+  seuilConcentrationDefaut     Decimal   @db.Decimal(9, 6)
+  /// Jours avant la date limite interne où part le compte à rebours.
+  compteAReboursJours          Int[]     @default([])
+  /// Seuils d'alerte de remplissage de l'enveloppe restante, puis du réel validé.
+  seuilsRemplissage            Decimal[] @db.Decimal(9, 6)
+  seuilsReelValide             Decimal[] @db.Decimal(9, 6)
+  /// Jour (1 = lundi … 7 = dimanche) et heure, heure de Paris, du mail hebdomadaire.
+  emailingJour                 Int
+  emailingHeure                String
+  emailingValideLe             DateTime?
+  emailingValidePar            String?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+
+  @@map("parametres_enveloppes")
+}
+
+/// Motif de refus, de renvoi, d'annulation ou d'écart. Liste modifiable par l'administrateur.
+model Motif {
+  id                     String         @id @default(uuid()) @db.Uuid
+  categorie              CategorieMotif
+  libelle                String
+  /// Pour une annulation : le motif est-il imputable au mandataire.
+  imputable              Boolean        @default(false)
+  commentaireObligatoire Boolean        @default(false)
+  actif                  Boolean        @default(true)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  reservations           Reservation[]  @relation("MotifReservation")
+  ecarts                 Reservation[]  @relation("MotifEcart")
+
+  @@unique([categorie, libelle])
+  @@map("motifs")
+}
+
+model Enveloppe {
+  id                       String                 @id @default(uuid()) @db.Uuid
+  compagnieId              String                 @db.Uuid
+  compagnie                Compagnie              @relation(fields: [compagnieId], references: [id], onDelete: Restrict)
+  nomProduit               String
+  isin                     String?
+  montantInitial           Decimal                @db.Decimal(14, 2)
+  dateOuverture            DateTime               @db.Date
+  dateLimiteInterne        DateTime               @db.Date
+  dateFinCommercialisation DateTime               @db.Date
+  dateClotureProduit       DateTime               @db.Date
+  tauxCommission           Decimal                @db.Decimal(9, 6)
+  tauxClientsConfies       Decimal                @db.Decimal(9, 6)
+  rendement                String?
+  /// Seuil de concentration en part de l'encours du client : alerte, non bloquant.
+  seuilConcentration       Decimal?               @db.Decimal(9, 6)
+  montantMinimum           Decimal                @db.Decimal(14, 2)
+  controlePatrimoine       Boolean                @default(false)
+  statut                   StatutEnveloppe        @default(EN_PREPARATION)
+  /// Taux d'upfront attendu de la compagnie : saisi et vu des seuls super administrateurs.
+  upfrontReel              Decimal?               @db.Decimal(9, 6)
+  /// Alertes de remplissage déjà envoyées, pour ne pas les répéter.
+  alertesEnvoyees          String[]               @default([])
+  fermeeLe                 DateTime?
+  clotureeLe               DateTime?
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
+  gammesExclues            EnveloppeGammeExclue[]
+  mouvements               MouvementEnveloppe[]
+  reservations             Reservation[]
+  reservationsGlobales     ReservationGlobale[]
+  clientsConfies           ClientConfie[]
+  documents                Document[]
+  envoisEmailing           EnvoiEmailing[]
+
+  @@index([compagnieId])
+  @@map("enveloppes")
+}
+
+model EnveloppeGammeExclue {
+  id          String    @id @default(uuid()) @db.Uuid
+  enveloppeId String    @db.Uuid
+  enveloppe   Enveloppe @relation(fields: [enveloppeId], references: [id], onDelete: Cascade)
+  gammeId     String    @db.Uuid
+  gamme       Gamme     @relation(fields: [gammeId], references: [id], onDelete: Restrict)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([enveloppeId, gammeId])
+  @@map("enveloppes_gammes_exclues")
+}
+
+/// Rallonge ou restitution, datée, motivée et signée de son auteur.
+model MouvementEnveloppe {
+  id          String        @id @default(uuid()) @db.Uuid
+  enveloppeId String        @db.Uuid
+  enveloppe   Enveloppe     @relation(fields: [enveloppeId], references: [id], onDelete: Restrict)
+  type        TypeMouvement
+  montant     Decimal       @db.Decimal(14, 2)
+  motif       String
+  auteurId    String?       @db.Uuid
+  auteur      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([enveloppeId])
+  @@map("mouvements_enveloppes")
+}
+
+/// Montant réservé en bloc pour un apporteur habilité.
+model ReservationGlobale {
+  id            String                   @id @default(uuid()) @db.Uuid
+  enveloppeId   String                   @db.Uuid
+  enveloppe     Enveloppe                @relation(fields: [enveloppeId], references: [id], onDelete: Restrict)
+  apporteurId   String                   @db.Uuid
+  apporteur     Apporteur                @relation(fields: [apporteurId], references: [id], onDelete: Restrict)
+  montant       Decimal                  @db.Decimal(14, 2)
+  /// Part du solde rendue à l'enveloppe.
+  montantLibere Decimal                  @default(0) @db.Decimal(14, 2)
+  motif         String
+  echeance      DateTime                 @db.Date
+  statut        StatutReservationGlobale @default(ACTIVE)
+  auteurId      String?                  @db.Uuid
+  auteur        String
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  reservations  Reservation[]
+
+  @@index([enveloppeId])
+  @@map("reservations_globales")
+}
+
+model Reservation {
+  id                      String                  @id @default(uuid()) @db.Uuid
+  /// Numéro lisible, cité dans les mails à la place du nom du client.
+  numero                  Int                     @unique @default(autoincrement())
+  enveloppeId             String                  @db.Uuid
+  enveloppe               Enveloppe               @relation(fields: [enveloppeId], references: [id], onDelete: Restrict)
+  apporteurId             String                  @db.Uuid
+  apporteur               Apporteur               @relation(fields: [apporteurId], references: [id], onDelete: Restrict)
+  entiteId                String?                 @db.Uuid
+  entite                  Entite?                 @relation(fields: [entiteId], references: [id], onDelete: SetNull)
+  codeApporteurId         String?                 @db.Uuid
+  codeApporteur           CodeApporteur?          @relation(fields: [codeApporteurId], references: [id], onDelete: Restrict)
+  gammeId                 String?                 @db.Uuid
+  gamme                   Gamme?                  @relation(fields: [gammeId], references: [id], onDelete: Restrict)
+  typeOperation           TypeOperation
+  typeClient              TypeClient
+  /// Nom de famille, ou raison sociale pour une personne morale.
+  clientNom               String
+  clientPrenom            String?
+  /// Nom et prénom normalisés, pour retrouver les réservations d'un même client.
+  cleClient               String
+  numeroContrat           String?
+  numeroDemande           String?
+  montantBrut             Decimal                 @db.Decimal(14, 2)
+  tauxFrais               Decimal                 @db.Decimal(9, 6)
+  /// Montant réservé : net investi sur le produit. Il consomme l'enveloppe et porte la commission.
+  montantNet              Decimal                 @db.Decimal(14, 2)
+  clientPrevendu          Boolean
+  encoursClient           Decimal?                @db.Decimal(14, 2)
+  origineClient           OrigineClient           @default(MANDATAIRE)
+  clientConfieId          String?                 @unique @db.Uuid
+  clientConfie            ClientConfie?           @relation(fields: [clientConfieId], references: [id], onDelete: Restrict)
+  source                  SourceReservation       @default(ENVELOPPE)
+  reservationGlobaleId    String?                 @db.Uuid
+  reservationGlobale      ReservationGlobale?     @relation(fields: [reservationGlobaleId], references: [id], onDelete: Restrict)
+  statut                  StatutReservation
+  echeance                DateTime?               @db.Date
+  /// Taux de la ligne : celui de l'enveloppe, ou celui des clients confiés ; figé à la validation.
+  tauxCommission          Decimal                 @db.Decimal(9, 6)
+  tauxFigeLe              DateTime?
+  /// Réservation à valider par un administrateur (apporteur restreint).
+  accordAdministrateur    Boolean                 @default(false)
+  modeArbitrage           ModeArbitrage?
+  pourcentageArbitrage    Decimal?                @db.Decimal(9, 6)
+  valeurContrat           Decimal?                @db.Decimal(14, 2)
+  accordClientLe          DateTime?
+  avenantVersion          Int                     @default(0)
+  patrimoineAJour         Boolean                 @default(false)
+  datePatrimoine          DateTime?               @db.Date
+  dateOperation           DateTime?               @db.Date
+  modeOperation           ModeOperation?
+  operationDeclareeLe     DateTime?
+  montantValide           Decimal?                @db.Decimal(14, 2)
+  dateValidationCompagnie DateTime?               @db.Date
+  verifieeLe              DateTime?
+  motifEcartId            String?                 @db.Uuid
+  motifEcart              Motif?                  @relation("MotifEcart", fields: [motifEcartId], references: [id], onDelete: Restrict)
+  commentaireEcart        String?
+  /// Dernier motif de refus, de renvoi ou d'annulation.
+  motifId                 String?                 @db.Uuid
+  motif                   Motif?                  @relation("MotifReservation", fields: [motifId], references: [id], onDelete: Restrict)
+  commentaireMotif        String?
+  valideeLe               DateTime?
+  annuleeLe               DateTime?
+  annulationTardive       Boolean?
+  /// Alertes non bloquantes relevées à la saisie : concentration, estimation d'arbitrage…
+  signalements            String[]                @default([])
+  /// Dérogations accordées, chacune tracée avec son motif dans l'historique.
+  derogations             String[]                @default([])
+  relancesEnvoyees        Int                     @default(0)
+  derniereRelanceLe       DateTime?
+  rappelEcheanceEnvoye    Boolean                 @default(false)
+  creeParId               String?                 @db.Uuid
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  fonds                   LigneFonds[]
+  historique              HistoriqueReservation[]
+  documents               Document[]
+
+  @@index([enveloppeId, statut])
+  @@index([apporteurId])
+  @@index([cleClient])
+  @@map("reservations")
+}
+
+/// Fonds à désinvestir, pour un arbitrage fonds par fonds.
+model LigneFonds {
+  id              String      @id @default(uuid()) @db.Uuid
+  reservationId   String      @db.Uuid
+  reservation     Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  fondsId         String?     @db.Uuid
+  fonds           Fonds?      @relation(fields: [fondsId], references: [id], onDelete: Restrict)
+  nom             String
+  isin            String?
+  montant         Decimal     @db.Decimal(14, 2)
+  horsReferentiel Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([reservationId])
+  @@map("lignes_fonds")
+}
+
+/// Historique d'une réservation : chaque action, son auteur, sa date. Rien n'y est supprimé.
+model HistoriqueReservation {
+  id            String             @id @default(uuid()) @db.Uuid
+  reservationId String             @db.Uuid
+  reservation   Reservation        @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+  action        String
+  deStatut      StatutReservation?
+  versStatut    StatutReservation?
+  auteurId      String?            @db.Uuid
+  auteur        String
+  commentaire   String?
+  details       Json?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([reservationId])
+  @@map("historiques_reservations")
+}
+
+/// Client confié par le cabinet à un mandataire, enveloppe par enveloppe.
+model ClientConfie {
+  id            String             @id @default(uuid()) @db.Uuid
+  enveloppeId   String             @db.Uuid
+  enveloppe     Enveloppe          @relation(fields: [enveloppeId], references: [id], onDelete: Restrict)
+  apporteurId   String             @db.Uuid
+  apporteur     Apporteur          @relation(fields: [apporteurId], references: [id], onDelete: Restrict)
+  typeClient    TypeClient
+  clientNom     String
+  clientPrenom  String?
+  numeroContrat String?
+  taux          Decimal            @db.Decimal(9, 6)
+  statut        StatutClientConfie @default(CONFIE)
+  auteurId      String?            @db.Uuid
+  auteur        String
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  reservation   Reservation?
+
+  @@index([enveloppeId])
+  @@index([apporteurId])
+  @@map("clients_confies")
+}
+
+/// Document déposé : fiche produit, avenant, preuve de vérification, justificatif.
+model Document {
+  id            String            @id @default(uuid()) @db.Uuid
+  categorie     CategorieDocument
+  nom           String
+  typeMime      String
+  taille        Int
+  /// Nom du fichier dans le dossier de stockage, tiré au hasard.
+  fichier       String            @unique
+  empreinte     String
+  enveloppeId   String?           @db.Uuid
+  enveloppe     Enveloppe?        @relation(fields: [enveloppeId], references: [id], onDelete: Restrict)
+  reservationId String?           @db.Uuid
+  reservation   Reservation?      @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+  auteurId      String?           @db.Uuid
+  auteur        String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([enveloppeId])
+  @@index([reservationId])
+  @@map("documents")
+}
+
+/// Archive de chaque mail hebdomadaire : date, destinataires, contenu.
+model EnvoiEmailing {
+  id            String    @id @default(uuid()) @db.Uuid
+  enveloppeId   String    @db.Uuid
+  enveloppe     Enveloppe @relation(fields: [enveloppeId], references: [id], onDelete: Restrict)
+  semaine       String
+  destinataires String[]
+  objet         String
+  contenu       String
+  bloque        Boolean   @default(false)
+  raisonBlocage String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([enveloppeId, semaine, bloque])
+  @@map("envois_emailing")
 }

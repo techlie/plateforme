@@ -63,6 +63,19 @@ export class CourrielService {
     @Inject(CONFIGURATION) private readonly configuration: Configuration,
   ) {}
 
+  /**
+   * Message d'un module métier, signé SR CONSEIL. Il ne contient jamais le nom complet d'un
+   * client : les initiales, la fin du numéro de contrat et un lien vers la plateforme.
+   */
+  envoyerMessage(a: string, objet: string, lignes: string[]): Promise<void> {
+    return this.transport.envoyer({ a, objet: `SR CONSEIL · ${objet}`, texte: [...lignes, '', 'SR CONSEIL'].join('\n') });
+  }
+
+  /** Adresse complète d'une page de la plateforme, pour un lien dans un courriel. */
+  lien(chemin: string): string {
+    return `${this.configuration.urlApplication}${chemin}`;
+  }
+
   envoyerCode(a: string, code: string, validiteMinutes: number): Promise<void> {
     return this.transport.envoyer({
       a,

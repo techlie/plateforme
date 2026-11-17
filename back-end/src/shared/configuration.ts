@@ -13,6 +13,10 @@ export interface Configuration {
     smtp?: { hote: string; port: number; securise: boolean; utilisateur?: string; motDePasse?: string };
   };
   session: { dureeHeures: number; inactiviteMinutes: number };
+  /** Dossier où sont rangés les documents déposés (fiches produit, preuves). Hors du dossier public. */
+  dossierDocuments: string;
+  /** Tâches planifiées (échéances, rappels, mail du jeudi) : actives sauf en test. */
+  planificateur: boolean;
 }
 
 function entier(valeur: string | undefined, parDefaut: number): number {
@@ -42,6 +46,10 @@ export function lireConfiguration(env: NodeJS.ProcessEnv = process.env): Configu
   if (production && !smtp) {
     throw new Error("En production, l'envoi des courriels doit être configuré (SMTP_HOTE).");
   }
+  const dossierDocuments = env.DOSSIER_DOCUMENTS || (production ? '' : './donnees/documents');
+  if (!dossierDocuments) {
+    throw new Error('En production, la variable DOSSIER_DOCUMENTS (dossier des documents déposés) doit être renseignée.');
+  }
   return {
     production,
     cleSecrete,
@@ -51,6 +59,8 @@ export function lireConfiguration(env: NodeJS.ProcessEnv = process.env): Configu
       dureeHeures: entier(env.SESSION_DUREE_HEURES, 12),
       inactiviteMinutes: entier(env.SESSION_INACTIVITE_MINUTES, 120),
     },
+    dossierDocuments,
+    planificateur: env.PLANIFICATEUR !== 'non' && env.NODE_ENV !== 'test',
   };
 }
 

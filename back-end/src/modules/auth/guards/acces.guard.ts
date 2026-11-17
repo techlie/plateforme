@@ -2,7 +2,8 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Unauthor
 import { Reflector } from '@nestjs/core';
 import type { ModulePlateforme, Profil } from '@prisma/client';
 import type { Request } from 'express';
-import { CLE_MODULE, CLE_PROFILS, CLE_PUBLIC } from '../../../shared/acces/acces.decorateurs';
+import { CLE_MODULE, CLE_MODULE_SAUF_ADMINISTRATION, CLE_PROFILS, CLE_PUBLIC } from '../../../shared/acces/acces.decorateurs';
+import { PROFILS_ADMINISTRATION } from '../../../shared/acces/acces.types';
 import { lireCookie, NOM_COOKIE_SESSION } from '../../../shared/acces/requete';
 import { AuthService } from '../auth.service';
 
@@ -38,7 +39,9 @@ export class AccesGuard implements CanActivate {
     }
 
     const module = this.reflector.getAllAndOverride<ModulePlateforme | undefined>(CLE_MODULE, cibles);
-    if (module && !utilisateur.modules.includes(module)) {
+    const saufAdministration = this.reflector.getAllAndOverride<boolean | undefined>(CLE_MODULE_SAUF_ADMINISTRATION, cibles);
+    const administrateur = PROFILS_ADMINISTRATION.includes(utilisateur.profil);
+    if (module && !utilisateur.modules.includes(module) && !(saufAdministration && administrateur)) {
       throw new ForbiddenException({ code: 'MODULE', message: "Ce module n'est pas activé pour votre compte." });
     }
     return true;
