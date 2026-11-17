@@ -103,6 +103,16 @@ une compagnie, plusieurs mandataires qui se le partagent.
 | À l'affectation, la part du mandataire est paramétrable : une partie ou toute la commission, selon un protocole qui peut différer de son taux habituel, y compris sur le récurrent | 16 nov. | À faire |
 | Date d'effet d'une affectation ou d'un changement de mandataire fixée par l'administrateur à chaque fois ; un rattrapage passe par une ligne de régularisation | 16 nov. | À faire |
 | Seul l'administrateur affecte un contrat ou change son mandataire ; chaque affectation est tracée | 16 nov. | À faire |
+| Bordereau d'un code partagé : chaque mandataire ne voit que les lignes des contrats qui lui sont affectés | 17 nov. | À faire |
+
+### Affectation et commissionnement
+
+| Décision | Date | État |
+| --- | --- | --- |
+| L'affectation (qui suit le client ou le contrat) et le commissionnement (qui est payé, et combien) sont deux notions distinctes, réglées séparément | 17 nov. | À faire |
+| Deux sources d'affectation cohabitent : le CRM, qui fait foi quand il existe, et l'affectation faite dans la plateforme, indispensable pour un cabinet sans CRM (version commercialisable) | 17 nov. | À faire |
+| Statut « gestionnaire de portefeuille » : des clients lui sont affectés pour le suivi, sans acte commercial. Une commission ne s'y attache que si elle est configurée, par exemple un récurrent prévu dans la gestion d'un cabinet | 17 nov. | À faire |
+| Le gestionnaire de portefeuille a un profil proche du mandataire : il voit son portefeuille et les commissions perçues par le cabinet sur ce portefeuille, sans calcul de marge ni trésorerie | 17 nov. | À faire |
 
 ## 3. Enveloppes de produits structurés
 
@@ -121,7 +131,7 @@ une compagnie, plusieurs mandataires qui se le partagent.
 | Contrôle « mise à jour du patrimoine » propre aux produits Swiss Life | 12 nov. | À faire |
 | Fiabilité : statistiques remises à zéro à la mise en service ; annulation comptée, avec un poids qui croît à l'approche de la clôture | 12 nov. | À faire |
 | Deux campagnes menées en même temps dans deux compagnies | 15 nov. | À faire |
-| Entités du groupe à créer : SR CONSEIL, Label Assurances, Label Santé, RJ Assurances, Nembrini Colombani, A2C Courtage, A3C (Midi Courtage) | 16 nov. | À faire (référentiel des entités) |
+| Entités du groupe à créer : SR CONSEIL, Label Assurances, Label Santé, RJ Assurances, Nembrini Colombani, A2C Courtage, A3C (Midi Courtage) ; ajout le 17 nov. de TC2K, cabinet de co-courtage avec un cabinet d'expertise comptable. Pas CPA pour l'instant. Liste non définitive : l'administrateur peut ajouter une entité | 16 et 17 nov. | À faire (référentiel des entités) |
 | À l'ouverture d'une campagne : avenant pré-rempli, mail hebdomadaire, clients confiés, liste d'attente, indicateurs de fiabilité | 15 nov. | À faire |
 | Avenant pré-rempli produit seulement quand le commercial, mandataire ou salarié, déclare que le client a accepté l'arbitrage ; il est alors mis en téléchargement. Rien n'est produit avant | 16 nov. | À faire |
 | 27 novembre 2026 : présentation et lancement officiel d'au moins une des deux campagnes | 16 nov. | À faire |
@@ -135,6 +145,11 @@ une compagnie, plusieurs mandataires qui se le partagent.
 | Dépôt de code privé | 15 nov. | Appliqué : vérifié invisible de l'extérieur le 16 nov. |
 | Hébergement chez IONOS, sur l'infrastructure déjà utilisée par Label, sans surcoût technique | 16 nov. | À faire ; réglages à voir avec Willie (machine et base propres, centre de données, sauvegarde quotidienne) |
 | Connexion à deux étapes par code envoyé par courriel | 15 nov. | À faire |
+| Une adresse de connexion par personne : le code y est envoyé et chaque acte est tracé à son nom, back-office compris. Une adresse commune reste possible comme simple contact d'une société | 17 nov. | À faire |
+| Un mandataire a un seul espace, qui regroupe ses sociétés et ses codes apporteur | 17 nov. | À faire |
+| Pas d'étage intermédiaire (directeur de cabinet) pour l'instant : les chiffres du groupe, marge et trésorerie, sont gérés par les deux associés seuls | 17 nov. | À faire |
+| Le mandataire voit les bordereaux de ses codes | 17 nov. | À faire |
+| Onglet protocoles : le mandataire voit les protocoles des compagnies traduits à ses conditions, selon son protocole signé avec le cabinet. Le protocole dépend du cabinet : celui de RJ Assurances peut différer de celui de SR CONSEIL | 17 nov. | À faire |
 | Modules activables par utilisateur, par case à cocher | 15 nov. | À faire |
 | Un mandataire ne voit que ses clients et ses commissions | 15 nov. | À faire |
 | Un mandataire peut avoir plusieurs codes apporteur chez une même compagnie | 15 nov. | À faire |
@@ -185,3 +200,4 @@ Ceux qui touchent le calcul :
 - Versement libre et affaire nouvelle : le document pré-rempli attend-il aussi l'accord du client.
 - Code partagé : à l'affectation, quelle part par défaut pour le mandataire (son taux habituel ?), et la part peut-elle différer entre commission d'acquisition et récurrent.
 - Code partagé : un mandataire peut-il réserver un arbitrage sur un contrat affecté à un autre mandataire.
+- Taux de reversement porté par chaque ligne société du mandataire (protocole signé par société), comme le prévoit le cahier des charges du socle : proposé le 17 nov., à confirmer.

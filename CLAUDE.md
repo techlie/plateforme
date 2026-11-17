@@ -65,14 +65,19 @@ exporté. C'est ce qui permet d'activer ou non un module par utilisateur.
   enregistré, sans valeur réelle.
 - Chacun ne voit que son périmètre. Le filtrage se fait côté serveur, jamais
   seulement à l'écran.
-- La marge du cabinet et le détail compagnie → courtier grossiste → cabinet ne
-  sortent jamais vers un profil mandataire. Seule exception, voulue par le cabinet :
-  en co-courtage, le mandataire voit la part du cabinet d'expertise comptable.
+- La marge du cabinet et sa trésorerie ne sortent jamais vers un mandataire ou un
+  gestionnaire de portefeuille : ces chiffres sont réservés aux deux associés.
+  Ce qu'ils voient, par choix du cabinet : les bordereaux de leurs codes (pour un
+  code partagé, les seules lignes des contrats qui leur sont affectés), les
+  commissions perçues par le cabinet sur leur portefeuille, les protocoles des
+  compagnies traduits à leurs conditions et, en co-courtage, la part du cabinet
+  d'expertise comptable.
 - Aucun contenu médical : la plateforme connaît au plus un statut
   (« formalités médicales en cours »).
 - Aucun IBAN enregistré.
 - Chaque action sensible laisse une trace : qui, quoi, quand.
-- Connexion à deux étapes par code envoyé par courriel.
+- Connexion à deux étapes par code envoyé par courriel, à une adresse propre à
+  chaque personne : chaque acte est tracé au nom de celui qui l'a fait.
 
 ## 5. Habillage et parcours utilisateur
 
