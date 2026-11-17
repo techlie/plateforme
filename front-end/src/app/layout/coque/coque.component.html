@@ -1,9 +1,9 @@
 <div class="coque" [class.coque--replie]="!ouvert()">
   <nav class="menu" aria-label="Navigation principale">
     <div class="menu__tete">
-      @if (ouvert()) {
-        <span class="menu__marque">SR CONSEIL</span>
-      }
+      <a class="menu__marque" routerLink="/" aria-label="SR CONSEIL, accueil">
+        <app-logo [reduit]="!ouvert()" />
+      </a>
       <button
         type="button"
         class="menu__bascule"

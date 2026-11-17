@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SessionService } from '../../core/session.service';
+import { LogoComponent } from '../../shared/logo/logo.component';
 import { messageErreur } from '../../core/session.types';
 
 const LONGUEUR_MINIMALE = 12;
@@ -8,10 +9,10 @@ const LONGUEUR_MINIMALE = 12;
 /** Activation du compte ou nouveau mot de passe, depuis le lien reçu par courriel. */
 @Component({
   selector: 'app-definition-mot-de-passe',
-  imports: [RouterLink],
+  imports: [RouterLink, LogoComponent],
   template: `
     <div class="acces">
-      <span class="acces__marque">SR CONSEIL</span>
+      <app-logo class="acces__marque" />
 
       @switch (etat()) {
         @case ('verification') {

@@ -15,9 +15,8 @@
 }
 
 .acces__marque {
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.08em;
+  align-self: flex-start;
+  --logo-hauteur: 40px;
 }
 
 .acces__titre {

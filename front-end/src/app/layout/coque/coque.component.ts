@@ -3,11 +3,12 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { ENTREES_ADMINISTRATION, ENTREES_MODULES, EntreeMenu, ORDRE_MODULES } from '../../core/menu';
 import { SessionService } from '../../core/session.service';
 import { ThemeService } from '../../core/theme.service';
+import { LogoComponent } from '../../shared/logo/logo.component';
 
 /** Cadre commun aux écrans de la plateforme : menu latéral, selon les droits du compte, et zone de contenu. */
 @Component({
   selector: 'app-coque',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LogoComponent],
   templateUrl: './coque.component.html',
   styleUrl: './coque.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

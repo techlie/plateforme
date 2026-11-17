@@ -30,10 +30,16 @@
 }
 
 .menu__marque {
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
+  --logo-hauteur: 26px;
+}
+
+.coque--replie .menu__tete {
+  flex-direction: column;
+  gap: 12px;
 }
 
 .menu__bascule {

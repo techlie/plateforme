@@ -1,14 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SessionService } from '../../core/session.service';
+import { LogoComponent } from '../../shared/logo/logo.component';
 import { messageErreur } from '../../core/session.types';
 
 @Component({
   selector: 'app-mot-de-passe-oublie',
-  imports: [RouterLink],
+  imports: [RouterLink, LogoComponent],
   template: `
     <div class="acces">
-      <span class="acces__marque">SR CONSEIL</span>
+      <app-logo class="acces__marque" />
       <div>
         <h1 class="acces__titre">Mot de passe oublié</h1>
         <p class="acces__texte">Indiquez votre adresse : si elle correspond à un compte actif, vous recevrez un lien pour choisir un nouveau mot de passe.</p>

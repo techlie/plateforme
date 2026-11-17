@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { SessionService } from '../../core/session.service';
+import { LogoComponent } from '../../shared/logo/logo.component';
 import { messageErreur, ReponseConnexion } from '../../core/session.types';
 
 /** Connexion en deux étapes : mot de passe, puis code reçu par courriel. */
 @Component({
   selector: 'app-connexion',
-  imports: [RouterLink],
+  imports: [RouterLink, LogoComponent],
   templateUrl: './connexion.component.html',
   styleUrl: './acces.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

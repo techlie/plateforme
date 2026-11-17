@@ -19,6 +19,9 @@
   --accent: #0b0d12;
   --sur-accent: #ffffff;
 
+  /* Couleur du logo du groupe. */
+  --marque: #6d5c54;
+
   --vedette: #0b0d12;
   --sur-vedette: #ffffff;
   --sur-vedette-doux: #9ca3af;
@@ -54,6 +57,8 @@
 
   --accent: #f5f6f8;
   --sur-accent: #0b0d12;
+
+  --marque: #c4b5ab;
 
   --vedette: #1a1d24;
   --sur-vedette: #ffffff;
