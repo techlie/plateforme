@@ -231,6 +231,12 @@ describe('Module Enveloppes (bout en bout)', () => {
     const refus = await post('SA', `/reservations/${ids.rSa}/validation`).expect(403);
     expect(refus.body.code).toBe('PROPRE_PRODUCTION');
     await post('ADMIN', `/reservations/${ids.rSa}/validation`).expect(201);
+    // Une dérogation de format accordée par le back-office vaut tant que le numéro ne change pas.
+    const atypique = await post('BO', '/reservations', reservation({ apporteurId: ids.a1, numeroContrat: 'ANCIEN-01', clientNom: 'Ancien', clientPrenom: 'Max', montantBrut: '2000', tauxFrais: '0', derogations: [{ code: 'FORMAT_CONTRAT', motif: 'Contrat ancien, format d’origine' }] })).expect(201);
+    expect(atypique.body.derogations).toEqual(['FORMAT_CONTRAT']);
+    await patch('M1', `/reservations/${atypique.body.id}`, { encoursClient: '500000' }).expect(200);
+    await patch('M1', `/reservations/${atypique.body.id}`, { numeroContrat: 'ANCIEN-02' }).expect(422);
+    await post('M1', `/reservations/${atypique.body.id}/annulation`, { motifId: ids.annulationCompagnie }).expect(201);
     // Un mandataire ne saisit pas pour le compte d'un autre.
     await post('M1', '/reservations', reservation({ apporteurId: ids.a2, codeApporteurId: ids.codeM2, numeroContrat: '11112222' })).expect(403);
   });

@@ -558,6 +558,13 @@ export class ReservationsService {
       await this.repository.verrouiller(tx, avant.enveloppeId);
       const e = await this.enveloppes.enveloppe(avant.enveloppeId, tx);
       const p = await this.preparer(tx, e, apporteur, fusion, avant.id, maintenant);
+      // Une modification n'est pas une nouvelle saisie : sans hausse, ni le dépassement ni la date
+      // limite ne s'appliquent ; une dérogation déjà accordée vaut tant que son objet ne change pas.
+      p.controle.derogeables = p.controle.derogeables.filter((constat) => {
+        if (!hausse && (constat.code === 'DEPASSEMENT' || constat.code === 'DATE_LIMITE')) return false;
+        if (constat.code === 'FORMAT_CONTRAT' && avant.derogations.includes('FORMAT_CONTRAT') && fusion.numeroContrat === actuelle.numeroContrat) return false;
+        return true;
+      });
       // En liste d'attente, la demande reste en attente : seul le dépassement y est admis.
       const { accordees } = this.decider(p, dto.derogations, avant.statut === 'LISTE_ATTENTE', u, avant.apporteur.userId);
       let statut = avant.statut;
