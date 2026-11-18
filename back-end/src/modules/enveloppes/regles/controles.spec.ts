@@ -9,7 +9,7 @@ function entree(modif: Partial<EntreeControle['reservation']> = {}, autres: Part
       montantMinimum: '1500',
       seuilConcentration: '0.15',
       gammesExclues: [{ id: 'g-exclue', nom: 'Ancienne gamme' }],
-      formatNumeroContrat: '\\d{8}',
+      formatNumeroContrat: '99999999',
       compagnieAGammes: true,
       ...env,
     },

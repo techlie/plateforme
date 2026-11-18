@@ -12,7 +12,8 @@ le dépôt.
   serveur Node.
 - Un compte d'envoi de courriels (SMTP) depuis un domaine du groupe, correctement
   authentifié (SPF, DKIM), pour que les codes de connexion n'arrivent pas en indésirables.
-- Une sauvegarde quotidienne de la base, avec un essai de restauration régulier.
+- Une sauvegarde quotidienne de la base et du dossier des documents déposés, avec un
+  essai de restauration régulier.
 
 ## Installation
 
@@ -28,6 +29,8 @@ cp .env.example .env
 #   ORIGINES_AUTORISEES=https://<adresse publique>
 #   CONFIANCE_PROXY=true
 #   COURRIEL_EXPEDITEUR, SMTP_HOTE, SMTP_PORT, SMTP_SECURISE, SMTP_UTILISATEUR, SMTP_MOT_DE_PASSE
+#   DOSSIER_DOCUMENTS=<dossier hors du site web, lisible du seul service Node>
+#   PLANIFICATEUR=oui   (une seule instance du serveur avec oui : échéances, rappels, mail du jeudi)
 npx prisma generate
 npx prisma migrate deploy
 npm run build
@@ -39,17 +42,24 @@ npm ci
 npx ng build                  # produit front-end/dist/front-end/browser
 ```
 
-Le script d'initialisation crée les entités du groupe et le premier super
-administrateur, qui reçoit par courriel le lien pour choisir son mot de passe. Il ne
-crée rien deux fois si on le relance.
+Le script d'initialisation crée les entités du groupe, les paramètres et les motifs de
+départ du module Enveloppes, puis le premier super administrateur, qui reçoit par
+courriel le lien pour choisir son mot de passe. Il ne crée rien deux fois si on le
+relance : il se relance après la mise à jour qui ajoute le module Enveloppes.
 
 En production, le serveur refuse de démarrer sans `CLE_SECRETE` d'au moins 32
-caractères, sans `URL_APPLICATION` ou sans serveur d'envoi de courriels.
+caractères, sans `URL_APPLICATION`, sans serveur d'envoi de courriels ou sans
+`DOSSIER_DOCUMENTS`.
+
+Les tâches planifiées (fermeture des enveloppes à la date limite interne, réservations
+échues, rappels, compte à rebours, mail du jeudi) tournent dans le serveur Node, chaque
+minute, à l'heure de Paris. Si plusieurs instances du serveur tournent, une seule doit
+avoir `PLANIFICATEUR=oui`.
 
 ## Vérification de la migration
 
-La première migration a été écrite à la main, le moteur de migration de Prisma n'étant
-pas joignable depuis l'environnement où elle a été préparée. Sur un poste qui y a accès,
+Les migrations ont été écrites à la main, au format de Prisma, le moteur de migration
+n'étant pas joignable depuis l'environnement où elles ont été préparées. Sur un poste qui y a accès,
 vérifier qu'elle correspond exactement au schéma :
 
 ```bash
@@ -66,6 +76,8 @@ mise en service.
 - Transmettre `/api/` au serveur Node (port 3000 par défaut), avec les en-têtes
   `X-Forwarded-For` et `X-Forwarded-Proto`.
 - HTTPS obligatoire : le cookie de session n'est envoyé qu'en HTTPS en production.
+- Accepter des envois de 16 Mo sur `/api/` (`client_max_body_size 16m;` sous nginx) :
+  les documents déposés vont jusqu'à 15 Mo.
 
 ## Mise à jour
 

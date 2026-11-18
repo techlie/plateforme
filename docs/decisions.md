@@ -119,25 +119,25 @@ une compagnie, plusieurs mandataires qui se le partagent.
 
 | Décision | Date | État |
 | --- | --- | --- |
-| Commission avancée dès la validation par la compagnie ; écart d'upfront assumé par le cabinet | début nov. | À faire |
-| Upfront réel visible des deux super administrateurs seulement | début nov. | À faire |
-| Montant brut et frais saisis ; le net consomme l'enveloppe et porte la commission | début nov. | À faire |
-| Un taux par enveloppe, le même pour tous | début nov. | À faire |
-| Client confié : taux minoré de 0,5 % par défaut, modifiable | 15 nov. | À faire |
-| Client confié : le mandataire propose, le client valide, le mandataire notifie, le back-office gère la signature, le mandataire est informé du montant réel | 15 nov. | À faire |
-| Client confié : signature par l'outil de signature électronique de la compagnie ; si le client signe sur papier, l'opérateur le précise | 17 nov. | À faire |
-| Réservation globale puis affectation ligne par ligne ; réservations « à prévendre » libres | début nov. | À faire |
-| Concentration limitée à 15 % de l'encours total du client | début nov. | À faire |
-| Anomalie dès 5 % d'écart entre réservé et validé, dans les deux sens | 12 nov. | À faire |
-| Validations des super administrateurs tracées et visibles de l'autre ; aucun ne valide son propre règlement | 12 nov. | À faire |
-| Contrôle « mise à jour du patrimoine » propre aux produits Swiss Life, bloquant : sans situation patrimoniale à jour, l'opération ne peut pas être déclarée | 12 et 17 nov. | À faire |
-| Fiabilité : statistiques remises à zéro à la mise en service ; annulation comptée, avec un poids qui croît à l'approche de la clôture | 12 nov. | À faire |
-| Deux campagnes menées en même temps dans deux compagnies | 15 nov. | À faire |
-| Entités du groupe à créer : SR CONSEIL, Label Assurances, Label Santé, RJ Assurances, Nembrini Colombani, A2C Courtage, A3C (Midi Courtage) ; ajout le 17 nov. de TC2K, cabinet de co-courtage avec un cabinet d'expertise comptable. Pas CPA pour l'instant. Liste non définitive : l'administrateur peut ajouter une entité | 16 et 17 nov. | À faire (référentiel des entités) |
-| À l'ouverture d'une campagne : avenant pré-rempli, mail hebdomadaire, clients confiés, liste d'attente, indicateurs de fiabilité | 15 nov. | À faire |
-| Avenant pré-rempli produit seulement quand le commercial, mandataire ou salarié, déclare que le client a accepté l'arbitrage ; il est alors mis en téléchargement. Rien n'est produit avant | 16 nov. | À faire |
+| Commission avancée dès la validation par la compagnie ; écart d'upfront assumé par le cabinet | début nov. | Appliqué en partie : commission définitive dès la vérification compagnie ; demande de règlement à faire |
+| Upfront réel visible des deux super administrateurs seulement | début nov. | Appliqué : taux d'upfront attendu, jamais envoyé à un autre profil (test) |
+| Montant brut et frais saisis ; le net consomme l'enveloppe et porte la commission | début nov. | Appliqué (`regles/montants.ts`, tests) |
+| Un taux par enveloppe, le même pour tous | début nov. | Appliqué ; figé sur la réservation à sa validation |
+| Client confié : taux minoré de 0,5 % par défaut, modifiable | 15 nov. | Appliqué, paramètre réglable ; sens à confirmer (voir section 7) |
+| Client confié : le mandataire propose, le client valide, le mandataire notifie, le back-office gère la signature, le mandataire est informé du montant réel | 15 nov. | Appliqué (test) |
+| Client confié : signature par l'outil de signature électronique de la compagnie ; si le client signe sur papier, l'opérateur le précise | 17 nov. | Appliqué : le back-office déclare l'opération, signature électronique ou papier |
+| Réservation globale puis affectation ligne par ligne ; réservations « à prévendre » libres | début nov. | Appliqué (`regles/compteurs.ts`, tests) |
+| Concentration limitée à 15 % de l'encours total du client | début nov. | Appliqué : alerte non bloquante, toutes enveloppes ouvertes cumulées |
+| Anomalie dès 5 % d'écart entre réservé et validé, dans les deux sens | 12 nov. | Appliqué, seuil réglable (test) |
+| Validations des super administrateurs tracées et visibles de l'autre ; aucun ne valide son propre règlement | 12 nov. | Appliqué pour les réservations : personne ne décide sur sa propre réservation, super administrateur compris (test) ; règlement à faire |
+| Contrôle « mise à jour du patrimoine » propre aux produits Swiss Life, bloquant : sans situation patrimoniale à jour, l'opération ne peut pas être déclarée | 12 et 17 nov. | Appliqué (test) |
+| Fiabilité : statistiques remises à zéro à la mise en service ; annulation comptée, avec un poids qui croît à l'approche de la clôture | 12 nov. | Appliqué sans pondération : annulations comptées dans les délais ou tardives ; formule du poids à fixer |
+| Deux campagnes menées en même temps dans deux compagnies | 15 nov. | Appliqué |
+| Entités du groupe à créer : SR CONSEIL, Label Assurances, Label Santé, RJ Assurances, Nembrini Colombani, A2C Courtage, A3C (Midi Courtage) ; ajout le 17 nov. de TC2K, cabinet de co-courtage avec un cabinet d'expertise comptable. Pas CPA pour l'instant. Liste non définitive : l'administrateur peut ajouter une entité | 16 et 17 nov. | Appliqué (script d'initialisation, écran) |
+| À l'ouverture d'une campagne : avenant pré-rempli, mail hebdomadaire, clients confiés, liste d'attente, indicateurs de fiabilité | 15 nov. | Appliqué ; l'avenant est fourni sous forme de fiche des valeurs à reporter, tant que les champs de l'avenant de chaque compagnie ne sont pas repérés |
+| Avenant pré-rempli produit seulement quand le commercial, mandataire ou salarié, déclare que le client a accepté l'arbitrage ; il est alors mis en téléchargement. Rien n'est produit avant | 16 nov. | Appliqué pour l'arbitrage, versionné à chaque modification (test) |
 | 27 novembre 2026 : présentation et lancement officiel d'au moins une des deux campagnes | 16 nov. | À faire |
-| Annulation après opération par le back-office, commission reprise | début nov. | À faire |
+| Annulation après opération par le back-office, commission reprise | début nov. | Appliqué : plus aucune commission due ; régularisation à faire avec la demande de règlement |
 
 ## 4. Socle, sécurité, données
 
@@ -154,8 +154,8 @@ une compagnie, plusieurs mandataires qui se le partagent.
 | Le mandataire voit les bordereaux de ses codes | 17 nov. | À faire |
 | Onglet protocoles : le mandataire voit les protocoles des compagnies traduits à ses conditions, selon son protocole signé avec le cabinet. Le protocole dépend du cabinet : celui de RJ Assurances peut différer de celui de SR CONSEIL | 17 nov. | À faire |
 | Modules activables par utilisateur, par case à cocher | 15 nov. | Appliqué : vérifié par le serveur à chaque demande ; le simulateur demande son module |
-| Un mandataire ne voit que ses clients et ses commissions | 15 nov. | À faire |
-| Un mandataire peut avoir plusieurs codes apporteur chez une même compagnie | 15 nov. | À faire |
+| Un mandataire ne voit que ses clients et ses commissions | 15 nov. | Appliqué pour les enveloppes, filtré par le serveur (test) |
+| Un mandataire peut avoir plusieurs codes apporteur chez une même compagnie | 15 nov. | Appliqué (référentiel des codes apporteur) |
 | Conservation des données : durée du contrat puis dix ans ; trois ans sans contact pour un prospect | 15 nov. | À faire ; à valider par le conseil RGPD |
 | Conventions et protocoles signés versés dans la plateforme, consultables par l'administrateur et le mandataire concerné | 15 nov. | À faire |
 | Aucune donnée médicale, aucun IBAN | 15 nov. | Appliqué (`CLAUDE.md`) |
@@ -191,14 +191,46 @@ Ceux qui touchent le calcul :
 - Correction des affaires déjà réglées, ou application aux seules affaires nouvelles.
 - Nom du complément versé à un superviseur.
 - Co-courtage : base du taux. Le simulateur applique 30 % sur la commission brute de la compagnie (35,3 % de ce que reçoit le cabinet) ; confirmer qu'aucune convention n'est exprimée sur le net ou à 35 %.
-- Délai standard pour honorer une réservation, avant l'ouverture des deux prochaines campagnes.
+- Délai standard pour honorer une réservation, et délai du rappel avant échéance. En attendant, l'échéance est la date limite interne et aucun rappel ne part.
 - Règles de reprise en santé et en assurance de prêt, et pour les compagnies de prévoyance dont le protocole ne dit rien.
 - Abeille, versement unique et transfert : reprise sur toute la commission ou sur la surcommission seule.
 - Swiss Life prévoyance : répartition du taux de la grille entre commission d'apport et surcommission, et baisse de la reprise la 2e année.
 - Generali : le rappel de 25 % est-il repris avec l'escompte.
 - Cardif : le bonus non repris.
 - Prévoyance : règle de reprise de chaque gamme à vérifier.
-- Versement libre et affaire nouvelle : le document pré-rempli attend-il aussi l'accord du client.
+- Versement libre et affaire nouvelle : le document pré-rempli attend-il aussi l'accord du client. En attendant, rien n'est produit pour ces deux types.
 - Code partagé : à l'affectation, quelle part par défaut pour le mandataire (son taux habituel ?), et la part peut-elle différer entre commission d'acquisition et récurrent.
 - Code partagé : un mandataire peut-il réserver un arbitrage sur un contrat affecté à un autre mandataire.
 - Taux de reversement porté par chaque ligne société du mandataire (protocole signé par société), comme le prévoit le cahier des charges du socle : proposé le 17 nov., à confirmer.
+
+### Lectures retenues en construisant le module Enveloppes, à confirmer
+
+Chacune est appliquée telle qu'écrite dans le cahier des charges ; la question porte sur
+le sens exact. La plateforme la signale à l'écran quand elle a un effet visible.
+
+- Client confié : 0,5 % est le taux appliqué au client confié, et non une baisse de
+  0,5 point du taux de l'enveloppe.
+- Super administrateur : il ne valide pas sa propre réservation ; le back-office ou
+  l'autre associé le fait. Le cahier des charges dit aussi que ce qu'il valide sur ses
+  propres réservations est « tracé et visible de l'autre » : faut-il l'autoriser ?
+- Arbitrage fonds par fonds : le total des désinvestissements doit égaler le montant
+  réservé, c'est-à-dire le net, comme écrit. Faut-il plutôt le brut, puisque les frais
+  d'arbitrage se prélèvent sur ce qui est désinvesti ? Et un désinvestissement « en
+  pourcentage », pourcentage de quoi ? Seuls les montants en euros sont proposés.
+- Taux de réalisation : lignes validées par le back-office dans les 12 derniers mois et
+  arrivées à leur terme (vérifiées, libérées, annulées pour un motif imputable).
+- Motifs : seul « Arbitrage refusé par la compagnie » est classé non imputable (exemple du
+  cahier des charges). Les autres motifs d'annulation et les motifs de refus sont à
+  donner par le cabinet, avec leur classement.
+- Liste d'attente à la date limite interne : les demandes non servies restent en liste
+  d'attente, les mandataires sont prévenus, et le back-office les annule avant la
+  clôture. Faut-il un statut propre ?
+- Relances automatiques (tous les N jours, nombre maximal), alerte au back-office sans
+  décision après N jours ouvrés, écart sans motif après un délai : valeurs à fixer ;
+  rien ne part tant qu'elles ne le sont pas.
+- « Montant élevé rapporté à l'encours » : aucun seuil n'est écrit ; la part de
+  l'encours est affichée au back-office, sans alerte.
+- Concentration : le client est reconnu à son nom et son prénom (ou sa raison sociale),
+  la date de naissance n'étant pas retenue ; deux homonymes sont donc cumulés.
+- Numéro de contrat : un modèle simple par compagnie (9 pour un chiffre, A pour une
+  lettre), à remplir à partir des bordereaux ; vide, seule la présence est contrôlée.

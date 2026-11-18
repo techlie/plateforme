@@ -21,6 +21,9 @@ export interface ReponseConnexion {
 
 export const PROFILS_ADMINISTRATION: Profil[] = ['SUPER_ADMINISTRATEUR', 'ADMINISTRATEUR'];
 
+/** Profils qui gèrent les enveloppes : back-office et administrateurs. */
+export const PROFILS_GESTION: Profil[] = [...PROFILS_ADMINISTRATION, 'BACK_OFFICE'];
+
 export const LIBELLES_PROFILS: Record<Profil, string> = {
   SUPER_ADMINISTRATEUR: 'Super administrateur',
   ADMINISTRATEUR: 'Administrateur',

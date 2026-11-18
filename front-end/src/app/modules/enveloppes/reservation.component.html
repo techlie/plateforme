@@ -1,0 +1,334 @@
+<div class="page">
+  @if (chargement()) {
+    <p class="discret" role="status">Chargement…</p>
+  } @else if (erreur()) {
+    <p class="note note--danger" role="alert">{{ erreur() }}</p>
+  } @else {
+    @if (r(); as r) {
+    <header class="entete">
+      <div>
+        <p class="surtitre"><a routerLink="/enveloppes">Enveloppes</a> · <a [routerLink]="['/enveloppes', r.enveloppe.id]">{{ r.enveloppe.nomProduit }}</a> · réservation n° {{ r.numero }}</p>
+        <h1 class="titre">{{ nomClient(r) }}</h1>
+        <p class="sous-titre">
+          <span [class]="'statut statut--' + tonStatut(r.statut)">{{ libellesStatuts[r.statut] }}</span>
+          <span>{{ libellesTypes[r.typeOperation] }}</span>
+          <span>{{ compagnie() }}</span>
+          <span>{{ r.apporteur.prenom }} {{ r.apporteur.nom }}{{ r.entite ? ' · ' + r.entite.nom : '' }}</span>
+          @if (r.origineClient === 'CONFIE') { <span class="statut">Client confié</span> }
+        </p>
+      </div>
+    </header>
+
+    @if (message()) { <p class="note note--succes" role="status">{{ message() }}</p> }
+
+    <div class="colonnes">
+      <div class="formulaire">
+        <section class="compteurs" style="grid-template-columns: repeat(2, minmax(0, 1fr))" aria-label="Montants">
+          <div class="compteur compteur--vedette">
+            <span class="compteur__libelle">{{ r.montantValide ? 'Validé par la compagnie' : 'Montant réservé (net)' }}</span>
+            <span class="compteur__valeur">{{ euros(r.montantValide ?? r.montantNet) }}</span>
+            <span class="compteur__detail">{{ euros(r.montantBrut) }} brut · frais {{ pourcent(r.tauxFrais) }}@if (r.montantValide) { · réservé {{ euros(r.montantNet) }}}</span>
+          </div>
+          <div class="compteur">
+            <span class="compteur__libelle">{{ r.commissionDefinitive ? 'Commission définitive' : 'Commission estimée' }}</span>
+            <span class="compteur__valeur">{{ euros(r.commissionDefinitive ?? r.commissionEstimee) }}</span>
+            <span class="compteur__detail">Taux {{ pourcent(r.tauxCommission) }}{{ r.tauxFige ? ', figé à la validation' : '' }}</span>
+          </div>
+        </section>
+
+        @if (r.signalements.length || r.derogations.length || r.accordAdministrateur) {
+          <div class="formulaire" style="gap: 10px">
+            @if (r.accordAdministrateur) { <p class="note note--alerte">Apporteur restreint : la validation revient à un administrateur.</p> }
+            @if (r.signalements.includes('CONCENTRATION')) { <p class="note note--alerte">Concentration au-delà du seuil de l’encours du client : ligne à surveiller.</p> }
+            @if (r.signalements.includes('ENCOURS_ABSENT')) { <p class="note note--alerte">Encours du client non renseigné : la concentration n’a pas pu être contrôlée.</p> }
+            @if (r.signalements.includes('ESTIMATION_ARBITRAGE')) { <p class="note note--alerte">L’estimation de l’arbitrage global s’écarte de plus de 5 % du montant réservé.</p> }
+            @if (r.signalements.includes('DEPASSE_SOLDE_GLOBALE')) { <p class="note note--alerte">La réservation dépasse le solde de la réservation globale : l’excédent est pris sur l’enveloppe.</p> }
+            @if (r.signalements.includes('PRODUIT_ANNULE_OU_REPORTE')) { <p class="note note--alerte">Produit annulé ou reporté : sans effet sur la fiabilité.</p> }
+            @if (r.derogations.length) { <p class="note note--alerte">Dérogation accordée : {{ r.derogations.join(', ').toLowerCase().replaceAll('_', ' ') }}. Le motif figure dans l’historique.</p> }
+          </div>
+        }
+
+        <section class="carte" aria-labelledby="titre-detail">
+          <h2 id="titre-detail">Détail</h2>
+          <dl class="faits">
+            <div><dt>Contrat</dt><dd>{{ r.numeroContrat ?? 'à compléter' }}</dd></div>
+            @if (r.numeroDemande) { <div><dt>Demande</dt><dd>{{ r.numeroDemande }}</dd></div> }
+            <div><dt>Code apporteur</dt><dd>{{ r.codeApporteur?.code ?? '—' }}</dd></div>
+            @if (r.gamme) { <div><dt>Gamme</dt><dd>{{ r.gamme.nom }}</dd></div> }
+            <div><dt>Encours du client</dt><dd>{{ euros(r.encoursClient) }}@if (r.partEncours) { · {{ pourcent(r.partEncours) }}}</dd></div>
+            <div><dt>Client</dt><dd>{{ r.clientPrevendu ? 'Prévendu' : 'À prévendre' }}</dd></div>
+            <div><dt>Saisie le</dt><dd>{{ dateHeure(r.createdAt) }}</dd></div>
+            @if (r.echeance) { <div><dt>À honorer avant le</dt><dd>{{ dateCourte(r.echeance) }}</dd></div> }
+            @if (r.dateOperation) { <div><dt>Opération</dt><dd>{{ dateCourte(r.dateOperation) }} · {{ r.modeOperation === 'PAPIER' ? 'papier' : 'dématérialisé' }}</dd></div> }
+            @if (r.dateValidationCompagnie) { <div><dt>Validation compagnie</dt><dd>{{ dateCourte(r.dateValidationCompagnie) }}</dd></div> }
+            @if (r.ecart) { <div><dt>Écart</dt><dd [class.positif]="+r.ecart > 0" [class.negatif]="+r.ecart < 0">{{ +r.ecart > 0 ? '+' : '' }}{{ euros(r.ecart) }} ({{ pourcent(r.ecartPct) }})</dd></div> }
+            @if (r.motifEcart) { <div><dt>Motif de l’écart</dt><dd>{{ r.motifEcart }}</dd></div> }
+            @if (r.motif) { <div><dt>Dernier motif</dt><dd>{{ r.motif.libelle }}</dd></div> }
+            @if (r.patrimoineAJour || r.enveloppe.controlePatrimoine) { <div><dt>Patrimoine</dt><dd>{{ r.patrimoineAJour ? 'À jour au ' + dateCourte(r.datePatrimoine) : 'À mettre à jour' }}</dd></div> }
+          </dl>
+          @if (r.typeOperation === 'ARBITRAGE') {
+            @if (r.modeArbitrage === 'GLOBAL') {
+              <p class="discret">Arbitrage global : {{ pourcent(r.pourcentageArbitrage) }} d’un contrat de {{ euros(r.valeurContrat) }}, au prorata des supports.</p>
+            } @else {
+              <h3>Fonds à désinvestir</h3>
+              <ul class="liste-simple">
+                @for (f of r.fonds; track f.id) { <li>{{ f.nom }}{{ f.isin ? ' · ' + f.isin : '' }} : <span class="montant">{{ euros(f.montant) }}</span>{{ f.horsReferentiel ? ' · hors référentiel' : '' }}</li> }
+              </ul>
+            }
+          }
+        </section>
+
+        <section class="carte" aria-labelledby="titre-historique">
+          <h2 id="titre-historique">Historique</h2>
+          <ol class="historique">
+            @for (h of r.historique; track h.id) {
+              <li>
+                <span class="historique__date">{{ dateHeure(h.date) }}</span>
+                <span>
+                  <strong>{{ libellesActions[h.action] ?? h.action }}</strong>@if (h.versStatut) { → {{ libellesStatuts[h.versStatut] }}} · {{ h.auteur }}
+                  @if (h.commentaire) { <br /><span class="discret">{{ h.commentaire }}</span> }
+                  @if (detailHistorique(h.details)) { <br /><span class="discret">{{ detailHistorique(h.details) }}</span> }
+                </span>
+              </li>
+            }
+          </ol>
+        </section>
+      </div>
+
+      <aside class="colonne-laterale">
+        <section class="carte" aria-labelledby="titre-actions">
+          <h2 id="titre-actions">Actions</h2>
+          @if (erreurPanneau() && !panneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+
+          @if (r.accordClientLe) {
+            <a class="bouton bouton--principal" [href]="lienAvenant()" download>Télécharger l’avenant pré-rempli · version {{ r.avenantVersion }}</a>
+            <p class="discret">Fiche des valeurs à reporter sur l’avenant de la compagnie. À faire signer selon le circuit de la compagnie ; la plateforme ne signe rien.</p>
+          }
+          @if (peutDeclarerAccord()) {
+            <button type="button" class="bouton bouton--principal" (click)="accordClient()" [disabled]="envoi()">Le client a accepté l’arbitrage</button>
+            <p class="discret">L’avenant pré-rempli est produit à ce moment-là, pas avant.</p>
+          }
+          @if (patrimoineRequis() && avantOperation() && r.droits.modifier) {
+            <label class="case"><input type="checkbox" [checked]="r.patrimoineAJour" (change)="patrimoine($any($event.target).checked)" /> Situation patrimoniale du client à jour</label>
+          }
+          @if (peutDeclarerOperation()) {
+            <button type="button" class="bouton" (click)="ouvrir('operation')" [attr.aria-expanded]="panneau() === 'operation'">Déclarer l’opération</button>
+            @if (panneau() === 'operation') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Date de l’opération</span>
+                  <span class="champ__zone"><input class="champ__saisie" type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" /></span></label>
+                <div class="pastilles" role="group" aria-label="Mode de l’opération">
+                  <button type="button" class="pastille" [attr.aria-pressed]="mode() === 'DEMATERIALISE'" (click)="mode.set('DEMATERIALISE')">{{ r.origineClient === 'CONFIE' ? 'Signature électronique' : 'Dématérialisé' }}</button>
+                  <button type="button" class="pastille" [attr.aria-pressed]="mode() === 'PAPIER'" (click)="mode.set('PAPIER')">Papier</button>
+                </div>
+                @if (patrimoineRequis() && !r.patrimoineAJour) { <p class="note note--alerte">Cochez d’abord « situation patrimoniale à jour » : sans elle, l’opération ne peut pas être déclarée.</p> }
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="declarerOperation()" [disabled]="envoi()">Déclarer</button>
+              </div>
+            }
+          }
+
+          @if (decider()) {
+            @if (r.statut === 'SOUMISE') {
+              <button type="button" class="bouton bouton--principal" (click)="valider()" [disabled]="envoi()">Valider la réservation</button>
+              <div class="actions">
+                <button type="button" class="bouton" (click)="ouvrir('renvoyer')">Renvoyer</button>
+                <button type="button" class="bouton" (click)="ouvrir('refuser')">Refuser</button>
+              </div>
+            }
+            @if (r.statut === 'RENVOYEE' || r.statut === 'LISTE_ATTENTE') {
+              <button type="button" class="bouton" (click)="ouvrir('refuser')">Refuser</button>
+            }
+            @if (r.statut === 'LISTE_ATTENTE') {
+              <button type="button" class="bouton bouton--principal" (click)="ouvrir('servir')">Servir depuis la liste d’attente</button>
+            }
+            @if (r.statut === 'VALIDEE' || r.statut === 'ECHUE' || r.statut === 'OPERATION_PASSEE') {
+              <button type="button" class="bouton bouton--principal" (click)="ouvrir('verifier')">Saisir la vérification compagnie</button>
+            }
+            @if (r.statut === 'ECART_A_JUSTIFIER') {
+              <button type="button" class="bouton bouton--principal" (click)="ouvrir('justifier')">Justifier l’écart</button>
+            }
+            @if (r.statut === 'ECHUE') {
+              <div class="actions">
+                <button type="button" class="bouton" (click)="ouvrir('prolonger')">Prolonger</button>
+                <button type="button" class="bouton" (click)="ouvrir('liberer')">Libérer</button>
+              </div>
+            }
+            @if (apresOperation()) {
+              <button type="button" class="lien-texte" (click)="ouvrir('apres-operation')">Annuler après opération</button>
+            }
+            @if (r.droits.administrateur && !['REFUSEE', 'ANNULEE', 'ANNULEE_APRES_OPERATION', 'LIBEREE'].includes(r.statut)) {
+              <button type="button" class="lien-texte" (click)="ouvrir('taux')">Modifier le taux</button>
+            }
+          }
+
+          @if (modifiable()) {
+            <div class="actions">
+              <button type="button" class="bouton" (click)="ouvrir('modifier')">Modifier</button>
+              <button type="button" class="bouton" (click)="ouvrir('annuler')">Annuler la réservation</button>
+            </div>
+          }
+
+          @switch (panneau()) {
+            @case ('renvoyer') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Action attendue du mandataire</span>
+                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Choisir</option>@for (m of motifsDe('RENVOI'); track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }</select></span></label>
+                <label class="champ"><span class="champ__libelle">Précision</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="motive('renvoi', 'Réservation renvoyée ; le mandataire est prévenu.')" [disabled]="envoi()">Renvoyer au mandataire</button>
+              </div>
+            }
+            @case ('refuser') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Motif du refus</span>
+                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Choisir</option>@for (m of motifsDe('REFUS'); track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }</select></span></label>
+                @if (motifsDe('REFUS').length === 0) { <p class="discret">Aucun motif de refus : l’administrateur les ajoute dans les paramètres du module.</p> }
+                <label class="champ"><span class="champ__libelle">Précision</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="motive('refus', 'Réservation refusée ; le mandataire est prévenu.')" [disabled]="envoi()">Refuser</button>
+              </div>
+            }
+            @case ('annuler') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Motif de l’annulation</span>
+                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Choisir</option>@for (m of motifsDe('ANNULATION'); track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }</select></span></label>
+                <label class="champ"><span class="champ__libelle">Précision</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                @if (avertissementTardif()) {
+                  <p class="note note--alerte" role="alert">{{ avertissementTardif() }}</p>
+                  <button type="button" class="bouton bouton--principal" (click)="annuler(true)" [disabled]="envoi()">Confirmer l’annulation tardive</button>
+                } @else {
+                  @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                  <button type="button" class="bouton bouton--principal" (click)="annuler()" [disabled]="envoi()">Annuler la réservation</button>
+                }
+              </div>
+            }
+            @case ('modifier') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Numéro de contrat</span><span class="champ__zone"><input class="champ__saisie" [ngModel]="mContrat()" (ngModelChange)="mContrat.set($event)" /></span></label>
+                <label class="champ"><span class="champ__libelle">Numéro de demande</span><span class="champ__zone"><input class="champ__saisie" [ngModel]="mDemande()" (ngModelChange)="mDemande.set($event)" /></span></label>
+                <div class="grille">
+                  <label class="champ"><span class="champ__libelle">Montant brut</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="mBrut()" (ngModelChange)="mBrut.set($event)" /><span class="champ__unite">€</span></span></label>
+                  <label class="champ"><span class="champ__libelle">Frais</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="mFrais()" (ngModelChange)="mFrais.set($event)" /><span class="champ__unite">%</span></span></label>
+                </div>
+                <label class="champ"><span class="champ__libelle">Encours du client</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="mEncours()" (ngModelChange)="mEncours.set($event)" /><span class="champ__unite">€</span></span></label>
+                <label class="case"><input type="checkbox" [checked]="mPrevendu()" (change)="mPrevendu.set($any($event.target).checked)" /> Client prévendu</label>
+                @for (f of mFonds(); track $index) {
+                  <label class="champ"><span class="champ__libelle">{{ f.nom }}</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="f.montant" (ngModelChange)="modifierFonds($index, $event)" /><span class="champ__unite">€</span></span></label>
+                }
+                @if (baisse()) {
+                  <p class="note note--alerte">Une baisse de montant est une annulation partielle : la part retirée suit les règles de l’annulation, tardive comprise.</p>
+                  <label class="champ"><span class="champ__libelle">Motif de la baisse</span>
+                    <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Choisir</option>@for (m of motifsDe('ANNULATION'); track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }</select></span></label>
+                }
+                <p class="discret">Une hausse repasse en validation. Chaque modification est tracée{{ r.accordClientLe ? ', et rend périmé l’avenant déjà produit' : '' }}.</p>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="modifier()" [disabled]="envoi()">Enregistrer la modification</button>
+              </div>
+            }
+            @case ('verifier') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Montant validé par la compagnie</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="montant()" (ngModelChange)="montant.set($event)" /><span class="champ__unite">€</span></span><span class="champ__aide">Réservé : {{ euros(r.montantNet) }}</span></label>
+                <label class="champ"><span class="champ__libelle">Date de validation compagnie</span><span class="champ__zone"><input class="champ__saisie" type="date" [ngModel]="date2()" (ngModelChange)="date2.set($event)" /></span></label>
+                @if (r.statut !== 'OPERATION_PASSEE') {
+                  <label class="champ"><span class="champ__libelle">Date de l’opération</span><span class="champ__zone"><input class="champ__saisie" type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" /></span></label>
+                  <div class="pastilles" role="group" aria-label="Mode de l’opération">
+                    <button type="button" class="pastille" [attr.aria-pressed]="mode() === 'DEMATERIALISE'" (click)="mode.set('DEMATERIALISE')">Dématérialisé</button>
+                    <button type="button" class="pastille" [attr.aria-pressed]="mode() === 'PAPIER'" (click)="mode.set('PAPIER')">Papier</button>
+                  </div>
+                }
+                @if (r.fonds.length) {
+                  <div><h3>Fonds à désinvestir demandés</h3><ul class="liste-simple">@for (f of r.fonds; track f.id) { <li>{{ f.nom }} : {{ euros(f.montant) }}</li> }</ul></div>
+                }
+                <label class="champ"><span class="champ__libelle">Motif d’écart, si l’écart dépasse le seuil</span>
+                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Plus tard</option>@for (m of motifsDe('ECART'); track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }</select></span></label>
+                <label class="champ"><span class="champ__libelle">Commentaire</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="verifier()" [disabled]="envoi()">Enregistrer la vérification</button>
+                <p class="discret">Déposez la capture ou le PDF de l’extranet dans « Documents ».</p>
+              </div>
+            }
+            @case ('justifier') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Motif de l’écart</span>
+                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Choisir</option>@for (m of motifsDe('ECART'); track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }</select></span></label>
+                <label class="champ"><span class="champ__libelle">Commentaire</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="justifier()" [disabled]="envoi()">Justifier</button>
+              </div>
+            }
+            @case ('prolonger') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Compte rendu du contact avec le mandataire</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                <label class="champ"><span class="champ__libelle">Nouvelle échéance</span><span class="champ__zone"><input class="champ__saisie" type="date" [max]="r.enveloppe.dateLimiteInterne ?? ''" [ngModel]="date()" (ngModelChange)="date.set($event)" /></span></label>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="prolonger()" [disabled]="envoi() || commentaire().trim().length < 3">Prolonger</button>
+              </div>
+            }
+            @case ('liberer') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Compte rendu du contact avec le mandataire</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                <p class="discret">La réservation sera comptée « non honorée » dans les indicateurs du mandataire.</p>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="liberer()" [disabled]="envoi() || commentaire().trim().length < 3">Libérer</button>
+              </div>
+            }
+            @case ('apres-operation') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Motif</span>
+                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Choisir</option>@for (m of motifsDe('ANNULATION'); track m.id) { <option [value]="m.id">{{ m.libelle }}{{ m.imputable ? ' (imputable au mandataire)' : '' }}</option> }</select></span></label>
+                <label class="champ"><span class="champ__libelle">Précision</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="motive('annulation-apres-operation', 'Opération annulée : les deux compteurs sont rétablis.')" [disabled]="envoi()">Annuler l’opération</button>
+              </div>
+            }
+            @case ('servir') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Montant brut servi</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="montant()" (ngModelChange)="montant.set($event)" /><span class="champ__unite">€</span></span><span class="champ__aide">Demandé : {{ euros(r.montantBrut) }}</span></label>
+                <label class="case"><input type="checkbox" [checked]="accord()" (change)="accord.set($any($event.target).checked)" /> Le mandataire accepte un service partiel</label>
+                <label class="champ"><span class="champ__libelle">Si ce n’est pas la première demande arrivée : pourquoi</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                <label class="champ"><span class="champ__libelle">Sans place disponible : motif de la dérogation</span><span class="champ__zone"><input class="champ__saisie" style="font-size: 15px" [ngModel]="motifDerogation()" (ngModelChange)="motifDerogation.set($event)" /></span></label>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="servir()" [disabled]="envoi()">Servir</button>
+              </div>
+            }
+            @case ('taux') {
+              <div class="formulaire" style="gap: 14px">
+                <label class="champ"><span class="champ__libelle">Nouveau taux</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="taux()" (ngModelChange)="taux.set($event)" /><span class="champ__unite">%</span></span></label>
+                <label class="champ"><span class="champ__libelle">Motif</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <button type="button" class="bouton bouton--principal" (click)="modifierTaux()" [disabled]="envoi() || commentaire().trim().length < 3">Modifier le taux</button>
+              </div>
+            }
+          }
+        </section>
+
+        <section class="carte" aria-labelledby="titre-documents">
+          <div class="carte__tete">
+            <h2 id="titre-documents">Documents</h2>
+            @if (r.droits.modifier) { <button type="button" class="lien-texte" (click)="ouvrir('document')">Déposer</button> }
+          </div>
+          @if (r.documents.length) {
+            <ul class="liste-simple">
+              @for (d of r.documents; track d.id) { <li><a [href]="lienDocument(d.id)" target="_blank" rel="noopener">{{ libellesDocuments[d.categorie] }} · {{ d.nom }}</a></li> }
+            </ul>
+          } @else {
+            <p class="discret">Aucun document.</p>
+          }
+          @if (panneau() === 'document') {
+            @if (decider()) {
+              <div class="pastilles" role="group" aria-label="Type de document">
+                <button type="button" class="pastille" [attr.aria-pressed]="categorieDocument() === 'JUSTIFICATIF_OPERATION'" (click)="categorieDocument.set('JUSTIFICATIF_OPERATION')">Justificatif d’opération</button>
+                <button type="button" class="pastille" [attr.aria-pressed]="categorieDocument() === 'PREUVE_VERIFICATION'" (click)="categorieDocument.set('PREUVE_VERIFICATION')">Preuve de vérification</button>
+              </div>
+            }
+            <input type="file" accept="application/pdf,image/png,image/jpeg" (change)="choisirFichier($event)" aria-label="Fichier PDF, PNG ou JPEG" style="min-height: 44px" />
+            @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+            <button type="button" class="bouton bouton--principal" (click)="deposer()" [disabled]="envoi()">Déposer</button>
+          }
+        </section>
+      </aside>
+    </div>
+  }
+  }
+</div>

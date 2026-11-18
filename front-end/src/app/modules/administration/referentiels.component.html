@@ -1,0 +1,166 @@
+<div class="page">
+  <header class="entete">
+    <div>
+      <p class="surtitre">Administration</p>
+      <h1 class="titre">Référentiels</h1>
+      <p class="sous-titre">Compagnies, apporteurs, codes apporteur et fonds : saisis une fois, utilisés par tous les modules. Chaque changement est journalisé.</p>
+    </div>
+  </header>
+
+  <div class="onglets" role="group" aria-label="Référentiel">
+    <button type="button" class="pastille" [attr.aria-pressed]="onglet() === 'compagnies'" (click)="onglet.set('compagnies')">Compagnies · {{ compagnies().length }}</button>
+    <button type="button" class="pastille" [attr.aria-pressed]="onglet() === 'apporteurs'" (click)="onglet.set('apporteurs')">Apporteurs · {{ apporteurs().length }}</button>
+    <button type="button" class="pastille" [attr.aria-pressed]="onglet() === 'codes'" (click)="onglet.set('codes')">Codes apporteur · {{ codes().length }}</button>
+    <button type="button" class="pastille" [attr.aria-pressed]="onglet() === 'fonds'" (click)="onglet.set('fonds')">Fonds</button>
+  </div>
+
+  @if (message()) { <p class="note note--succes" role="status">{{ message() }}</p> }
+  @if (erreur()) { <p class="note note--danger" role="alert">{{ erreur() }}</p> }
+
+  @switch (onglet()) {
+    @case ('compagnies') {
+      <section class="carte" aria-labelledby="titre-nouvelle-compagnie">
+        <h2 id="titre-nouvelle-compagnie">Nouvelle compagnie</h2>
+        <div class="grille grille--trois">
+          <label class="champ"><span class="champ__libelle">Nom</span><span class="champ__zone"><input class="champ__saisie" [ngModel]="cNom()" (ngModelChange)="cNom.set($event)" /></span></label>
+          <label class="champ"><span class="champ__libelle">Modèle du numéro de contrat</span><span class="champ__zone"><input class="champ__saisie" style="font-size: 15px" placeholder="ex. 99999999" [ngModel]="cFormat()" (ngModelChange)="cFormat.set($event)" /></span><span class="champ__aide">9 pour un chiffre, A pour une lettre, X pour l’un ou l’autre ; « ; » entre deux modèles. Vide tant qu’il n’est pas connu : seule la présence du numéro est contrôlée.</span></label>
+          <label class="champ"><span class="champ__libelle">Exemple affiché</span><span class="champ__zone"><input class="champ__saisie" [ngModel]="cExemple()" (ngModelChange)="cExemple.set($event)" /></span></label>
+        </div>
+        <div class="actions"><button type="button" class="bouton bouton--principal" (click)="creerCompagnie()" [disabled]="envoi() || !cNom().trim()">Créer la compagnie</button></div>
+      </section>
+      @for (c of compagnies(); track c.id) {
+        <section class="carte">
+          <div class="carte__tete">
+            <h2>{{ c.nom }}</h2>
+            <span class="actions">
+              <span class="statut" [class.statut--clos]="!c.actif">{{ c.actif ? 'Active' : 'Inactive' }}</span>
+              <button type="button" class="lien-texte" (click)="basculerCompagnie(c)">{{ c.actif ? 'Désactiver' : 'Réactiver' }}</button>
+            </span>
+          </div>
+          <div class="grille">
+            <label class="champ"><span class="champ__libelle">Modèle du numéro de contrat</span><span class="champ__zone"><input #format class="champ__saisie" style="font-size: 15px" [value]="c.formatNumeroContrat ?? ''" /></span></label>
+            <label class="champ"><span class="champ__libelle">Exemple affiché</span><span class="champ__zone"><input #exemple class="champ__saisie" style="font-size: 15px" [value]="c.exempleNumeroContrat ?? ''" /></span></label>
+          </div>
+          <div class="actions"><button type="button" class="bouton bouton--petit" (click)="modifierFormat(c, format.value, exemple.value)" [disabled]="envoi()">Enregistrer le modèle</button></div>
+          <h3>Gammes</h3>
+          <div class="actions">
+            @for (g of c.gammes; track g.id) {
+              <label class="case"><input type="checkbox" [checked]="g.actif" (change)="basculerGamme(g.id, $any($event.target).checked)" /> {{ g.nom }}</label>
+            }
+            @if (c.gammes.length === 0) { <span class="discret">Aucune gamme : le contrôle d’éligibilité ne s’applique pas.</span> }
+          </div>
+          <div class="actions">
+            <span class="champ__zone" style="flex: 1 1 240px"><input class="champ__saisie" style="font-size: 15px" placeholder="Nouvelle gamme" [attr.aria-label]="'Nouvelle gamme chez ' + c.nom" [ngModel]="nouvellesGammes()[c.id] ?? ''" (ngModelChange)="saisirGamme(c.id, $event)" /></span>
+            <button type="button" class="bouton bouton--petit" (click)="ajouterGamme(c)" [disabled]="envoi()">Ajouter la gamme</button>
+          </div>
+        </section>
+      }
+    }
+
+    @case ('apporteurs') {
+      <section class="carte" aria-labelledby="titre-nouvel-apporteur">
+        <h2 id="titre-nouvel-apporteur">Nouvel apporteur</h2>
+        <div class="grille grille--trois">
+          <label class="champ"><span class="champ__libelle">Compte de connexion (facultatif)</span>
+            <span class="champ__zone"><select class="champ__saisie" [ngModel]="aCompte()" (ngModelChange)="choisirCompte($event)"><option value="">Sans compte</option>@for (u of comptesLibres(); track u.id) { <option [value]="u.id">{{ u.prenom }} {{ u.nom }} · {{ u.email }}</option> }</select></span></label>
+          <label class="champ"><span class="champ__libelle">Nom</span><span class="champ__zone"><input class="champ__saisie" [ngModel]="aNom()" (ngModelChange)="aNom.set($event)" /></span></label>
+          <label class="champ"><span class="champ__libelle">Prénom</span><span class="champ__zone"><input class="champ__saisie" [ngModel]="aPrenom()" (ngModelChange)="aPrenom.set($event)" /></span></label>
+          <label class="champ"><span class="champ__libelle">Rôle</span>
+            <span class="champ__zone"><select class="champ__saisie" [ngModel]="aRole()" (ngModelChange)="aRole.set($event)"><option value="MANDATAIRE">Mandataire</option><option value="ASSOCIE">Associé</option><option value="SALARIE">Salarié</option></select></span></label>
+          <label class="champ"><span class="champ__libelle">Entité</span>
+            <span class="champ__zone"><select class="champ__saisie" [ngModel]="aEntite()" (ngModelChange)="aEntite.set($event)"><option value="">Aucune</option>@for (e of entites(); track e.id) { <option [value]="e.id">{{ e.nom }}</option> }</select></span></label>
+          <label class="champ"><span class="champ__libelle">Adresse de contact (sans compte)</span><span class="champ__zone"><input class="champ__saisie" type="email" style="font-size: 15px" [ngModel]="aEmail()" (ngModelChange)="aEmail.set($event)" /></span></label>
+        </div>
+        <label class="case"><input type="checkbox" [checked]="aHabilite()" (change)="aHabilite.set($any($event.target).checked)" /> Habilité aux réservations globales</label>
+        <div class="actions"><button type="button" class="bouton bouton--principal" (click)="creerApporteur()" [disabled]="envoi() || !aNom().trim() || !aPrenom().trim()">Créer l’apporteur</button></div>
+      </section>
+      <ul class="lignes">
+        @for (a of apporteurs(); track a.id) {
+          <li class="ligne" style="grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr) minmax(0, 1.4fr) auto">
+            <span><span class="ligne__principal">{{ a.prenom }} {{ a.nom }}</span><br /><span class="ligne__second">{{ roles[a.role] }}{{ a.entite ? ' · ' + a.entite.nom : '' }}{{ a.actif ? '' : ' · inactif' }}</span></span>
+            <span>
+              <span class="champ__zone" style="min-height: 44px"><select class="champ__saisie" style="height: 44px; font-size: 14px" [attr.aria-label]="'Compte de ' + a.prenom + ' ' + a.nom" [ngModel]="a.compte?.id ?? ''" (ngModelChange)="rattacherCompte(a, $event)">
+                <option value="">Sans compte</option>
+                @if (a.compte) { <option [value]="a.compte.id">{{ a.compte.email }}</option> }
+                @for (u of comptesLibres(); track u.id) { <option [value]="u.id">{{ u.email }}</option> }
+              </select></span>
+            </span>
+            <span class="ligne__second">{{ codesDe(a) || 'Aucun code' }}</span>
+            <span class="actions" style="justify-content: flex-end">
+              <label class="case"><input type="checkbox" [checked]="a.restreint" (change)="modifierApporteur(a, { restreint: $any($event.target).checked }, 'Restriction modifiée.')" /> Restreint</label>
+              <label class="case"><input type="checkbox" [checked]="a.habiliteReservationGlobale" (change)="modifierApporteur(a, { habiliteReservationGlobale: $any($event.target).checked }, 'Habilitation modifiée.')" /> Globales</label>
+              <label class="case"><input type="checkbox" [checked]="a.actif" (change)="modifierApporteur(a, { actif: $any($event.target).checked }, 'Apporteur modifié.')" /> Actif</label>
+            </span>
+          </li>
+        }
+      </ul>
+    }
+
+    @case ('codes') {
+      <section class="carte" aria-labelledby="titre-nouveau-code">
+        <h2 id="titre-nouveau-code">Nouveau code apporteur</h2>
+        <div class="grille grille--trois">
+          <label class="champ"><span class="champ__libelle">Compagnie</span>
+            <span class="champ__zone"><select class="champ__saisie" [ngModel]="kCompagnie()" (ngModelChange)="kCompagnie.set($event)"><option value="">Choisir</option>@for (c of compagnies(); track c.id) { <option [value]="c.id">{{ c.nom }}</option> }</select></span></label>
+          <label class="champ"><span class="champ__libelle">Code</span><span class="champ__zone"><input class="champ__saisie" [ngModel]="kCode()" (ngModelChange)="kCode.set($event)" /></span></label>
+          <label class="champ"><span class="champ__libelle">Nature</span>
+            <span class="champ__zone"><select class="champ__saisie" [ngModel]="kNature()" (ngModelChange)="kNature.set($event)"><option value="PROPRE">Code propre au mandataire</option><option value="PARTENARIAT">Code de partenariat</option><option value="ENTITE">Code de l’entité</option></select></span></label>
+          <label class="champ"><span class="champ__libelle">Valable du (facultatif)</span><span class="champ__zone"><input class="champ__saisie" type="date" [ngModel]="kDebut()" (ngModelChange)="kDebut.set($event)" /></span></label>
+          <label class="champ"><span class="champ__libelle">au (facultatif)</span><span class="champ__zone"><input class="champ__saisie" type="date" [ngModel]="kFin()" (ngModelChange)="kFin.set($event)" /></span></label>
+        </div>
+        <fieldset style="border: none; margin: 0; padding: 0">
+          <legend class="groupe__libelle" style="margin-bottom: 10px">Apporteurs autorisés à l’utiliser</legend>
+          <div class="actions">
+            @for (a of apporteurs(); track a.id) {
+              @if (a.actif) { <label class="case"><input type="checkbox" [checked]="kApporteurs().includes(a.id)" (change)="basculerApporteurCode(a.id, $any($event.target).checked)" /> {{ a.prenom }} {{ a.nom }}</label> }
+            }
+          </div>
+        </fieldset>
+        <div class="actions"><button type="button" class="bouton bouton--principal" (click)="creerCode()" [disabled]="envoi() || !kCompagnie() || !kCode().trim()">Créer le code</button></div>
+      </section>
+      <ul class="lignes">
+        @for (k of codes(); track k.id) {
+          <li class="ligne" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr) auto">
+            <span><span class="ligne__principal">{{ k.code }}</span><br /><span class="ligne__second">{{ k.compagnie.nom }}</span></span>
+            <span class="ligne__second">{{ natures[k.nature] }}@if (k.dateDebut || k.dateFin) { · {{ k.dateDebut ?? '…' }} → {{ k.dateFin ?? '…' }}}</span>
+            <span>@for (a of k.apporteurs; track a.id; let dernier = $last) {{{ a.prenom }} {{ a.nom }}{{ dernier ? '' : ', ' }}}</span>
+            <span class="actions"><span class="statut" [class.statut--clos]="!k.actif">{{ k.actif ? 'Actif' : 'Inactif' }}</span><button type="button" class="lien-texte" (click)="basculerCode(k)">{{ k.actif ? 'Désactiver' : 'Réactiver' }}</button></span>
+          </li>
+        }
+      </ul>
+    }
+
+    @case ('fonds') {
+      <section class="carte" aria-labelledby="titre-import">
+        <h2 id="titre-import">Liste des fonds d’une compagnie</h2>
+        <p class="discret">Fichier CSV : nom du fonds et code ISIN, séparés par un point-virgule. Un fonds absent de la nouvelle liste n’est jamais supprimé : il passe « fermé à l’investissement » et reste proposé pour un désinvestissement.</p>
+        <div class="grille">
+          <label class="champ"><span class="champ__libelle">Compagnie</span>
+            <span class="champ__zone"><select class="champ__saisie" [ngModel]="fCompagnie()" (ngModelChange)="choisirCompagnieFonds($event)"><option value="">Choisir</option>@for (c of compagnies(); track c.id) { <option [value]="c.id">{{ c.nom }}</option> }</select></span></label>
+          <label class="champ"><span class="champ__libelle">Fichier CSV</span><input type="file" accept=".csv,text/csv" (change)="lireFichier($event)" [disabled]="!fCompagnie()" style="min-height: 44px" /></label>
+        </div>
+        @if (fCompagnie()) { <p class="discret">{{ fonds().length }} fonds au référentiel, dont {{ fondsOuverts() }} ouverts.</p> }
+        @if (apercu(); as a) {
+          <div class="note" [class.note--succes]="a.applique" [class.note--alerte]="!a.applique">
+            {{ a.applique ? 'Import appliqué' : 'Aperçu de ' + fNomFichier() }} : {{ a.ajouts.length }} ajout{{ a.ajouts.length > 1 ? 's' : '' }}, {{ a.renommages.length }} renommage{{ a.renommages.length > 1 ? 's' : '' }}, {{ a.fermetures.length }} fermeture{{ a.fermetures.length > 1 ? 's' : '' }}, {{ a.reouvertures.length }} réouverture{{ a.reouvertures.length > 1 ? 's' : '' }}.
+            @if (a.doublons.length) { <br />Doublons ignorés : {{ a.doublons.join(', ') }}. }
+            @if (a.isinInvalides.length) { <br />Codes ISIN invalides, à corriger avant l’import : {{ a.isinInvalides.join(', ') }}. }
+            @if (a.fermetures.length) { <br />Fermés : {{ a.fermetures.map(nomDe).join(', ') }}. }
+          </div>
+          @if (!a.applique) { <div class="actions"><button type="button" class="bouton bouton--principal" (click)="importer(true)" [disabled]="envoi() || a.isinInvalides.length > 0">Appliquer l’import</button></div> }
+        }
+      </section>
+      @if (fonds().length) {
+        <ul class="lignes">
+          @for (f of fonds(); track f.id) {
+            <li class="ligne" style="grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto">
+              <span><span class="ligne__principal">{{ f.nom }}</span>@if (f.anciensNoms.length) { <br /><span class="ligne__second">Anciens noms : {{ f.anciensNoms.join(', ') }}</span>}</span>
+              <span class="ligne__second">{{ f.isin ?? 'sans ISIN' }}</span>
+              <span class="statut" [class.statut--clos]="!f.ouvert">{{ f.ouvert ? 'Ouvert' : 'Fermé' }}</span>
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+</div>

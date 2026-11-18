@@ -5,12 +5,20 @@ describe('Règles de saisie', () => {
     expect(nettoyerNumeroContrat(' 12 345\n678 ')).toBe('12345678');
   });
 
-  it('contrôle le format seulement quand la compagnie en a un', () => {
+  it('contrôle le modèle seulement quand la compagnie en a un', () => {
     expect(numeroConforme('12345678', null)).toBe(true);
     expect(numeroConforme('', null)).toBe(false);
-    expect(numeroConforme('12345678', '\\d{8}')).toBe(true);
-    expect(numeroConforme('1234567', '\\d{8}')).toBe(false);
-    expect(numeroConforme('12345678X', '\\d{8}')).toBe(false);
+    expect(numeroConforme('12345678', '99999999')).toBe(true);
+    expect(numeroConforme('1234567', '99999999')).toBe(false);
+    expect(numeroConforme('12345678X', '99999999')).toBe(false);
+  });
+
+  it('lit un modèle simple : 9 chiffre, A lettre, X l’un ou l’autre, variantes séparées par « ; »', () => {
+    expect(numeroConforme('AB123456', '99999999 ; AA999999')).toBe(true);
+    expect(numeroConforme('ab123456', 'AA999999')).toBe(true);
+    expect(numeroConforme('P-12A4', 'A-99X9')).toBe(true);
+    expect(numeroConforme('P.12A4', 'A-99X9')).toBe(false);
+    expect(numeroConforme('12345678', 'AA999999')).toBe(false);
   });
 
   it('vérifie le code ISIN, clé de contrôle comprise', () => {

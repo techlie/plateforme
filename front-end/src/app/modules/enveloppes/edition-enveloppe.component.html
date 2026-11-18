@@ -1,0 +1,94 @@
+<div class="page" style="max-width: 880px">
+  @if (chargement()) {
+    <p class="discret" role="status">Chargement…</p>
+  } @else {
+    <header class="entete">
+      <div>
+        <p class="surtitre"><a routerLink="/enveloppes">Enveloppes</a>@if (existante(); as e) { · <a [routerLink]="['/enveloppes', e.id]">{{ e.nomProduit }}</a>}</p>
+        <h1 class="titre">{{ existante() ? 'Paramétrer l’enveloppe' : 'Nouvelle enveloppe' }}</h1>
+        <p class="sous-titre">Les dates se suivent dans cet ordre : ouverture, date limite interne, fin de commercialisation compagnie, clôture produit.</p>
+      </div>
+    </header>
+
+    @if (ouverte()) {
+      <p class="note note--alerte">Cette enveloppe est ouverte : seul un administrateur la modifie, avec un motif. Les mandataires concernés sont prévenus ; le taux des réservations déjà validées ne change pas.</p>
+    }
+    @if (compagnies().length === 0 && !existante()) {
+      <p class="note note--alerte">Aucune compagnie au référentiel : un administrateur doit d’abord la créer (Administration · Référentiels).</p>
+    }
+
+    <form class="formulaire" (submit)="$event.preventDefault(); enregistrer()" novalidate>
+      <fieldset class="formulaire" style="border: none; margin: 0; padding: 0" [disabled]="lectureSeule()">
+        <div class="grille">
+          <label class="champ">
+            <span class="champ__libelle">Compagnie</span>
+            <span class="champ__zone">
+              <select class="champ__saisie" name="compagnie" [ngModel]="compagnieId()" (ngModelChange)="compagnieId.set($event); gammesExclues.set([])" [disabled]="!!existante()">
+                <option value="">Choisir</option>
+                @for (c of compagnies(); track c.id) { <option [value]="c.id">{{ c.nom }}</option> }
+              </select>
+            </span>
+          </label>
+          <label class="champ">
+            <span class="champ__libelle">Nom du produit</span>
+            <span class="champ__zone"><input class="champ__saisie" name="produit" [ngModel]="nomProduit()" (ngModelChange)="nomProduit.set($event)" /></span>
+          </label>
+          <label class="champ">
+            <span class="champ__libelle">Code ISIN</span>
+            <span class="champ__zone"><input class="champ__saisie" name="isin" [ngModel]="isin()" (ngModelChange)="isin.set($event)" /></span>
+            <span class="champ__aide">Contrôlé, clé de contrôle comprise.</span>
+          </label>
+          <label class="champ">
+            <span class="champ__libelle">Montant réservé auprès de la compagnie</span>
+            <span class="champ__zone"><input class="champ__saisie" name="montant" inputmode="decimal" [ngModel]="montantInitial()" (ngModelChange)="montantInitial.set($event)" /><span class="champ__unite">€</span></span>
+            @if (existante()) { <span class="champ__aide">Rallonges et restitutions se font depuis la fiche, chacune motivée.</span> }
+          </label>
+        </div>
+
+        <h2>Dates</h2>
+        <div class="grille">
+          <label class="champ"><span class="champ__libelle">Ouverture</span><span class="champ__zone"><input class="champ__saisie" type="date" name="d1" [ngModel]="dateOuverture()" (ngModelChange)="dateOuverture.set($event)" /></span></label>
+          <label class="champ"><span class="champ__libelle">Date limite interne</span><span class="champ__zone"><input class="champ__saisie" type="date" name="d2" [ngModel]="dateLimiteInterne()" (ngModelChange)="dateLimiteInterne.set($event)" /></span><span class="champ__aide">23 h 59, heure de Paris. Toutes les alertes en dépendent.</span></label>
+          <label class="champ"><span class="champ__libelle">Fin de commercialisation compagnie</span><span class="champ__zone"><input class="champ__saisie" type="date" name="d3" [ngModel]="dateFinCommercialisation()" (ngModelChange)="dateFinCommercialisation.set($event)" /></span></label>
+          <label class="champ"><span class="champ__libelle">Clôture produit</span><span class="champ__zone"><input class="champ__saisie" type="date" name="d4" [ngModel]="dateClotureProduit()" (ngModelChange)="dateClotureProduit.set($event)" /></span></label>
+        </div>
+
+        <h2>Conditions</h2>
+        <div class="grille">
+          <label class="champ"><span class="champ__libelle">Taux de commission mandataire</span><span class="champ__zone"><input class="champ__saisie" name="taux" inputmode="decimal" [ngModel]="tauxCommission()" (ngModelChange)="tauxCommission.set($event)" /><span class="champ__unite">%</span></span><span class="champ__aide">Le même pour tous, sur le montant net investi.</span></label>
+          <label class="champ"><span class="champ__libelle">Taux des clients confiés</span><span class="champ__zone"><input class="champ__saisie" name="confies" inputmode="decimal" [ngModel]="tauxClientsConfies()" (ngModelChange)="tauxClientsConfies.set($event)" /><span class="champ__unite">%</span></span>
+            @if (parametres()?.tauxClientsConfiesAConfirmer) { <span class="champ__aide">Valeur par défaut à confirmer par le cabinet.</span> }
+          </label>
+          <label class="champ"><span class="champ__libelle">Montant minimum par réservation</span><span class="champ__zone"><input class="champ__saisie" name="minimum" inputmode="decimal" [ngModel]="montantMinimum()" (ngModelChange)="montantMinimum.set($event)" /><span class="champ__unite">€</span></span><span class="champ__aide">Par contrat et par client, sur le montant net.</span></label>
+          <label class="champ"><span class="champ__libelle">Seuil de concentration</span><span class="champ__zone"><input class="champ__saisie" name="seuil" inputmode="decimal" [ngModel]="seuilConcentration()" (ngModelChange)="seuilConcentration.set($event)" /><span class="champ__unite">%</span></span><span class="champ__aide">De l’encours total du client ; alerte, sans blocage. Vide : non suivi.</span></label>
+          <label class="champ"><span class="champ__libelle">Rendement ou coupon</span><span class="champ__zone"><input class="champ__saisie" name="rendement" [ngModel]="rendement()" (ngModelChange)="rendement.set($event)" /></span><span class="champ__aide">Information produit, par exemple « 8 % ».</span></label>
+        </div>
+
+        @if (gammes().length) {
+          <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+            <legend class="groupe__libelle" style="margin-bottom: 10px">Gammes exclues (contrôle bloquant)</legend>
+            <div class="actions">
+              @for (g of gammes(); track g.id) {
+                <label class="case"><input type="checkbox" [checked]="gammesExclues().includes(g.id)" (change)="basculerGamme(g.id, $any($event.target).checked)" /> {{ g.nom }}</label>
+              }
+            </div>
+          </fieldset>
+        }
+
+        <label class="case"><input type="checkbox" [checked]="controlePatrimoine()" (change)="controlePatrimoine.set($any($event.target).checked)" /> Contrôle « situation patrimoniale à jour » (produits Swiss Life) : bloquant avant la déclaration de l’opération</label>
+
+        @if (ouverte()) {
+          <label class="champ"><span class="champ__libelle">Motif de la modification</span><textarea name="motif" [ngModel]="motif()" (ngModelChange)="motif.set($event)"></textarea></label>
+        }
+      </fieldset>
+
+      @if (erreur()) { <p class="note note--danger" role="alert">{{ erreur() }}</p> }
+      @if (!lectureSeule()) {
+        <div class="actions">
+          <button type="submit" class="bouton bouton--principal" [disabled]="envoi()">{{ existante() ? 'Enregistrer' : 'Créer l’enveloppe' }}</button>
+          <a class="bouton" [routerLink]="existante() ? ['/enveloppes', existante()!.id] : ['/enveloppes']">Annuler</a>
+        </div>
+      }
+    </form>
+  }
+</div>

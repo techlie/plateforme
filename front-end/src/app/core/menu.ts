@@ -14,6 +14,7 @@ export interface EntreeMenu {
 export const ENTREES_MODULES: Record<ModulePlateforme, EntreeMenu> = {
   ENVELOPPES: {
     libelle: 'Enveloppes',
+    lien: '/enveloppes',
     icone: ['M12 3l9 5-9 5-9-5z', 'M3 13l9 5 9-5'],
     description: 'Réserver sur les campagnes de produits structurés.',
   },
@@ -49,6 +50,12 @@ export const ENTREES_ADMINISTRATION: EntreeMenu[] = [
     lien: '/administration/utilisateurs',
     icone: ['M16 20v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1', 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', 'M22 20v-1a4 4 0 0 0-3-3.87', 'M16 3.13a4 4 0 0 1 0 7.75'],
     description: 'Comptes, profils, modules et entités.',
+  },
+  {
+    libelle: 'Référentiels',
+    lien: '/administration/referentiels',
+    icone: ['M4 6h16', 'M4 12h16', 'M4 18h10', 'M18 16v4', 'M16 18h4'],
+    description: 'Compagnies, apporteurs, codes et fonds.',
   },
   {
     libelle: 'Journal',

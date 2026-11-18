@@ -1,0 +1,174 @@
+<div class="page">
+  @if (chargement()) {
+    <p class="discret" role="status">Chargement…</p>
+  } @else if (erreur()) {
+    <p class="note note--danger" role="alert">{{ erreur() }}</p>
+  } @else if (gestion()) {
+    <header class="entete">
+      <div>
+        <p class="surtitre">Enveloppes</p>
+        <h1 class="titre">{{ totalATraiter() }} ligne{{ totalATraiter() > 1 ? 's' : '' }} à traiter</h1>
+        <p class="sous-titre">Sur toutes les enveloppes : validations, vérifications, écarts, échéances et liste d’attente.</p>
+      </div>
+      <div class="entete__actions">
+        <a class="bouton" routerLink="/enveloppes/fiabilite">Fiabilité</a>
+        @if (administrateur()) {
+          <a class="bouton" routerLink="/enveloppes/parametres">Paramètres</a>
+        }
+        <a class="bouton bouton--principal" routerLink="/enveloppes/nouvelle">Créer une enveloppe</a>
+      </div>
+    </header>
+
+    <section class="compteurs" aria-label="Files à traiter" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))">
+      @for (f of comptesFiles(); track f.cle) {
+        <div class="compteur">
+          <span class="compteur__libelle">{{ f.libelle }}</span>
+          <span class="compteur__valeur">{{ f.nombre }}</span>
+        </div>
+      }
+    </section>
+
+    <section class="formulaire" aria-labelledby="titre-enveloppes">
+      <h2 id="titre-enveloppes">Enveloppes</h2>
+      @if (enveloppes().length === 0) {
+        <p class="vide">Aucune enveloppe pour l’instant. Créez la première à partir de la fiche produit de la compagnie.</p>
+      }
+      <div class="cartes">
+        @for (e of enveloppes(); track e.id) {
+          <a class="carte" [routerLink]="['/enveloppes', e.id]" style="color: inherit; text-decoration: none">
+            <div class="carte__tete">
+              <span class="discret">{{ e.compagnie.nom }}</span>
+              <span class="statut" [class.statut--sombre]="e.statut === 'OUVERTE'">{{ libellesEnveloppes[e.statut] }}</span>
+            </div>
+            <h3 style="font-size: 18px">{{ e.nomProduit }}</h3>
+            <div>
+              <span class="grand-chiffre">{{ eurosRonds(e.compteurs.restante) }}</span>
+              <p class="discret">restants sur {{ eurosRonds(e.compteurs.enveloppeTotale) }} · réel validé {{ eurosRonds(e.compteurs.reelValide) }}</p>
+            </div>
+            <div class="jauge" aria-hidden="true"><div class="jauge__plein" [style.width.%]="remplissage(e)"></div></div>
+            <dl class="faits">
+              <div><dt>Limite</dt><dd>{{ dateCourte(e.dateLimiteInterne, false) }} · {{ compteARebours(e.joursRestants) }}</dd></div>
+              <div><dt>Commission</dt><dd>{{ pourcent(e.tauxCommission) }}</dd></div>
+            </dl>
+          </a>
+        }
+      </div>
+    </section>
+  } @else {
+    <header class="entete">
+      <div>
+        <p class="surtitre">Enveloppes</p>
+        <h1 class="titre">{{ eurosRonds(commissionTotale()) }}</h1>
+        <p class="sous-titre">de commissions sur vos réservations en cours · dont {{ euros(commissionDefinitive()) }} définitives</p>
+      </div>
+    </header>
+
+    @if (!moi()) {
+      <p class="note note--alerte">Votre compte n’est pas encore rattaché à un apporteur : le cabinet doit le faire avant votre première réservation.</p>
+    }
+
+    @if (aFaire().length || confiesAContacter().length) {
+      <section class="carte" aria-labelledby="titre-a-faire">
+        <h2 id="titre-a-faire">À faire · {{ aFaire().length + confiesAContacter().length }}</h2>
+        <ul class="lignes" style="border-top: none">
+          @for (c of confiesAContacter(); track c.id) {
+            <li class="rangee" style="justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--bord)">
+              <div>
+                <p class="ligne__principal">Client confié · {{ nomClient(c) }}</p>
+                <p class="ligne__second">{{ c.enveloppe.nomProduit }} · votre commission : {{ pourcent(c.taux) }} du montant net</p>
+              </div>
+              <a class="bouton bouton--petit" [routerLink]="['/enveloppes', c.enveloppe.id, 'reserver']" [queryParams]="{ confie: c.id }">Le client accepte</a>
+            </li>
+          }
+          @for (r of aFaire(); track r.id) {
+            <li class="rangee" style="justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--bord)">
+              <div>
+                <p class="ligne__principal">{{ actionMandataire(r) }} · {{ nomClient(r) }}</p>
+                <p class="ligne__second">{{ produit(r) }} · {{ euros(r.montantNet) }}@if (r.echeance) { · avant le {{ dateCourte(r.echeance, false) }}}</p>
+              </div>
+              <a class="bouton bouton--petit" [routerLink]="['/enveloppes/reservations', r.id]">Ouvrir</a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="formulaire" aria-labelledby="titre-ouvertes">
+      <h2 id="titre-ouvertes">Enveloppes ouvertes</h2>
+      @if (ouvertes().length === 0) {
+        <p class="vide">Aucune enveloppe n’est ouverte en ce moment. Vous serez prévenu à l’ouverture de la prochaine campagne.</p>
+      }
+      <div class="cartes">
+        @for (e of ouvertes(); track e.id) {
+          <article class="carte">
+            <div class="carte__tete">
+              <span class="discret">{{ e.compagnie.nom }}</span>
+              <span class="statut statut--sombre">{{ compteARebours(e.joursRestants) }}</span>
+            </div>
+            <h3 style="font-size: 18px">{{ e.nomProduit }}</h3>
+            <div>
+              <span class="grand-chiffre">{{ eurosRonds(e.compteurs.restante) }}</span>
+              <p class="discret">restants sur {{ eurosRonds(e.compteurs.enveloppeTotale) }}</p>
+            </div>
+            <dl class="faits">
+              <div><dt>Limite</dt><dd>{{ dateCourte(e.dateLimiteInterne, false) }}</dd></div>
+              <div><dt>Commission</dt><dd>{{ pourcent(e.tauxCommission) }}</dd></div>
+              @if (e.rendement) {
+                <div><dt>Coupon</dt><dd>{{ e.rendement }}</dd></div>
+              }
+            </dl>
+            <div class="actions">
+              @if (moi()) {
+                <a class="bouton bouton--principal bouton--petit" [routerLink]="['/enveloppes', e.id, 'reserver']">Réserver</a>
+              }
+              <a class="bouton bouton--petit" [routerLink]="['/enveloppes', e.id]">Fiche</a>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="formulaire" aria-labelledby="titre-mes-reservations">
+      <div class="carte__tete">
+        <h2 id="titre-mes-reservations">Mes réservations</h2>
+        <span class="discret">{{ eurosRonds(totalReserve()) }} réservés · {{ eurosRonds(totalValide()) }} validés</span>
+      </div>
+      @if (reservations().length === 0) {
+        <p class="vide">Vous n’avez encore aucune réservation.</p>
+      } @else {
+        <ul class="lignes">
+          @for (r of reservations(); track r.id) {
+            <li class="rangee" style="justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--bord)">
+              <a class="rangee" [routerLink]="['/enveloppes/reservations', r.id]" style="color: inherit; text-decoration: none">
+                <span class="avatar" aria-hidden="true">{{ initiales(nomClient(r)) }}</span>
+                <span>
+                  <span class="ligne__principal" style="display: block">{{ nomClient(r) }}</span>
+                  <span class="ligne__second">{{ produit(r) }} · {{ libellesTypes[r.typeOperation] }} · n° {{ r.numero }}</span>
+                </span>
+              </a>
+              <span style="text-align: right">
+                <span class="ligne__principal montant" style="display: block">{{ euros(r.montantValide ?? r.montantNet) }}</span>
+                <span class="statut" [class]="'statut statut--' + tonStatut(r.statut)">{{ libellesStatuts[r.statut] }}</span>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    @if (fiabilite(); as f) {
+      <section class="carte" aria-labelledby="titre-indicateurs">
+        <div class="carte__tete">
+          <h2 id="titre-indicateurs">Mes indicateurs</h2>
+          <span class="discret">Visibles de vous et du cabinet · depuis la mise en service</span>
+        </div>
+        <dl class="faits">
+          <div><dt>Taux de réalisation, 12 mois</dt><dd>{{ f.tauxRealisation === null ? '—' : pourcent(f.tauxRealisation) }}</dd></div>
+          <div><dt>Délai moyen pour honorer</dt><dd>{{ f.delaiMoyenJours === null ? '—' : f.delaiMoyenJours + ' j' }}</dd></div>
+          <div><dt>Annulations tardives</dt><dd>{{ f.annulationsTardives.nombre }}</dd></div>
+          <div><dt>Réservations non honorées</dt><dd>{{ f.nonHonorees.nombre }}</dd></div>
+        </dl>
+      </section>
+    }
+  }
+</div>

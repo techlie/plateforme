@@ -19,13 +19,9 @@ import {
 } from './dto/referentiels.dto';
 import { LigneApporteur, LigneCode, ReferentielsRepository } from './referentiels.repository';
 
+/** Un modèle de numéro se compose de 9, A, X et de caractères attendus tels quels (voir saisie.ts). */
 function formatValable(format: string): boolean {
-  try {
-    new RegExp(`^(?:${format})$`);
-    return true;
-  } catch {
-    return false;
-  }
+  return /^[\p{L}\p{N} ;./_-]+$/u.test(format);
 }
 
 function sortieApporteur(a: LigneApporteur) {
@@ -94,7 +90,7 @@ export class ReferentielsService {
     }
     const format = dto.formatNumeroContrat?.trim() || null;
     if (format && !formatValable(format)) {
-      throw new BadRequestException({ code: 'FORMAT', message: 'Le format du numéro de contrat n’est pas lisible.' });
+      throw new BadRequestException({ code: 'FORMAT', message: 'Modèle de numéro illisible : 9 pour un chiffre, A pour une lettre, X pour l’un ou l’autre, « ; » entre deux modèles.' });
     }
     const compagnie = await this.repository.creerCompagnie({ nom, formatNumeroContrat: format, exempleNumeroContrat: dto.exempleNumeroContrat?.trim() || null });
     await this.tracer(auteur, 'COMPAGNIE_CREEE', `Compagnie ${nom} créée.`, compagnie.id);
@@ -108,7 +104,7 @@ export class ReferentielsService {
     }
     const format = dto.formatNumeroContrat === undefined ? undefined : dto.formatNumeroContrat.trim() || null;
     if (format && !formatValable(format)) {
-      throw new BadRequestException({ code: 'FORMAT', message: 'Le format du numéro de contrat n’est pas lisible.' });
+      throw new BadRequestException({ code: 'FORMAT', message: 'Modèle de numéro illisible : 9 pour un chiffre, A pour une lettre, X pour l’un ou l’autre, « ; » entre deux modèles.' });
     }
     const apres = await this.repository.modifierCompagnie(id, {
       nom: dto.nom?.trim(),

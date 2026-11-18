@@ -191,7 +191,7 @@ enum OrigineFonds {
 model Compagnie {
   id                   String          @id @default(uuid()) @db.Uuid
   nom                  String          @unique
-  /// Expression régulière du numéro de contrat ; vide tant que le format n'est pas connu.
+  /// Modèle du numéro de contrat (9 chiffre, A lettre, X l'un ou l'autre, « ; » entre deux modèles) ; vide tant qu'il n'est pas connu.
   formatNumeroContrat  String?
   /// Exemple affiché sous le champ, pour aider à la saisie.
   exempleNumeroContrat String?

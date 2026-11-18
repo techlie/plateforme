@@ -1,0 +1,88 @@
+<div class="page" style="max-width: 920px">
+  <header class="entete">
+    <div>
+      <p class="surtitre"><a routerLink="/enveloppes">Enveloppes</a></p>
+      <h1 class="titre">Paramètres du module</h1>
+      <p class="sous-titre">Chaque changement est journalisé.</p>
+    </div>
+  </header>
+  @if (message()) { <p class="note note--succes" role="status">{{ message() }}</p> }
+  @if (erreur()) { <p class="note note--danger" role="alert">{{ erreur() }}</p> }
+
+  @if (parametres(); as p) {
+    <section class="carte" aria-labelledby="titre-delais">
+      <h2 id="titre-delais">Délais et seuils</h2>
+      <div class="grille">
+        <label class="champ"><span class="champ__libelle">Délai standard pour honorer une réservation</span>
+          <span class="champ__zone"><input class="champ__saisie" inputmode="numeric" [ngModel]="delai()" (ngModelChange)="delai.set($event)" /><span class="champ__unite">jours</span></span>
+          <span class="champ__aide">@if (p.delaiHonorerJours === null) {À fixer par le cabinet : tant qu’il est vide, l’échéance est la date limite interne.} @else {Compté depuis la validation, sans dépasser la date limite interne.}</span></label>
+        <label class="champ"><span class="champ__libelle">Rappel au mandataire avant l’échéance</span>
+          <span class="champ__zone"><input class="champ__saisie" inputmode="numeric" [ngModel]="rappel()" (ngModelChange)="rappel.set($event)" /><span class="champ__unite">jours</span></span>
+          <span class="champ__aide">@if (p.rappelAvantEcheanceJours === null) {À fixer : aucun rappel ne part tant qu’il est vide.}</span></label>
+        <label class="champ"><span class="champ__libelle">Seuil d’écart réservé / validé</span>
+          <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="seuilEcart()" (ngModelChange)="seuilEcart.set($event)" /><span class="champ__unite">%</span></span></label>
+        <label class="champ"><span class="champ__libelle">Annulation tardive dans les derniers</span>
+          <span class="champ__zone"><input class="champ__saisie" inputmode="numeric" [ngModel]="tardif()" (ngModelChange)="tardif.set($event)" /><span class="champ__unite">jours</span></span></label>
+        <label class="champ"><span class="champ__libelle">Taux des clients confiés, par défaut</span>
+          <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="tauxConfies()" (ngModelChange)="tauxConfies.set($event)" /><span class="champ__unite">%</span></span>
+          @if (p.tauxClientsConfiesAConfirmer) { <span class="champ__aide">Valeur de départ à confirmer : taux appliqué au client confié (et non baisse du taux de l’enveloppe).</span> }</label>
+        <label class="champ"><span class="champ__libelle">Seuil de concentration, par défaut</span>
+          <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="concentration()" (ngModelChange)="concentration.set($event)" /><span class="champ__unite">%</span></span></label>
+      </div>
+      <p class="discret">Compte à rebours : {{ p.compteAReboursJours.join(' et ') }} jours avant la date limite interne. Alertes de remplissage à {{ p.seuilsRemplissage.map(pourcent).join(' puis ') }} ; réel validé à {{ p.seuilsReelValide.map(pourcent).join(' puis ') }}.</p>
+    </section>
+
+    <section class="carte" aria-labelledby="titre-mail">
+      <h2 id="titre-mail">Mail hebdomadaire aux équipes</h2>
+      <div class="grille">
+        <label class="champ"><span class="champ__libelle">Jour</span>
+          <span class="champ__zone"><select class="champ__saisie" [ngModel]="jour()" (ngModelChange)="jour.set(+$event)">@for (j of [1, 2, 3, 4, 5]; track j) { <option [value]="j">{{ jours[j] }}</option> }</select></span></label>
+        <label class="champ"><span class="champ__libelle">Heure (Paris)</span>
+          <span class="champ__zone"><input class="champ__saisie" type="time" [ngModel]="heure()" (ngModelChange)="heure.set($event)" /></span></label>
+      </div>
+      <p class="discret">Un mail par enveloppe ouverte : enveloppe restante, date limite, conditions, et pour chaque mandataire ses réservations non validées avec l’action attendue. Aucun nom de client : initiales et fin du numéro de contrat. Un envoi est bloqué si une donnée paraît incohérente, et le back-office alerté.</p>
+      @if (p.emailingValideLe) {
+        <p class="note note--succes">Modèle validé le {{ dateHeure(p.emailingValideLe) }} par {{ p.emailingValidePar }} : les envois partent seuls.</p>
+      } @else {
+        <p class="note note--alerte">Le modèle n’est pas encore validé : aucun mail hebdomadaire ne part.</p>
+        <button type="button" class="bouton" (click)="validerEmailing()" [disabled]="envoi()">Valider le modèle</button>
+      }
+    </section>
+
+    <div class="actions"><button type="button" class="bouton bouton--principal" (click)="enregistrer()" [disabled]="envoi()">Enregistrer les paramètres</button></div>
+  }
+
+  <section class="carte" aria-labelledby="titre-motifs">
+    <h2 id="titre-motifs">Motifs</h2>
+    <p class="discret">Un motif d’annulation est classé imputable ou non au mandataire : seules les annulations imputables comptent dans sa fiabilité.</p>
+    @for (c of categories; track c.cle) {
+      <h3>{{ c.libelle }}</h3>
+      @if (motifsDe(c.cle).length === 0) { <p class="discret">Aucun motif.</p> }
+      <ul class="lignes" style="border-top: none">
+        @for (m of motifsDe(c.cle); track m.id) {
+          <li class="rangee" style="justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--bord)">
+            <span [style.color]="m.actif ? null : 'var(--texte-doux)'">{{ m.libelle }}{{ m.commentaireObligatoire ? ' · commentaire obligatoire' : '' }}</span>
+            <span class="actions">
+              @if (c.cle === 'ANNULATION') {
+                <label class="case"><input type="checkbox" [checked]="m.imputable" (change)="basculerMotif(m, 'imputable', $any($event.target).checked)" /> Imputable</label>
+              }
+              <label class="case"><input type="checkbox" [checked]="m.actif" (change)="basculerMotif(m, 'actif', $any($event.target).checked)" /> Actif</label>
+            </span>
+          </li>
+        }
+      </ul>
+    }
+    <h3>Ajouter un motif</h3>
+    <div class="grille">
+      <label class="champ"><span class="champ__libelle">Catégorie</span>
+        <span class="champ__zone"><select class="champ__saisie" [ngModel]="nouveauCategorie()" (ngModelChange)="nouveauCategorie.set($event)">@for (c of categories; track c.cle) { <option [value]="c.cle">{{ c.libelle }}</option> }</select></span></label>
+      <label class="champ"><span class="champ__libelle">Libellé</span>
+        <span class="champ__zone"><input class="champ__saisie" style="font-size: 15px" [ngModel]="nouveauLibelle()" (ngModelChange)="nouveauLibelle.set($event)" /></span></label>
+    </div>
+    <div class="actions">
+      @if (nouveauCategorie() === 'ANNULATION') { <label class="case"><input type="checkbox" [checked]="nouveauImputable()" (change)="nouveauImputable.set($any($event.target).checked)" /> Imputable au mandataire</label> }
+      <label class="case"><input type="checkbox" [checked]="nouveauCommentaire()" (change)="nouveauCommentaire.set($any($event.target).checked)" /> Commentaire obligatoire</label>
+      <button type="button" class="bouton" (click)="ajouterMotif()" [disabled]="envoi()">Ajouter</button>
+    </div>
+  </section>
+</div>

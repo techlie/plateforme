@@ -6,18 +6,29 @@ export function nettoyerNumeroContrat(numero: string): string {
 }
 
 /**
- * Le numéro respecte-t-il le format de la compagnie ? Tant que le format n'est pas connu
- * (champ vide dans le référentiel), seule la présence est contrôlée.
+ * Modèle de numéro de contrat, lisible par tous : 9 pour un chiffre, A pour une lettre, X pour un
+ * chiffre ou une lettre ; tout autre caractère est attendu tel quel. Plusieurs modèles possibles
+ * sont séparés par un point-virgule. Exemple : « 99999999 ; AA999999 ».
  */
-export function numeroConforme(numero: string, format: string | null): boolean {
-  if (!format) {
+export function modeleVersExpression(modele: string): RegExp {
+  const echapper = (c: string) => c.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&');
+  const variantes = modele
+    .split(';')
+    .map((m) => m.replace(/\s+/g, ''))
+    .filter(Boolean)
+    .map((m) => [...m].map((c) => (c === '9' ? '\\d' : c === 'A' ? '[A-Z]' : c === 'X' ? '[A-Z0-9]' : echapper(c))).join(''));
+  return new RegExp(`^(?:${variantes.join('|')})$`, 'i');
+}
+
+/**
+ * Le numéro respecte-t-il le modèle de la compagnie ? Tant que le modèle n'est pas connu (champ
+ * vide dans le référentiel), seule la présence du numéro est contrôlée.
+ */
+export function numeroConforme(numero: string, modele: string | null): boolean {
+  if (!modele || !modele.replace(/[\s;]/g, '')) {
     return numero.length > 0;
   }
-  try {
-    return new RegExp(`^(?:${format})$`).test(numero);
-  } catch {
-    return false;
-  }
+  return modeleVersExpression(modele).test(numero);
 }
 
 /** Code ISIN : 2 lettres, 9 caractères alphanumériques, 1 chiffre de contrôle (Luhn sur les chiffres convertis). */

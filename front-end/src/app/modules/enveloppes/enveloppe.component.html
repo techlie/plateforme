@@ -1,0 +1,361 @@
+<div class="page">
+  @if (chargement()) {
+    <p class="discret" role="status">Chargement…</p>
+  } @else if (erreur()) {
+    <p class="note note--danger" role="alert">{{ erreur() }}</p>
+  } @else {
+    @if (enveloppe(); as e) {
+    <header class="entete">
+      <div>
+        <p class="surtitre"><a routerLink="/enveloppes">Enveloppes</a></p>
+        <h1 class="titre">{{ e.nomProduit }}</h1>
+        <p class="sous-titre">
+          <span class="statut" [class.statut--sombre]="e.statut === 'OUVERTE'">{{ libellesEnveloppes[e.statut] }}</span>
+          <span>{{ e.compagnie.nom }}</span>
+          @if (e.isin) { <span>{{ e.isin }}</span> }
+          <span>Commission {{ pourcent(e.tauxCommission) }}</span>
+          @if (e.rendement) { <span>Coupon {{ e.rendement }}</span> }
+        </p>
+      </div>
+      <div class="entete__actions">
+        @if (gestion()) {
+          <a class="bouton" [href]="lienExport()" download>Exporter</a>
+          @if (administrateur()) {
+            <button type="button" class="bouton" (click)="basculer('rallonge')" [attr.aria-expanded]="panneau() === 'rallonge'">Rallonge</button>
+          }
+          <a class="bouton" [routerLink]="['/enveloppes', e.id, 'parametres']">Paramétrer</a>
+          @if (e.statut === 'EN_PREPARATION') {
+            <button type="button" class="bouton bouton--principal" (click)="ouvrir()" [disabled]="envoi()">Ouvrir aux réservations</button>
+          }
+          @if (e.statut === 'FERMEE') {
+            <button type="button" class="bouton" (click)="cloturer()" [disabled]="envoi()">Clôturer</button>
+          }
+          @if (e.statut === 'OUVERTE' || e.statut === 'FERMEE') {
+            <a class="bouton bouton--principal" [routerLink]="['/enveloppes', e.id, 'reserver']">Saisir une réservation</a>
+          }
+        } @else if (e.statut === 'OUVERTE') {
+          <a class="bouton bouton--principal" [routerLink]="['/enveloppes', e.id, 'reserver']">Réserver</a>
+        }
+      </div>
+    </header>
+
+    @if (message()) {
+      <p class="note note--succes" role="status">{{ message() }}</p>
+    }
+    @if (erreurPanneau() && !panneau()) {
+      <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p>
+    }
+
+    @if (panneau() === 'rallonge') {
+      <section class="carte" aria-labelledby="titre-rallonge">
+        <h2 id="titre-rallonge">Rallonge ou restitution</h2>
+        <div class="pastilles" role="group" aria-label="Type de mouvement">
+          <button type="button" class="pastille" [attr.aria-pressed]="mvtType() === 'RALLONGE'" (click)="mvtType.set('RALLONGE')">Rallonge</button>
+          <button type="button" class="pastille" [attr.aria-pressed]="mvtType() === 'RESTITUTION'" (click)="mvtType.set('RESTITUTION')">Restitution</button>
+        </div>
+        <div class="grille">
+          <label class="champ"><span class="champ__libelle">Montant</span>
+            <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="mvtMontant()" (ngModelChange)="mvtMontant.set($event)" /><span class="champ__unite">€</span></span>
+          </label>
+          <label class="champ"><span class="champ__libelle">Motif</span>
+            <span class="champ__zone"><input class="champ__saisie" [ngModel]="mvtMotif()" (ngModelChange)="mvtMotif.set($event)" /></span>
+          </label>
+        </div>
+        <p class="discret">Une restitution ne peut pas descendre sous le montant déjà réservé. Chaque mouvement est daté et signé de votre nom.</p>
+        @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+        <div class="actions"><button type="button" class="bouton bouton--principal" (click)="mouvement()" [disabled]="envoi()">Enregistrer</button></div>
+      </section>
+    }
+
+    <section class="compteurs" aria-label="Compteurs de l’enveloppe">
+      <div class="compteur compteur--vedette">
+        <span class="compteur__libelle">Enveloppe restante</span>
+        @if (+e.compteurs.depassement > 0) {
+          <span class="compteur__valeur">Complète</span>
+          <span class="compteur__detail">Dépassement autorisé de {{ eurosRonds(e.compteurs.depassement) }}</span>
+        } @else {
+          <span class="compteur__valeur">{{ eurosRonds(e.compteurs.restante) }}</span>
+        }
+        <div class="jauge" aria-hidden="true"><div class="jauge__plein" [style.width.%]="remplissage()"></div></div>
+        <span class="compteur__detail">{{ eurosRonds(reserveTotal()) }} réservés sur {{ eurosRonds(e.compteurs.enveloppeTotale) }} · {{ pourcent(e.compteurs.tauxRemplissage) }}</span>
+      </div>
+      @if (gestion()) {
+        <div class="compteur">
+          <span class="compteur__libelle">Réel validé par la compagnie</span>
+          <span class="compteur__valeur">{{ eurosRonds(e.compteurs.reelValide) }}</span>
+          <div class="jauge" aria-hidden="true"><div class="jauge__plein" [style.width.%]="reel()"></div></div>
+          <span class="compteur__detail">{{ pourcent(e.compteurs.tauxReel) }} de l’enveloppe · restant réel {{ eurosRonds(e.compteurs.reelRestant) }}</span>
+        </div>
+      }
+      <div class="compteur">
+        <span class="compteur__libelle">Date limite interne</span>
+        <span class="compteur__valeur">{{ compteARebours(e.joursRestants) }}</span>
+        <span class="compteur__detail">{{ dateCourte(e.dateLimiteInterne) }} à 23 h 59 · référence des alertes</span>
+        <span class="compteur__detail">Fin compagnie {{ dateCourte(e.dateFinCommercialisation, false) }} · clôture produit {{ dateCourte(e.dateClotureProduit, false) }}</span>
+      </div>
+    </section>
+
+    <section class="carte" aria-labelledby="titre-conditions">
+      <h2 id="titre-conditions">Conditions</h2>
+      <dl class="faits">
+        <div><dt>Commission</dt><dd>{{ pourcent(e.tauxCommission) }} du net</dd></div>
+        <div><dt>Clients confiés</dt><dd>{{ pourcent(e.tauxClientsConfies) }}</dd></div>
+        <div><dt>Minimum</dt><dd>{{ euros(e.montantMinimum) }} par contrat</dd></div>
+        <div><dt>Concentration</dt><dd>{{ e.seuilConcentration ? pourcent(e.seuilConcentration) + ' de l’encours' : 'Non suivie' }}</dd></div>
+        <div><dt>Gammes exclues</dt><dd>{{ e.gammesExclues.length ? '' : 'Aucune' }}@for (g of e.gammesExclues; track g.id; let dernier = $last) {{{ g.nom }}{{ dernier ? '' : ', ' }}}</dd></div>
+        @if (e.controlePatrimoine) {
+          <div><dt>Patrimoine</dt><dd>Situation à jour exigée</dd></div>
+        }
+      </dl>
+      @if (e.documents.length) {
+        <ul class="liste-simple">
+          @for (d of e.documents; track d.id) {
+            <li><a [href]="lienDocument(d.id)" target="_blank" rel="noopener">{{ libellesDocuments[d.categorie] }} · {{ d.nom }}</a></li>
+          }
+        </ul>
+      } @else {
+        <p class="discret">Aucun document déposé pour l’instant.</p>
+      }
+      @if (gestion()) {
+        <div class="actions"><button type="button" class="lien-texte" (click)="basculer('document')">Déposer un document</button></div>
+        @if (panneau() === 'document') {
+          <div class="grille">
+            <label class="champ"><span class="champ__libelle">Type de document</span>
+              <span class="champ__zone">
+                <select class="champ__saisie" [ngModel]="docCategorie()" (ngModelChange)="docCategorie.set($event)">
+                  @for (c of categoriesDocuments; track c) { <option [value]="c">{{ libellesDocuments[c] }}</option> }
+                </select>
+              </span>
+            </label>
+            <label class="champ"><span class="champ__libelle">Fichier PDF, PNG ou JPEG (15 Mo au plus)</span>
+              <input type="file" accept="application/pdf,image/png,image/jpeg" (change)="choisirFichier($event)" style="min-height: 44px" />
+            </label>
+          </div>
+          <p class="discret">L’avenant vierge reste réservé au back-office ; les autres documents sont visibles des mandataires.</p>
+          @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+          <div class="actions"><button type="button" class="bouton bouton--principal" (click)="deposer()" [disabled]="envoi()">Déposer</button></div>
+        }
+      }
+    </section>
+
+    <section class="formulaire" aria-labelledby="titre-reservations">
+      <div class="carte__tete">
+        <h2 id="titre-reservations">{{ gestion() ? 'Réservations' : 'Mes réservations sur cette enveloppe' }}</h2>
+        @if (gestion() && (e.statut === 'OUVERTE')) {
+          <button type="button" class="lien-texte" (click)="basculer('globale')">Poser une réservation globale</button>
+        }
+      </div>
+      @if (gestion()) {
+        <div class="onglets" role="group" aria-label="Filtrer les réservations">
+          @for (o of onglets; track o.cle) {
+            <button type="button" class="pastille" [attr.aria-pressed]="onglet() === o.cle" (click)="onglet.set(o.cle)">{{ o.libelle }} · {{ comptes().get(o.cle) }}</button>
+          }
+        </div>
+      }
+
+      @if (panneau() === 'globale') {
+        <div class="carte">
+          <h3>Réservation globale</h3>
+          <p class="discret">Montant réservé en bloc pour un apporteur habilité ; il est déduit en entier de l’enveloppe. Alerte à l’administrateur et au back-office.</p>
+          <div class="grille">
+            <label class="champ"><span class="champ__libelle">Apporteur habilité</span>
+              <span class="champ__zone"><select class="champ__saisie" [ngModel]="glApporteur()" (ngModelChange)="glApporteur.set($event)">
+                <option value="">Choisir</option>
+                @for (a of apporteursHabilites(); track a.id) { <option [value]="a.id">{{ a.prenom }} {{ a.nom }}</option> }
+              </select></span>
+            </label>
+            <label class="champ"><span class="champ__libelle">Montant</span>
+              <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="glMontant()" (ngModelChange)="glMontant.set($event)" /><span class="champ__unite">€</span></span>
+            </label>
+            <label class="champ"><span class="champ__libelle">Échéance</span>
+              <span class="champ__zone"><input class="champ__saisie" type="date" [max]="e.dateLimiteInterne" [ngModel]="glEcheance()" (ngModelChange)="glEcheance.set($event)" /></span>
+            </label>
+            <label class="champ"><span class="champ__libelle">Motif</span>
+              <span class="champ__zone"><input class="champ__saisie" [ngModel]="glMotif()" (ngModelChange)="glMotif.set($event)" /></span>
+            </label>
+          </div>
+          @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+          <div class="actions"><button type="button" class="bouton bouton--principal" (click)="globale()" [disabled]="envoi()">Poser la réservation globale</button></div>
+        </div>
+      }
+
+      @if (gestion() && e.reservationsGlobales?.length) {
+        <ul class="lignes">
+          @for (g of e.reservationsGlobales; track g.id) {
+            <li class="ligne">
+              <span><span class="ligne__principal">{{ g.apporteur.prenom }} {{ g.apporteur.nom }}</span><br /><span class="statut statut--alerte">Réservation globale</span></span>
+              <span><span class="ligne__principal">Montant en bloc</span><br /><span class="ligne__second">{{ g.motif }} · échéance {{ dateCourte(g.echeance, false) }}</span></span>
+              <span class="droite"><span class="etiquette-mobile">Réservé</span>{{ euros(g.montant) }}</span>
+              <span class="droite"><span class="etiquette-mobile">Consommé</span>{{ euros(g.consomme) }}</span>
+              <span class="droite"><span class="etiquette-mobile">Libéré</span>{{ euros(g.montantLibere) }}</span>
+              <span><span class="statut" [class.statut--alerte]="g.statut === 'ECHUE'">{{ g.statut === 'ECHUE' ? 'Échue, à traiter' : g.statut === 'SOLDEE' ? 'Soldée' : 'Solde ' + euros(g.solde) }}</span></span>
+              <span>
+                @if (g.statut !== 'SOLDEE') {
+                  <button type="button" class="bouton bouton--petit" (click)="libGlobale.set(libGlobale() === g.id ? null : g.id)">Libérer</button>
+                }
+              </span>
+            </li>
+            @if (libGlobale() === g.id) {
+              <li class="carte" style="margin: 8px 0">
+                <div class="grille">
+                  <label class="champ"><span class="champ__libelle">Montant à libérer (solde {{ euros(g.solde) }})</span>
+                    <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="libMontant()" (ngModelChange)="libMontant.set($event)" /><span class="champ__unite">€</span></span>
+                  </label>
+                  <label class="champ"><span class="champ__libelle">Motif</span>
+                    <span class="champ__zone"><input class="champ__saisie" [ngModel]="libMotif()" (ngModelChange)="libMotif.set($event)" /></span>
+                  </label>
+                </div>
+                @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+                <div class="actions"><button type="button" class="bouton bouton--principal" (click)="libererGlobale()" [disabled]="envoi()">Libérer</button></div>
+              </li>
+            }
+          }
+        </ul>
+      }
+
+      @if (visibles().length === 0) {
+        <p class="vide">{{ gestion() ? 'Aucune réservation dans cette file.' : 'Vous n’avez pas de réservation sur cette enveloppe.' }}</p>
+      } @else {
+        <ul class="lignes">
+          <li class="ligne ligne--entete" aria-hidden="true">
+            <span>Apporteur</span><span>Client · contrat</span><span class="droite">Réservé</span><span class="droite">Validé</span><span class="droite">Écart</span><span>Statut</span><span></span>
+          </li>
+          @for (r of visibles(); track r.id) {
+            <li class="ligne">
+              <span><span class="ligne__principal">{{ r.apporteur.prenom.charAt(0) }}. {{ r.apporteur.nom }}</span><br /><span class="ligne__second">{{ r.entite?.nom ?? '' }}{{ r.source === 'RESERVATION_GLOBALE' ? ' · sur réservation globale' : '' }}</span></span>
+              <a [routerLink]="['/enveloppes/reservations', r.id]">
+                <span class="ligne__principal">{{ nomClient(r) }}</span><br />
+                <span class="ligne__second">n° {{ r.numero }} · {{ r.numeroContrat ?? 'sans contrat' }} · {{ libellesTypes[r.typeOperation] }}@if (r.origineClient === 'CONFIE') { · client confié}@if (r.partEncours) { · {{ pourcent(r.partEncours) }} de l’encours}</span>
+              </a>
+              <span class="droite montant"><span class="etiquette-mobile">Réservé</span>{{ euros(r.montantNet) }}</span>
+              <span class="droite montant"><span class="etiquette-mobile">Validé</span>{{ euros(r.montantValide) }}</span>
+              <span class="droite montant" [class.positif]="+(r.ecart ?? 0) > 0" [class.negatif]="+(r.ecart ?? 0) < 0"><span class="etiquette-mobile">Écart</span>{{ r.ecart ? (+r.ecart > 0 ? '+' : '') + euros(r.ecart) : '—' }}</span>
+              <span>
+                <span [class]="'statut statut--' + tonStatut(r.statut)">{{ libellesStatuts[r.statut] }}</span>
+                @if (r.statut === 'VALIDEE' && r.echeance) { <br /><span class="ligne__second">éch. {{ dateCourte(r.echeance, false) }}</span> }
+                @if (r.rang) { <br /><span class="ligne__second">rang {{ r.rang }}</span> }
+              </span>
+              <span class="actions" style="justify-content: flex-end">
+                @if (gestion() && peutValider(r)) {
+                  <button type="button" class="bouton bouton--petit bouton--principal" (click)="valider(r)" [disabled]="envoi()">Valider</button>
+                }
+                <a class="bouton bouton--petit" [routerLink]="['/enveloppes/reservations', r.id]">Ouvrir</a>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    @if (gestion()) {
+      <section class="carte" aria-labelledby="titre-confies">
+        <div class="carte__tete">
+          <h2 id="titre-confies">Clients confiés</h2>
+          @if (administrateur() && (e.statut === 'OUVERTE' || e.statut === 'EN_PREPARATION')) {
+            <button type="button" class="lien-texte" (click)="basculer('confie')">Confier un client</button>
+          }
+        </div>
+        @if (panneau() === 'confie') {
+          <div class="grille">
+            <label class="champ"><span class="champ__libelle">Mandataire</span>
+              <span class="champ__zone"><select class="champ__saisie" [ngModel]="cfApporteur()" (ngModelChange)="cfApporteur.set($event)">
+                <option value="">Choisir</option>
+                @for (a of apporteursActifs(); track a.id) { <option [value]="a.id">{{ a.prenom }} {{ a.nom }}</option> }
+              </select></span>
+            </label>
+            <div class="groupe"><span class="groupe__libelle">Client</span>
+              <div class="pastilles">
+                <button type="button" class="pastille" [attr.aria-pressed]="cfType() === 'PHYSIQUE'" (click)="cfType.set('PHYSIQUE')">Personne physique</button>
+                <button type="button" class="pastille" [attr.aria-pressed]="cfType() === 'MORALE'" (click)="cfType.set('MORALE')">Personne morale</button>
+              </div>
+            </div>
+            <label class="champ"><span class="champ__libelle">{{ cfType() === 'MORALE' ? 'Raison sociale' : 'Nom' }}</span>
+              <span class="champ__zone"><input class="champ__saisie" [ngModel]="cfNom()" (ngModelChange)="cfNom.set($event)" /></span>
+            </label>
+            @if (cfType() === 'PHYSIQUE') {
+              <label class="champ"><span class="champ__libelle">Prénom</span>
+                <span class="champ__zone"><input class="champ__saisie" [ngModel]="cfPrenom()" (ngModelChange)="cfPrenom.set($event)" /></span>
+              </label>
+            }
+            <label class="champ"><span class="champ__libelle">Numéro de contrat (facultatif)</span>
+              <span class="champ__zone"><input class="champ__saisie" [ngModel]="cfContrat()" (ngModelChange)="cfContrat.set($event)" /></span>
+            </label>
+            <label class="champ"><span class="champ__libelle">Taux pour ce client</span>
+              <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="cfTaux()" (ngModelChange)="cfTaux.set($event)" /><span class="champ__unite">%</span></span>
+            </label>
+          </div>
+          @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+          <div class="actions"><button type="button" class="bouton bouton--principal" (click)="confier()" [disabled]="envoi()">Confier ce client</button></div>
+        }
+        @if (confies().length === 0) {
+          <p class="discret">Aucun client confié sur cette enveloppe.</p>
+        } @else {
+          <ul class="lignes">
+            @for (c of confies(); track c.id) {
+              <li class="rangee" style="justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--bord)">
+                <span>
+                  <span class="ligne__principal">{{ nomClient(c) }}</span><br />
+                  <span class="ligne__second">confié à {{ c.apporteur.prenom }} {{ c.apporteur.nom }} · {{ pourcent(c.taux) }} · par {{ c.auteur }} le {{ dateCourte(c.date) }}</span>
+                </span>
+                <span class="actions">
+                  <span class="statut" [class.statut--succes]="c.statut === 'ACCEPTE'">{{ c.statut === 'ACCEPTE' ? 'Accepté' : 'À contacter' }}</span>
+                  @if (c.reservation) { <a class="bouton bouton--petit" [routerLink]="['/enveloppes/reservations', c.reservation.id]">n° {{ c.reservation.numero }}</a> }
+                  @if (administrateur() && c.statut === 'CONFIE') { <button type="button" class="bouton bouton--petit" (click)="retirerConfie(c)">Retirer</button> }
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      @if (e.mouvements?.length) {
+        <section class="carte" aria-labelledby="titre-mouvements">
+          <h2 id="titre-mouvements">Mouvements de l’enveloppe</h2>
+          <ul class="historique">
+            <li><span class="historique__date">{{ dateCourte(e.dateOuverture) }}</span><span>Montant initial · {{ euros(e.montantInitial) }}</span></li>
+            @for (m of e.mouvements; track m.id) {
+              <li><span class="historique__date">{{ dateHeure(m.date) }}</span><span>{{ m.type === 'RALLONGE' ? 'Rallonge' : 'Restitution' }} de {{ euros(m.montant) }} · {{ m.motif }} · {{ m.auteur }}</span></li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (superAdministrateur()) {
+        <section class="carte" aria-labelledby="titre-upfront">
+          <div class="carte__tete">
+            <h2 id="titre-upfront">Upfront attendu de la compagnie</h2>
+            <span class="discret">Visible des seuls super administrateurs</span>
+          </div>
+          <div class="grille">
+            <label class="champ"><span class="champ__libelle">Taux d’upfront</span>
+              <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="upfront()" (ngModelChange)="upfront.set($event)" /><span class="champ__unite">%</span></span>
+            </label>
+          </div>
+          <div class="actions"><button type="button" class="bouton" (click)="enregistrerUpfront()" [disabled]="envoi()">Enregistrer</button></div>
+        </section>
+      }
+
+      @if (administrateur() && ['EN_PREPARATION', 'OUVERTE', 'FERMEE'].includes(e.statut)) {
+        <section class="carte" aria-labelledby="titre-produit">
+          <div class="carte__tete">
+            <h2 id="titre-produit">Produit annulé ou reporté</h2>
+            <button type="button" class="lien-texte" (click)="basculer('produit')">{{ panneau() === 'produit' ? 'Fermer' : 'Déclarer' }}</button>
+          </div>
+          <p class="discret">Les réservations en cours sont libérées sans effet sur la fiabilité des mandataires, qui sont prévenus.</p>
+          @if (panneau() === 'produit') {
+            <div class="pastilles" role="group" aria-label="Annulé ou reporté">
+              <button type="button" class="pastille" [attr.aria-pressed]="prStatut() === 'REPORTEE'" (click)="prStatut.set('REPORTEE')">Reporté</button>
+              <button type="button" class="pastille" [attr.aria-pressed]="prStatut() === 'ANNULEE'" (click)="prStatut.set('ANNULEE')">Annulé</button>
+            </div>
+            <label class="champ"><span class="champ__libelle">Motif</span>
+              <span class="champ__zone"><input class="champ__saisie" [ngModel]="prMotif()" (ngModelChange)="prMotif.set($event)" /></span>
+            </label>
+            @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
+            <div class="actions"><button type="button" class="bouton bouton--principal" (click)="produit()" [disabled]="envoi() || prMotif().trim().length < 3">Confirmer</button></div>
+          }
+        </section>
+      }
+    }
+  }
+  }
+</div>

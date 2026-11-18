@@ -1,0 +1,256 @@
+<div class="page">
+  @if (chargement()) {
+    <p class="discret" role="status">Chargement…</p>
+  } @else if (erreur()) {
+    <p class="note note--alerte" role="alert">{{ erreur() }}</p>
+  } @else {
+    @if (enveloppe(); as e) {
+    <header class="entete">
+      <div>
+        <p class="surtitre"><a routerLink="/enveloppes">Enveloppes</a> · <a [routerLink]="['/enveloppes', e.id]">{{ e.nomProduit }}</a></p>
+        <h1 class="titre">{{ clientConfie() ? 'Le client confié accepte' : 'Réserver sur ' + e.nomProduit }}</h1>
+        <p class="sous-titre">{{ e.compagnie.nom }} · {{ eurosRonds(e.compteurs.restante) }} restants · limite le {{ dateCourte(e.dateLimiteInterne, false) }} ({{ compteARebours(e.joursRestants) }})</p>
+      </div>
+    </header>
+
+    <div class="colonnes">
+      <form class="formulaire" (submit)="$event.preventDefault(); envoyer()" novalidate>
+        @if (gestion()) {
+          <label class="champ">
+            <span class="champ__libelle">Pour le compte de</span>
+            <span class="champ__zone">
+              <select class="champ__saisie" [ngModel]="apporteurId()" (ngModelChange)="choisirApporteur($event)" name="apporteur">
+                <option value="">Choisir l’apporteur</option>
+                @for (a of apporteurs(); track a.id) { <option [value]="a.id">{{ a.prenom }} {{ a.nom }}{{ a.entite ? ' · ' + a.entite.nom : '' }}</option> }
+              </select>
+            </span>
+          </label>
+        }
+
+        <div class="groupe">
+          <span class="groupe__libelle" id="libelle-type">Type d’opération</span>
+          <div class="pastilles" role="group" aria-labelledby="libelle-type">
+            <button type="button" class="pastille" [attr.aria-pressed]="typeOperation() === 'ARBITRAGE'" (click)="typeOperation.set('ARBITRAGE')">Arbitrage</button>
+            <button type="button" class="pastille" [attr.aria-pressed]="typeOperation() === 'VERSEMENT_LIBRE'" (click)="typeOperation.set('VERSEMENT_LIBRE')">Versement libre</button>
+            <button type="button" class="pastille" [attr.aria-pressed]="typeOperation() === 'AFFAIRE_NOUVELLE'" (click)="typeOperation.set('AFFAIRE_NOUVELLE')">Affaire nouvelle</button>
+          </div>
+        </div>
+
+        @if (clientConfie(); as c) {
+          <p class="note note--succes">Client confié par le cabinet : {{ c.clientPrenom }} {{ c.clientNom }}. Votre commission : {{ pourcent(c.taux) }} du montant net. Le back-office prépare l’avenant et organise la signature.</p>
+        } @else {
+          <div class="groupe">
+            <span class="groupe__libelle" id="libelle-client">Client</span>
+            <div class="pastilles" role="group" aria-labelledby="libelle-client">
+              <button type="button" class="pastille" [attr.aria-pressed]="typeClient() === 'PHYSIQUE'" (click)="typeClient.set('PHYSIQUE')">Personne physique</button>
+              <button type="button" class="pastille" [attr.aria-pressed]="typeClient() === 'MORALE'" (click)="typeClient.set('MORALE')">Personne morale</button>
+            </div>
+          </div>
+          <div class="grille">
+            <label class="champ" [class.champ--large]="typeClient() === 'MORALE'">
+              <span class="champ__libelle">{{ typeClient() === 'MORALE' ? 'Raison sociale' : 'Nom du client' }}</span>
+              <span class="champ__zone"><input class="champ__saisie" name="nom" autocomplete="off" [ngModel]="clientNom()" (ngModelChange)="clientNom.set($event)" /></span>
+            </label>
+            @if (typeClient() === 'PHYSIQUE') {
+              <label class="champ">
+                <span class="champ__libelle">Prénom</span>
+                <span class="champ__zone"><input class="champ__saisie" name="prenom" autocomplete="off" [ngModel]="clientPrenom()" (ngModelChange)="clientPrenom.set($event)" /></span>
+              </label>
+            }
+          </div>
+        }
+
+        <div class="grille">
+          <label class="champ">
+            <span class="champ__libelle">Numéro de contrat{{ typeOperation() === 'AFFAIRE_NOUVELLE' ? ' (dès qu’il existe)' : '' }}</span>
+            <span class="champ__zone"><input class="champ__saisie" name="contrat" autocomplete="off" [ngModel]="numeroContrat()" (ngModelChange)="numeroContrat.set($event)" /></span>
+            @if (e.compagnie.exempleNumeroContrat) { <span class="champ__aide">Exemple : {{ e.compagnie.exempleNumeroContrat }}</span> }
+          </label>
+          <label class="champ">
+            <span class="champ__libelle">Numéro de demande (facultatif)</span>
+            <span class="champ__zone"><input class="champ__saisie" name="demande" autocomplete="off" [ngModel]="numeroDemande()" (ngModelChange)="numeroDemande.set($event)" /></span>
+          </label>
+          @if (e.gammes.length) {
+            <label class="champ">
+              <span class="champ__libelle">Gamme du contrat</span>
+              <span class="champ__zone">
+                <select class="champ__saisie" name="gamme" [ngModel]="gammeId()" (ngModelChange)="gammeId.set($event)">
+                  <option value="">Choisir</option>
+                  @for (g of e.gammes; track g.id) { <option [value]="g.id">{{ g.nom }}</option> }
+                </select>
+              </span>
+            </label>
+          }
+          <label class="champ">
+            <span class="champ__libelle">Code apporteur</span>
+            <span class="champ__zone">
+              <select class="champ__saisie" name="code" [ngModel]="codeApporteurId()" (ngModelChange)="codeApporteurId.set($event)" [disabled]="codes().length === 0">
+                @if (codes().length !== 1) { <option value="">{{ codes().length ? 'Choisir' : 'Aucun code valable' }}</option> }
+                @for (c of codes(); track c.id) { <option [value]="c.id">{{ c.code }}</option> }
+              </select>
+            </span>
+            @if (codes().length === 0 && (!gestion() || apporteurId())) { <span class="champ__aide">Aucun code actif chez {{ e.compagnie.nom }} : le cabinet doit en ajouter un.</span> }
+          </label>
+        </div>
+
+        <div class="grille">
+          <label class="champ">
+            <span class="champ__libelle">Montant brut</span>
+            <span class="champ__zone"><input class="champ__saisie" name="brut" inputmode="decimal" [ngModel]="montantBrut()" (ngModelChange)="montantBrut.set($event)" /><span class="champ__unite">€</span></span>
+            <span class="champ__aide">Minimum {{ euros(e.montantMinimum) }} net par contrat et par client.</span>
+          </label>
+          <label class="champ">
+            <span class="champ__libelle">Frais {{ arbitrage() ? 'd’arbitrage' : 'sur versement' }}</span>
+            <span class="champ__zone"><input class="champ__saisie" name="frais" inputmode="decimal" [ngModel]="frais()" (ngModelChange)="frais.set($event)" /><span class="champ__unite">%</span></span>
+            @if (net()) { <span class="champ__aide">Net investi : {{ euros(net()) }}</span> }
+          </label>
+        </div>
+
+        @if (arbitrage()) {
+          <div class="groupe">
+            <span class="groupe__libelle" id="libelle-fonds">Fonds à désinvestir</span>
+            <div class="pastilles" role="group" aria-labelledby="libelle-fonds">
+              <button type="button" class="pastille" [attr.aria-pressed]="modeArbitrage() === 'PAR_FONDS'" (click)="modeArbitrage.set('PAR_FONDS')">Fonds par fonds</button>
+              <button type="button" class="pastille" [attr.aria-pressed]="modeArbitrage() === 'GLOBAL'" (click)="modeArbitrage.set('GLOBAL')">Global · % du contrat</button>
+            </div>
+          </div>
+          @if (modeArbitrage() === 'GLOBAL') {
+            <div class="grille">
+              <label class="champ">
+                <span class="champ__libelle">Part du contrat à désinvestir</span>
+                <span class="champ__zone"><input class="champ__saisie" name="part" inputmode="decimal" [ngModel]="pourcentageArbitrage()" (ngModelChange)="pourcentageArbitrage.set($event)" /><span class="champ__unite">%</span></span>
+              </label>
+              <label class="champ">
+                <span class="champ__libelle">Valeur du contrat à date</span>
+                <span class="champ__zone"><input class="champ__saisie" name="valeur" inputmode="decimal" [ngModel]="valeurContrat()" (ngModelChange)="valeurContrat.set($event)" /><span class="champ__unite">€</span></span>
+              </label>
+            </div>
+            <p class="discret">Désinvestissement au prorata de tous les supports du contrat. Le montant exact dépendra de la valeur au jour de l’opération.</p>
+          } @else {
+            @if (lignes().length) {
+              <ul class="fonds-choisis">
+                @for (l of lignes(); track l.cle) {
+                  <li>
+                    <span>
+                      @if (l.fondsId) {
+                        <span class="ligne__principal">{{ l.nom }}</span><br />
+                        <span class="ligne__second">{{ l.isin || 'sans ISIN' }}{{ l.ferme ? ' · fermé, désinvestissement possible' : '' }}</span>
+                      } @else {
+                        <span class="champ__zone"><input class="champ__saisie" style="font-size: 15px" [attr.aria-label]="'Nom du fonds hors référentiel'" [ngModel]="l.nom" (ngModelChange)="modifierLigne(l.cle, 'nom', $event)" [ngModelOptions]="{ standalone: true }" /></span>
+                        <span class="champ__zone" style="margin-top: 6px"><input class="champ__saisie" style="font-size: 15px" placeholder="Code ISIN, s’il existe" [attr.aria-label]="'Code ISIN du fonds hors référentiel'" [ngModel]="l.isin" (ngModelChange)="modifierLigne(l.cle, 'isin', $event)" [ngModelOptions]="{ standalone: true }" /></span>
+                        <span class="ligne__second">Hors référentiel · vérifié par le back-office</span>
+                      }
+                    </span>
+                    <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [attr.aria-label]="'Montant à désinvestir sur ' + l.nom" [ngModel]="l.montant" (ngModelChange)="modifierLigne(l.cle, 'montant', $event)" [ngModelOptions]="{ standalone: true }" /><span class="champ__unite">€</span></span>
+                    <button type="button" class="bouton bouton--petit" (click)="retirerLigne(l.cle)" [attr.aria-label]="'Retirer ' + l.nom">Retirer</button>
+                  </li>
+                }
+              </ul>
+            }
+            <div class="champ">
+              <label class="champ__libelle" for="recherche-fonds">Ajouter un fonds</label>
+              <span class="champ__zone"><input id="recherche-fonds" class="champ__saisie" style="font-size: 15px" autocomplete="off" placeholder="Rechercher un fonds par nom ou code ISIN" [ngModel]="rechercheFonds()" (ngModelChange)="rechercheFonds.set($event)" [ngModelOptions]="{ standalone: true }" /></span>
+              @if (rechercheFonds().trim()) {
+                <ul class="suggestions">
+                  @for (f of suggestions(); track f.id) {
+                    <li><button type="button" (click)="ajouterFonds(f)"><span>{{ f.nom }}</span><span class="discret">{{ f.isin ?? '' }}{{ f.ouvert ? '' : ' · fermé' }}</span></button></li>
+                  }
+                  @if (suggestions().length === 0) { <li class="discret" style="padding: 8px 12px">Aucun fonds de la liste {{ e.compagnie.nom }} ne correspond.</li> }
+                  <li><button type="button" (click)="ajouterHorsReferentiel()">Saisir « {{ rechercheFonds() }} » hors référentiel</button></li>
+                </ul>
+              }
+            </div>
+            @if (resteARepartir() !== null && lignes().length) {
+              <p class="discret montant">Total désinvesti {{ euros(totalFonds().toFixed(2)) }} · reste à répartir {{ euros(resteARepartir()!.toFixed(2)) }}</p>
+            }
+          }
+        }
+
+        <label class="champ">
+          <span class="champ__libelle">Encours total du client</span>
+          <span class="champ__zone"><input class="champ__saisie" name="encours" inputmode="decimal" [ngModel]="encours()" (ngModelChange)="encours.set($event)" /><span class="champ__unite">€</span></span>
+          <span class="champ__aide">Sert au contrôle de concentration, toutes enveloppes ouvertes confondues.</span>
+        </label>
+
+        @if (!clientConfie()) {
+          <div class="groupe">
+            <span class="groupe__libelle" id="libelle-prevendu">Le client est-il déjà d’accord ?</span>
+            <div class="pastilles" role="group" aria-labelledby="libelle-prevendu">
+              <button type="button" class="pastille" [attr.aria-pressed]="prevendu() === true" (click)="prevendu.set(true)">Oui, prévendu</button>
+              <button type="button" class="pastille" [attr.aria-pressed]="prevendu() === false" (click)="prevendu.set(false)">Pas encore</button>
+            </div>
+          </div>
+        }
+
+        @if (globales().length) {
+          <div class="groupe">
+            <span class="groupe__libelle" id="libelle-source">Prendre sur</span>
+            <div class="pastilles" role="group" aria-labelledby="libelle-source">
+              <button type="button" class="pastille" [attr.aria-pressed]="!reservationGlobaleId()" (click)="reservationGlobaleId.set('')">L’enveloppe globale</button>
+              @for (g of globales(); track g.id) {
+                <button type="button" class="pastille" [attr.aria-pressed]="reservationGlobaleId() === g.id" (click)="reservationGlobaleId.set(g.id)">Réservation globale · solde {{ euros(g.solde) }}</button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (gestion() && apercu()?.derogeables?.length) {
+          <div class="carte">
+            <h3>Dérogations</h3>
+            <p class="discret">Chaque dérogation est motivée et tracée. Personne ne déroge sur sa propre réservation.</p>
+            @for (d of apercu()!.derogeables; track d.code) {
+              @if (d.code !== 'DATE_LIMITE' || administrateur()) {
+                <label class="champ">
+                  <span class="champ__libelle">{{ libelleDerogation(d.code) }} : motif</span>
+                  <span class="champ__zone"><input class="champ__saisie" style="font-size: 15px" [ngModel]="motifDerogation(d.code)" (ngModelChange)="derogation(d.code, $event)" [ngModelOptions]="{ standalone: true }" /></span>
+                </label>
+              }
+            }
+          </div>
+        }
+
+        @if (erreurEnvoi()) { <p class="note note--danger" role="alert">{{ erreurEnvoi() }}</p> }
+        <div class="actions">
+          <button type="submit" class="bouton bouton--principal" [disabled]="!peutEnvoyer() || envoi() || (depassement() && !derogations()['DEPASSEMENT']?.trim())">Envoyer la réservation</button>
+          @if (depassement() && apercu()?.bloquants?.length === 0) {
+            <button type="button" class="bouton" (click)="envoyer(true)" [disabled]="envoi() || prevendu() === null">S’inscrire en liste d’attente</button>
+          }
+        </div>
+      </form>
+
+      <aside class="colonne-collante" aria-live="polite">
+        <div class="compteur compteur--vedette">
+          <span class="compteur__libelle">Votre commission estimée</span>
+          <span class="compteur__valeur">{{ apercu() ? euros(apercu()!.commissionEstimee) : '—' }}</span>
+          <span class="compteur__detail">
+            @if (apercu(); as a) { {{ euros(a.montantNet) }} net × {{ pourcent(a.taux) }} · définitive après validation de la compagnie } @else { Renseignez le client et le montant. }
+          </span>
+        </div>
+
+        @if (apercu(); as a) {
+          <div class="carte">
+            <h3>Contrôles</h3>
+            <ul class="controles">
+              @for (c of a.bloquants; track c.code) { <li><span class="controles__bloquant" aria-hidden="true">✕</span><span>{{ c.message }}</span></li> }
+              @for (c of a.derogeables; track c.code) { <li><span class="controles__bloquant" aria-hidden="true">!</span><span>{{ c.message }}</span></li> }
+              @for (c of a.alertes; track c.code) { <li><span class="controles__alerte" aria-hidden="true">!</span><span>{{ c.message }} Vous pouvez envoyer la réservation ; le back-office en est informé.</span></li> }
+              @if (!a.bloquants.length && !a.derogeables.length) {
+                <li><span class="controles__ok" aria-hidden="true">✓</span><span>Contrat sans autre réservation, gamme éligible, dans l’enveloppe restante.</span></li>
+              }
+              @if (prevendu() === null) { <li><span class="controles__alerte" aria-hidden="true">?</span><span>Indiquez si le client est déjà d’accord.</span></li> }
+            </ul>
+          </div>
+          <div class="carte">
+            <h3>Si elle est validée</h3>
+            <dl class="faits">
+              <div><dt>Limite de l’enveloppe</dt><dd>{{ dateCourte(e.dateLimiteInterne, false) }}</dd></div>
+              <div><dt>Restant après</dt><dd>{{ eurosRonds(a.restanteApres) }}</dd></div>
+              @if (a.partEncours) { <div><dt>Part de l’encours</dt><dd>{{ pourcent(a.partEncours) }}</dd></div> }
+            </dl>
+          </div>
+        }
+      </aside>
+    </div>
+  }
+  }
+</div>

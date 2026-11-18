@@ -90,8 +90,8 @@ describe('Module Enveloppes (bout en bout)', () => {
   it('réserve les référentiels aux administrateurs et contrôle les fonds importés', async () => {
     await post('M1', '/referentiels/compagnies', { nom: 'Compagnie Essai' }).expect(403);
     await post('BO', '/referentiels/compagnies', { nom: 'Compagnie Essai' }).expect(403);
-    await post('ADMIN', '/referentiels/compagnies', { nom: 'Compagnie Essai', formatNumeroContrat: '([' }).expect(400);
-    const compagnie = await post('ADMIN', '/referentiels/compagnies', { nom: 'Compagnie Essai', formatNumeroContrat: '\\d{8}', exempleNumeroContrat: '12345678' }).expect(201);
+    await post('ADMIN', '/referentiels/compagnies', { nom: 'Compagnie Essai', formatNumeroContrat: '99?99' }).expect(400);
+    const compagnie = await post('ADMIN', '/referentiels/compagnies', { nom: 'Compagnie Essai', formatNumeroContrat: '99999999', exempleNumeroContrat: '12345678' }).expect(201);
     ids.compagnie = compagnie.body.id;
     ids.gammeA = (await post('ADMIN', `/referentiels/compagnies/${ids.compagnie}/gammes`, { nom: 'Gamme A' }).expect(201)).body.id;
     ids.gammeAncienne = (await post('ADMIN', `/referentiels/compagnies/${ids.compagnie}/gammes`, { nom: 'Gamme ancienne' }).expect(201)).body.id;
