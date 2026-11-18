@@ -2,9 +2,12 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, signal, 
 import { Router, RouterLink } from '@angular/router';
 import { SessionService } from '../../core/session.service';
 import { LogoComponent } from '../../shared/logo/logo.component';
-import { messageErreur, ReponseConnexion } from '../../core/session.types';
+import { DemandeDeCode, JOURS_APPAREIL_RECONNU, messageErreur } from '../../core/session.types';
 
-/** Connexion en deux étapes : mot de passe, puis code reçu par courriel. */
+/**
+ * Connexion en deux étapes : mot de passe, puis code reçu par courriel. Sur un appareil reconnu
+ * (case cochée lors d'une connexion précédente, 30 jours), le mot de passe suffit.
+ */
 @Component({
   selector: 'app-connexion',
   imports: [RouterLink, LogoComponent],
@@ -22,7 +25,10 @@ export class ConnexionComponent {
   readonly email = signal('');
   readonly motDePasse = signal('');
   readonly code = signal('');
-  readonly demande = signal<ReponseConnexion | null>(null);
+  readonly demande = signal<DemandeDeCode | null>(null);
+  /** Cochée par défaut : décochez-la sur un ordinateur partagé. */
+  readonly faireConfiance = signal(true);
+  readonly joursAppareil = JOURS_APPAREIL_RECONNU;
   readonly erreur = signal<string | null>(null);
   readonly envoi = signal(false);
 
@@ -43,8 +49,13 @@ export class ConnexionComponent {
     this.erreur.set(null);
     this.envoi.set(true);
     try {
-      this.demande.set(await this.session.connexion(this.email().trim(), this.motDePasse()));
+      const reponse = await this.session.connexion(this.email().trim(), this.motDePasse());
       this.motDePasse.set('');
+      if (reponse.etape === 'CONNECTE') {
+        await this.allerALaSuite();
+        return;
+      }
+      this.demande.set(reponse);
       setTimeout(() => this.champCode()?.nativeElement.focus());
     } catch (erreur) {
       this.erreur.set(messageErreur(erreur, 'Connexion impossible pour le moment. Réessayez.'));
@@ -60,9 +71,8 @@ export class ConnexionComponent {
     this.erreur.set(null);
     this.envoi.set(true);
     try {
-      await this.session.validerCode(demande.demande, this.code());
-      const retour = this.retour();
-      await this.router.navigateByUrl(retour && retour.startsWith('/') && !retour.startsWith('//') ? retour : '/');
+      await this.session.validerCode(demande.demande, this.code(), this.faireConfiance());
+      await this.allerALaSuite();
     } catch (erreur) {
       const corps = (erreur as { error?: { code?: string } }).error;
       this.erreur.set(messageErreur(erreur, 'Code refusé. Réessayez.'));
@@ -73,6 +83,11 @@ export class ConnexionComponent {
     } finally {
       this.envoi.set(false);
     }
+  }
+
+  private async allerALaSuite(): Promise<void> {
+    const retour = this.retour();
+    await this.router.navigateByUrl(retour && retour.startsWith('/') && !retour.startsWith('//') ? retour : '/');
   }
 
   recommencer(): void {

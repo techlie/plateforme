@@ -298,3 +298,11 @@ h2 {
     width: 100%;
   }
 }
+
+.panneau-convention {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 0 22px;
+  border-bottom: 1px solid var(--bord);
+}

@@ -9,7 +9,8 @@ function l(statut: LigneFiabilite['statut'], net: string, autres: Partial<LigneF
     valideeLe: new Date('2026-12-01T10:00:00Z'),
     dateOperation: null,
     annulationTardive: null,
-    motifImputable: null,
+    annulationImputable: null,
+    poidsAnnulation: null,
     ...autres,
   };
 }
@@ -47,13 +48,13 @@ describe('Indicateurs de fiabilité (section 9)', () => {
     const f = calculerFiabilite({
       maintenant,
       lignes: [
-        l('ANNULEE', '5000', { motifImputable: true, annulationTardive: false }),
-        l('ANNULEE', '7000', { motifImputable: true, annulationTardive: true }),
-        l('ANNULEE', '9000', { motifImputable: false, annulationTardive: true }),
+        l('ANNULEE', '5000', { annulationImputable: true, annulationTardive: false, poidsAnnulation: 1 }),
+        l('ANNULEE', '7000', { annulationImputable: true, annulationTardive: true, poidsAnnulation: 2 }),
+        l('ANNULEE', '9000', { annulationImputable: false, annulationTardive: true, poidsAnnulation: 0 }),
       ],
       annulationsPartielles: [
-        { montantRetire: '1000', tardive: true, imputable: true },
-        { montantRetire: '2000', tardive: true, imputable: false },
+        { montantRetire: '1000', tardive: true, imputable: true, poids: 1 },
+        { montantRetire: '2000', tardive: true, imputable: false, poids: 0 },
       ],
       prolongations: 2,
     });
@@ -63,6 +64,8 @@ describe('Indicateurs de fiabilité (section 9)', () => {
     expect(f.annulationsTardives.montant.toString()).toBe('8000');
     expect(f.lignesComptees).toBe(2);
     expect(f.prolongations).toBe(2);
+    // 1 (dans les délais) + 2 (tardive, réservation ancienne) + 1 (baisse tardive) : poids 4.
+    expect(f.poidsAnnulations).toBe(4);
   });
 
   it('calcule le délai moyen entre la validation de la réservation et l’opération déclarée', () => {

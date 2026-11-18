@@ -36,15 +36,24 @@ export class SessionService {
     return this.utilisateur()?.modules.includes(module) ?? false;
   }
 
-  connexion(email: string, motDePasse: string): Promise<ReponseConnexion> {
-    return firstValueFrom(this.http.post<ReponseConnexion>('/api/auth/connexion', { email, motDePasse }));
+  async connexion(email: string, motDePasse: string): Promise<ReponseConnexion> {
+    const reponse = await firstValueFrom(this.http.post<ReponseConnexion>('/api/auth/connexion', { email, motDePasse }));
+    if (reponse.etape === 'CONNECTE') {
+      this.retenir(reponse.utilisateur);
+    }
+    return reponse;
   }
 
-  async validerCode(demande: string, code: string): Promise<ProfilConnecte> {
-    const u = await firstValueFrom(this.http.post<ProfilConnecte>('/api/auth/code', { demande, code }));
+  /** Le code reçu ; avec « faire confiance », cet appareil ne redemandera plus le code pendant 30 jours. */
+  async validerCode(demande: string, code: string, faireConfiance: boolean): Promise<ProfilConnecte> {
+    const u = await firstValueFrom(this.http.post<ProfilConnecte>('/api/auth/code', { demande, code, faireConfiance }));
+    this.retenir(u);
+    return u;
+  }
+
+  private retenir(u: ProfilConnecte): void {
     this.utilisateur.set(u);
     this.chargement = Promise.resolve(u);
-    return u;
   }
 
   async deconnexion(): Promise<void> {

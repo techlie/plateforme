@@ -1,6 +1,8 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { nomComplet, UtilisateurConnecte } from '../../shared/acces/acces.types';
+import { DocumentsService } from '../../shared/documents/documents.service';
+import type { FichierRecu } from '../../shared/documents/documents.service';
 import { JournalService } from '../../shared/journal/journal.service';
 import { dateParis, depuisDateBase, versDateBase } from '../../shared/regles/dates';
 import { cleFonds, comparerListeFonds, lireCsvFonds, ResultatImport } from './regles/fonds';
@@ -9,6 +11,7 @@ import {
   ApporteurDto,
   CodeApporteurDto,
   CompagnieDto,
+  ConventionDto,
   FondsDto,
   GammeDto,
   ImportFondsDto,
@@ -17,7 +20,7 @@ import {
   ModificationCompagnieDto,
   ModificationGammeDto,
 } from './dto/referentiels.dto';
-import { LigneApporteur, LigneCode, ReferentielsRepository } from './referentiels.repository';
+import { LigneApporteur, LigneCode, LigneConvention, ReferentielsRepository } from './referentiels.repository';
 
 /** Un modèle de numéro se compose de 9, A, X et de caractères attendus tels quels (voir saisie.ts). */
 function formatValable(format: string): boolean {
@@ -37,6 +40,18 @@ function sortieApporteur(a: LigneApporteur) {
     entite: a.entite,
     compte: a.user ? { id: a.user.id, email: a.user.email, actif: a.user.actif } : null,
     codes: a.codes.map((c) => c.code),
+  };
+}
+
+function sortieConvention(c: LigneConvention) {
+  return {
+    id: c.id,
+    dateEffet: depuisDateBase(c.dateEffet),
+    tauxClientsConfies: c.tauxClientsConfies?.toString() ?? null,
+    commentaire: c.commentaire,
+    auteur: c.auteur,
+    creeLe: c.createdAt.toISOString(),
+    document: c.document,
   };
 }
 
@@ -63,6 +78,7 @@ export class ReferentielsService {
   constructor(
     private readonly repository: ReferentielsRepository,
     private readonly journal: JournalService,
+    private readonly documents: DocumentsService,
   ) {}
 
   private tracer(auteur: UtilisateurConnecte, action: string, message: string, cible: string, details?: Prisma.InputJsonValue) {
@@ -363,5 +379,56 @@ export class ReferentielsService {
       reouvertures: resultat.reouvertures.map((f) => f.nom),
     });
     return { ...resultat, isinInvalides, applique: true };
+  }
+
+  // Conventions des apporteurs (décision du 18 novembre)
+
+  async conventions(apporteurId: string) {
+    await this.apporteur(apporteurId);
+    return (await this.repository.conventions(apporteurId)).map(sortieConvention);
+  }
+
+  /** Les conventions de l'apporteur rattaché au compte connecté : il les consulte, sans les modifier. */
+  async conventionsDeCompte(userId: string) {
+    const a = await this.repository.apporteurDeCompte(userId);
+    return a ? (await this.repository.conventions(a.id)).map(sortieConvention) : [];
+  }
+
+  /** Une convention s'ajoute avec son document ; une nouvelle date d'effet remplace la précédente pour la suite. */
+  async ajouterConvention(apporteurId: string, dto: ConventionDto, fichier: FichierRecu | undefined, auteur: UtilisateurConnecte) {
+    const apporteur = await this.apporteur(apporteurId);
+    if (!fichier) {
+      throw new BadRequestException({ code: 'FICHIER', message: 'Joignez la convention signée.' });
+    }
+    const cree = await this.repository.creerConvention({
+      apporteurId,
+      dateEffet: versDateBase(dto.dateEffet),
+      tauxClientsConfies: dto.tauxClientsConfies ?? null,
+      commentaire: dto.commentaire?.trim() || null,
+      auteurId: auteur.id,
+      auteur: nomComplet(auteur),
+    });
+    try {
+      await this.documents.deposer(fichier, 'CONVENTION', { conventionId: cree.id }, auteur);
+    } catch (erreur) {
+      // Pas de convention sans son document.
+      await this.repository.supprimerConvention(cree.id);
+      throw erreur;
+    }
+    await this.tracer(auteur, 'CONVENTION_AJOUTEE', `Convention de ${nomComplet(apporteur)} ajoutée, effet au ${dto.dateEffet}.`, cree.id, {
+      apporteurId,
+      dateEffet: dto.dateEffet,
+      tauxClientsConfies: dto.tauxClientsConfies ?? null,
+    });
+    return sortieConvention((await this.repository.convention(cree.id))!);
+  }
+
+  /**
+   * Taux des clients confiés fixé par la convention de l'apporteur en vigueur à la date donnée,
+   * ou null s'il n'y en a pas : le taux de l'enveloppe s'applique alors.
+   */
+  async tauxConvention(apporteurId: string, date: string): Promise<{ taux: string; conventionId: string; dateEffet: string } | null> {
+    const c = await this.repository.conventionAvecTaux(apporteurId, versDateBase(date));
+    return c ? { taux: c.tauxClientsConfies!.toString(), conventionId: c.id, dateEffet: depuisDateBase(c.dateEffet) } : null;
   }
 }

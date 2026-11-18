@@ -9,6 +9,7 @@ import {
   ClientConfie,
   CodeApporteur,
   Compagnie,
+  Convention,
   DetailReservation,
   DocumentDepose,
   Enveloppe,
@@ -114,6 +115,18 @@ export class EnveloppesApi {
   creerCode = (corps: Corps) => this.post<CodeApporteur>('/referentiels/codes', corps);
   modifierCode = (id: string, corps: Corps) => this.patch<CodeApporteur>(`/referentiels/codes/${id}`, corps);
   fonds = (compagnie: string) => this.get<Fonds[]>('/referentiels/fonds', { compagnie });
+  conventions = (apporteur: string) => this.get<Convention[]>(`/referentiels/apporteurs/${apporteur}/conventions`);
+  mesConventions = () => this.get<Convention[]>('/referentiels/conventions/miennes');
+  lienConvention = (document: string) => `/api/referentiels/conventions/documents/${document}`;
+
+  ajouterConvention(apporteur: string, champs: { dateEffet: string; tauxClientsConfies?: string; commentaire?: string }, fichier: File): Promise<Convention> {
+    const corps = new FormData();
+    for (const [cle, valeur] of Object.entries(champs)) {
+      if (valeur) corps.append(cle, valeur);
+    }
+    corps.append('fichier', fichier);
+    return this.post<Convention>(`/referentiels/apporteurs/${apporteur}/conventions`, corps);
+  }
   ajouterFonds = (corps: Corps) => this.post<Fonds>('/referentiels/fonds', corps);
   importerFonds = (corps: Corps) =>
     this.post<{

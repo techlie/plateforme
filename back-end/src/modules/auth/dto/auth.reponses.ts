@@ -1,11 +1,17 @@
 import type { ModulePlateforme, Profil } from '@prisma/client';
 
-export interface ReponseConnexion {
-  etape: 'CODE';
-  demande: string;
-  adresseMasquee: string;
-  validiteMinutes: number;
-}
+export type ReponseConnexion =
+  | {
+      etape: 'CODE';
+      demande: string;
+      adresseMasquee: string;
+      validiteMinutes: number;
+    }
+  | {
+      /** Appareil reconnu : le code n'est pas redemandé, la session est ouverte. */
+      etape: 'CONNECTE';
+      utilisateur: ProfilConnecte;
+    };
 
 export interface ProfilConnecte {
   id: string;

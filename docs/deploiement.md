@@ -30,7 +30,7 @@ cp .env.example .env
 #   CONFIANCE_PROXY=true
 #   COURRIEL_EXPEDITEUR, SMTP_HOTE, SMTP_PORT, SMTP_SECURISE, SMTP_UTILISATEUR, SMTP_MOT_DE_PASSE
 #   DOSSIER_DOCUMENTS=<dossier hors du site web, lisible du seul service Node>
-#   PLANIFICATEUR=oui   (une seule instance du serveur avec oui : échéances, rappels, mail du jeudi)
+#   PLANIFICATEUR=oui   (une seule instance du serveur avec oui : échéances, récapitulatifs, alertes)
 npx prisma generate
 npx prisma migrate deploy
 npm run build
@@ -45,14 +45,19 @@ npx ng build                  # produit front-end/dist/front-end/browser
 Le script d'initialisation crée les entités du groupe, les paramètres et les motifs de
 départ du module Enveloppes, puis le premier super administrateur, qui reçoit par
 courriel le lien pour choisir son mot de passe. Il ne crée rien deux fois si on le
-relance : il se relance après la mise à jour qui ajoute le module Enveloppes.
+relance : il se relance après chaque mise à jour du module Enveloppes, pour ajouter les
+nouveaux motifs (la mise à jour du 18 novembre en ajoute).
+
+Les conventions des apporteurs sont rangées dans `DOSSIER_DOCUMENTS`, comme les autres
+documents.
 
 En production, le serveur refuse de démarrer sans `CLE_SECRETE` d'au moins 32
 caractères, sans `URL_APPLICATION`, sans serveur d'envoi de courriels ou sans
 `DOSSIER_DOCUMENTS`.
 
 Les tâches planifiées (fermeture des enveloppes à la date limite interne, réservations
-échues, rappels, compte à rebours, mail du jeudi) tournent dans le serveur Node, chaque
+échues, compte à rebours, récapitulatifs du jeudi et du lundi, alerte au back-office)
+tournent dans le serveur Node, chaque
 minute, à l'heure de Paris. Si plusieurs instances du serveur tournent, une seule doit
 avoir `PLANIFICATEUR=oui`.
 

@@ -30,8 +30,15 @@ export class LigneFondsDto {
   @MaxLength(12)
   isin?: string;
 
+  /** Montant à désinvestir, ou bien… */
+  @IsOptional()
   @EstMontant()
-  montant: string;
+  montant?: string;
+
+  /** … pourcentage de l'encours du contrat (0.25 pour 25 %) : le montant en est calculé. */
+  @IsOptional()
+  @EstTaux()
+  pourcentage?: string;
 }
 
 export class DerogationDto {
@@ -218,6 +225,11 @@ export class ModificationReservationDto {
   @IsUUID()
   motifBaisseId?: string;
 
+  /** Baisse avec un motif au choix du back-office : imputable au mandataire ou non. */
+  @IsOptional()
+  @IsBoolean()
+  imputable?: boolean;
+
   @IsOptional()
   @IsString()
   @MaxLength(1000)
@@ -239,6 +251,11 @@ export class DecisionDto {
   @IsString()
   @MaxLength(1000)
   commentaire?: string;
+
+  /** Motif au choix du back-office : l'annulation est-elle imputable au mandataire. */
+  @IsOptional()
+  @IsBoolean()
+  imputable?: boolean;
 }
 
 export class AnnulationDto extends DecisionDto {

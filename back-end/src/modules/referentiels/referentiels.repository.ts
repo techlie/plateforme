@@ -31,6 +31,19 @@ const CODE = {
 
 export type LigneCode = Prisma.CodeApporteurGetPayload<{ select: typeof CODE }>;
 
+const CONVENTION = {
+  id: true,
+  apporteurId: true,
+  dateEffet: true,
+  tauxClientsConfies: true,
+  commentaire: true,
+  auteur: true,
+  createdAt: true,
+  document: { select: { id: true, nom: true, taille: true } },
+} as const;
+
+export type LigneConvention = Prisma.ConventionGetPayload<{ select: typeof CONVENTION }>;
+
 @Injectable()
 export class ReferentielsRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -178,5 +191,32 @@ export class ReferentielsRepository {
 
   transaction<T>(travail: (tx: Prisma.TransactionClient) => Promise<T>) {
     return this.prisma.$transaction(travail);
+  }
+
+  // Conventions des apporteurs
+
+  conventions(apporteurId: string) {
+    return this.prisma.convention.findMany({ where: { apporteurId }, select: CONVENTION, orderBy: [{ dateEffet: 'desc' }, { createdAt: 'desc' }] });
+  }
+
+  creerConvention(data: Prisma.ConventionUncheckedCreateInput) {
+    return this.prisma.convention.create({ data, select: { id: true } });
+  }
+
+  supprimerConvention(id: string) {
+    return this.prisma.convention.delete({ where: { id } });
+  }
+
+  convention(id: string) {
+    return this.prisma.convention.findUnique({ where: { id }, select: CONVENTION });
+  }
+
+  /** La dernière convention en vigueur à la date donnée qui fixe un taux des clients confiés. */
+  conventionAvecTaux(apporteurId: string, date: Date) {
+    return this.prisma.convention.findFirst({
+      where: { apporteurId, dateEffet: { lte: date }, tauxClientsConfies: { not: null } },
+      select: CONVENTION,
+      orderBy: [{ dateEffet: 'desc' }, { createdAt: 'desc' }],
+    });
   }
 }

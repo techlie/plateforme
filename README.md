@@ -12,7 +12,7 @@ Ce dépôt est privé.
 | --- | --- | --- |
 | Socle applicatif | Connexion, double authentification par code mail, profils, modules activables par utilisateur, journal des actions | Construit et testé : connexion en deux étapes, comptes, entités, journal, écrans d'administration |
 | Simulateur | Commission estimée d'une affaire, selon le référentiel de l'année, et ce qui est repris si le contrat s'arrête | Construit et testé : 151 contrats du barème 2026, reprises, co-courtage, reversement à 70, 80 ou 90 % ; sans connexion |
-| Enveloppes | Réservations, compteurs théorique et réel, validation, relances, avenant pré-rempli | Construit et testé : référentiels, enveloppes, réservations et tous leurs contrôles, liste d'attente, vérification compagnie, clients confiés, fiche avenant, mail du jeudi, fiabilité, export ; points ouverts listés dans `docs/decisions.md` |
+| Enveloppes | Réservations, compteurs théorique et réel, validation, relances, avenant pré-rempli | Construit et testé : référentiels, conventions des apporteurs, enveloppes, réservations et tous leurs contrôles, liste d'attente, vérification compagnie, clients confiés, fiche avenant, récapitulatifs aux mandataires, alerte au back-office, fiabilité pondérée, export ; points ouverts listés dans `docs/decisions.md` |
 | Affaires et bordereau | Saisie des affaires, étapes de validation, bordereau mensuel du mandataire | À construire |
 | Synthèse des contrats | Récapitulatif des contrats d'un client avant rendez-vous : garanties et coût avec échéancier, encours et versements réguliers en assurance vie et PER | À construire |
 
@@ -94,25 +94,31 @@ Manque :
 Fait, selon le cahier des charges du module (version 2) :
 
 - référentiels communs : compagnies et gammes avec le modèle du numéro de contrat,
-  apporteurs rattachés ou non à un compte, codes apporteur, fonds importés par
-  compagnie (aucun fonds n'est supprimé : il passe « fermé ») ;
+  apporteurs rattachés ou non à un compte, avec leurs conventions annexées, codes
+  apporteur, fonds importés par compagnie (aucun fonds n'est supprimé : il passe
+  « fermé ») ;
 - enveloppes : création, dates dans l'ordre imposé, fermeture seule à la date limite
   interne (23 h 59, Paris), rallonges et restitutions, réservations globales, clients
   confiés, upfront réservé aux super administrateurs, produit annulé ou reporté ;
-- réservations : brut et frais saisis, net calculé ; les contrôles de la section 6.3,
-  avec dérogations motivées ; liste d'attente ; validation, renvoi, refus, annulation
+- réservations : brut et frais saisis, net calculé ; arbitrage fonds par fonds en euros
+  ou en pourcentage de l'encours du contrat, total égal au brut ; les contrôles de la
+  section 6.3, avec dérogations motivées ; liste d'attente ; validation, renvoi, refus, annulation
   (tardive signalée), déclaration de l'opération, vérification compagnie et écart,
   échéance, prolongation, libération, annulation après opération ;
 - double compteur recalculé à chaque affichage, et contrôle de l'enveloppe dans la même
   transaction que l'enregistrement : deux réservations ne prennent jamais le même
   montant ;
 - fiche des valeurs à reporter sur l'avenant, produite après l'accord du client ;
-- notifications par courriel sans nom de client, mail du jeudi à 9 h 01, fiabilité des
-  mandataires, export CSV journalisé, documents déposés.
+- notifications par courriel sans nom de client ; récapitulatif à chaque mandataire le
+  jeudi à 9 h 01, et aussi le lundi dans les 20 derniers jours ; alerte au back-office à
+  14 jours ; fiabilité des mandataires avec annulations pondérées ; export CSV
+  journalisé, documents déposés.
+- connexion : code par courriel, puis appareil reconnu 30 jours si la personne le
+  choisit.
 
 Manque : le récapitulatif et la demande de règlement des commissions, l'import des
 fichiers d'ordres des compagnies, le pré-remplissage de la fiche par l'IA, le
-remplissage de l'avenant vierge lui-même, les relances automatiques, le bilan de
+remplissage de l'avenant vierge lui-même, le bilan de
 clôture et l'export Excel. Les règles encore à trancher sont listées dans
 [`docs/decisions.md`](docs/decisions.md) ; en attendant, la plateforme les affiche
 « à fixer » ou « à confirmer ».

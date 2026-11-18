@@ -133,7 +133,6 @@ export class EnveloppeComponent implements OnInit {
         const [confies, apporteurs] = await Promise.all([this.api.clientsConfies(this.id()), this.api.apporteurs()]);
         this.confies.set(confies);
         this.apporteurs.set(apporteurs);
-        this.cfTaux.set(depuisTaux(enveloppe.tauxClientsConfies));
       }
     } catch (e) {
       this.erreur.set(messageErreur(e, 'L’enveloppe n’a pas pu être chargée.'));
@@ -197,8 +196,10 @@ export class EnveloppeComponent implements OnInit {
   }
 
   async confier(): Promise<void> {
-    const taux = versTaux(this.cfTaux());
-    if (!this.cfApporteur() || !this.cfNom() || !taux) return this.erreurPanneau.set('Mandataire, nom du client et taux sont obligatoires.');
+    // Taux vide : celui de la convention du mandataire ; à défaut, celui de l'enveloppe (décidé côté serveur).
+    const taux = this.cfTaux().trim() ? versTaux(this.cfTaux()) : undefined;
+    if (!this.cfApporteur() || !this.cfNom()) return this.erreurPanneau.set('Mandataire et nom du client sont obligatoires.');
+    if (taux === null) return this.erreurPanneau.set('Taux illisible.');
     await this.executer(
       () =>
         this.api.confier(this.id(), {
@@ -242,7 +243,9 @@ export class EnveloppeComponent implements OnInit {
     await this.executer(() => this.api.upfront(this.id(), taux), 'Upfront enregistré.');
   }
 
+  /** Personne ne valide sa propre réservation, sauf un super administrateur (décision du 18 novembre). */
   peutValider(r: Reservation): boolean {
-    return r.statut === 'SOUMISE' && !r.estApporteur && (!r.accordAdministrateur || this.administrateur());
+    const superAdministrateur = this.profil() === 'SUPER_ADMINISTRATEUR';
+    return r.statut === 'SOUMISE' && (!r.estApporteur || superAdministrateur) && (!r.accordAdministrateur || this.administrateur());
   }
 }

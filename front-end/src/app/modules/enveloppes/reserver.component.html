@@ -96,8 +96,13 @@
         <div class="grille">
           <label class="champ">
             <span class="champ__libelle">Montant brut</span>
-            <span class="champ__zone"><input class="champ__saisie" name="brut" inputmode="decimal" [ngModel]="montantBrut()" (ngModelChange)="montantBrut.set($event)" /><span class="champ__unite">€</span></span>
-            <span class="champ__aide">Minimum {{ euros(e.montantMinimum) }} net par contrat et par client.</span>
+            @if (parFondsEnPourcentage()) {
+              <span class="champ__zone champ__zone--calcule"><input class="champ__saisie" name="brut" disabled [value]="depuisMontant(brut())" /><span class="champ__unite">€</span></span>
+              <span class="champ__aide">Calculé : somme des lignes en pourcentage de l’encours du contrat.</span>
+            } @else {
+              <span class="champ__zone"><input class="champ__saisie" name="brut" inputmode="decimal" [ngModel]="montantBrut()" (ngModelChange)="montantBrut.set($event)" /><span class="champ__unite">€</span></span>
+              <span class="champ__aide">Minimum {{ euros(e.montantMinimum) }} net par contrat et par client.</span>
+            }
           </label>
           <label class="champ">
             <span class="champ__libelle">Frais {{ arbitrage() ? 'd’arbitrage' : 'sur versement' }}</span>
@@ -121,14 +126,28 @@
                 <span class="champ__zone"><input class="champ__saisie" name="part" inputmode="decimal" [ngModel]="pourcentageArbitrage()" (ngModelChange)="pourcentageArbitrage.set($event)" /><span class="champ__unite">%</span></span>
               </label>
               <label class="champ">
-                <span class="champ__libelle">Valeur du contrat à date</span>
+                <span class="champ__libelle">Encours du contrat</span>
                 <span class="champ__zone"><input class="champ__saisie" name="valeur" inputmode="decimal" [ngModel]="valeurContrat()" (ngModelChange)="valeurContrat.set($event)" /><span class="champ__unite">€</span></span>
               </label>
             </div>
             <p class="discret">Désinvestissement au prorata de tous les supports du contrat. Le montant exact dépendra de la valeur au jour de l’opération.</p>
           } @else {
+            <div class="groupe">
+              <span class="groupe__libelle" id="libelle-saisie-fonds">Saisie des montants</span>
+              <div class="pastilles" role="group" aria-labelledby="libelle-saisie-fonds">
+                <button type="button" class="pastille" [attr.aria-pressed]="saisieFonds() === 'EUROS'" (click)="basculerSaisieFonds('EUROS')">En euros</button>
+                <button type="button" class="pastille" [attr.aria-pressed]="saisieFonds() === 'POURCENT'" (click)="basculerSaisieFonds('POURCENT')">En % de l’encours du contrat</button>
+              </div>
+            </div>
+            @if (saisieFonds() === 'POURCENT') {
+              <label class="champ">
+                <span class="champ__libelle">Encours du contrat</span>
+                <span class="champ__zone"><input class="champ__saisie" name="encours-contrat" inputmode="decimal" [ngModel]="valeurContrat()" (ngModelChange)="valeurContrat.set($event)" /><span class="champ__unite">€</span></span>
+                <span class="champ__aide">Obligatoire en pourcentage : chaque montant en découle.</span>
+              </label>
+            }
             @if (lignes().length) {
-              <ul class="fonds-choisis">
+              <ul class="fonds-choisis fonds-choisis--double">
                 @for (l of lignes(); track l.cle) {
                   <li>
                     <span>
@@ -141,7 +160,13 @@
                         <span class="ligne__second">Hors référentiel · vérifié par le back-office</span>
                       }
                     </span>
-                    <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [attr.aria-label]="'Montant à désinvestir sur ' + l.nom" [ngModel]="l.montant" (ngModelChange)="modifierLigne(l.cle, 'montant', $event)" [ngModelOptions]="{ standalone: true }" /><span class="champ__unite">€</span></span>
+                    @if (saisieFonds() === 'POURCENT') {
+                      <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [attr.aria-label]="'Pourcentage de l’encours du contrat à désinvestir sur ' + l.nom" [ngModel]="l.pourcentage" (ngModelChange)="modifierLigne(l.cle, 'pourcentage', $event)" [ngModelOptions]="{ standalone: true }" /><span class="champ__unite">%</span></span>
+                      <span class="champ__zone champ__zone--calcule"><input class="champ__saisie" disabled [attr.aria-label]="'Montant calculé sur ' + l.nom" [value]="equivalent(l)" /><span class="champ__unite">€</span></span>
+                    } @else {
+                      <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [attr.aria-label]="'Montant à désinvestir sur ' + l.nom" [ngModel]="l.montant" (ngModelChange)="modifierLigne(l.cle, 'montant', $event)" [ngModelOptions]="{ standalone: true }" /><span class="champ__unite">€</span></span>
+                      <span class="champ__zone champ__zone--calcule"><input class="champ__saisie" disabled [attr.aria-label]="'Part de l’encours du contrat sur ' + l.nom" [value]="equivalent(l)" [placeholder]="'—'" /><span class="champ__unite">%</span></span>
+                    }
                     <button type="button" class="bouton bouton--petit" (click)="retirerLigne(l.cle)" [attr.aria-label]="'Retirer ' + l.nom">Retirer</button>
                   </li>
                 }
@@ -161,7 +186,7 @@
               }
             </div>
             @if (resteARepartir() !== null && lignes().length) {
-              <p class="discret montant">Total désinvesti {{ euros(totalFonds().toFixed(2)) }} · reste à répartir {{ euros(resteARepartir()!.toFixed(2)) }}</p>
+              <p class="discret montant">Total désinvesti {{ euros(totalFonds()) }} · reste à répartir sur le brut {{ euros(resteARepartir()!.toFixed(2)) }}</p>
             }
           }
         }

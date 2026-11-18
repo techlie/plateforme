@@ -12,12 +12,15 @@ export interface ProfilConnecte {
   entite: { id: string; nom: string } | null;
 }
 
-export interface ReponseConnexion {
-  etape: 'CODE';
-  demande: string;
-  adresseMasquee: string;
-  validiteMinutes: number;
-}
+/** Après le mot de passe : un code à saisir, ou, sur un appareil reconnu, la session déjà ouverte. */
+export type ReponseConnexion =
+  | { etape: 'CODE'; demande: string; adresseMasquee: string; validiteMinutes: number }
+  | { etape: 'CONNECTE'; utilisateur: ProfilConnecte };
+
+export type DemandeDeCode = Extract<ReponseConnexion, { etape: 'CODE' }>;
+
+/** Décision du 18 novembre : un appareil reconnu ne redemande pas le code pendant 30 jours. */
+export const JOURS_APPAREIL_RECONNU = 30;
 
 export const PROFILS_ADMINISTRATION: Profil[] = ['SUPER_ADMINISTRATEUR', 'ADMINISTRATEUR'];
 

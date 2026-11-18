@@ -6,14 +6,14 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { CategorieMotif, ModeArbitrage, Prisma, StatutReservation, TypeClient, TypeOperation } from '@prisma/client';
+import { CategorieMotif, ImputabiliteMotif, ModeArbitrage, Prisma, StatutReservation, TypeClient, TypeOperation } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { nomComplet, UtilisateurConnecte } from '../../shared/acces/acces.types';
 import { JournalService } from '../../shared/journal/journal.service';
 import { calculerEcheance, dateParis, depuisDateBase, estDepassee, estTardive, versDateBase } from '../../shared/regles/dates';
 import { cleClient, isinValide, nettoyerNumeroContrat } from '../../shared/regles/saisie';
 import { ReferentielsService } from '../referentiels/referentiels.service';
-import { estAdministrateur, estGestion, exigerAdministrateur, exigerGestion, interdireSurSaPropreReservation } from './acces-enveloppes';
+import { estAdministrateur, estGestion, estSuperAdministrateur, exigerAdministrateur, exigerGestion, interdireSurSaPropreReservation } from './acces-enveloppes';
 import {
   AnnulationDto,
   DecisionDto,
@@ -37,7 +37,8 @@ import { NotificationsEnveloppesService } from './notifications.service';
 import { calculerCompteurs, montantRetenu, soldeGlobale } from './regles/compteurs';
 import { Constat, controlerReservation, DEROGATIONS, ResultatControle } from './regles/controles';
 import { calculerFiabilite } from './regles/fiabilite';
-import { commission, d, Decimal, montantNet, part, somme, ZERO } from './regles/montants';
+import { ancienneteJours, imputabiliteRetenue, poidsAnnulation } from './regles/annulation';
+import { arrondirAuCentime, commission, d, Decimal, montantNet, part, somme, ZERO } from './regles/montants';
 import { LIBELLES_STATUTS, STATUTS_ACTIFS, STATUTS_APRES_OPERATION, STATUTS_AVANT_OPERATION, estVerifie } from './regles/statuts';
 import { texteDate, texteMontant, texteTaux } from './sorties';
 
@@ -60,7 +61,8 @@ interface Saisie {
   modeArbitrage: ModeArbitrage | null;
   pourcentageArbitrage: string | null;
   valeurContrat: string | null;
-  fonds: { fondsId: string | null; nom: string; isin: string | null; montant: string }[];
+  /** Une ligne se saisit en montant, ou en pourcentage de l'encours du contrat. */
+  fonds: { fondsId: string | null; nom: string; isin: string | null; montant: string | null; pourcentage: string | null }[];
   reservationGlobaleId: string | null;
 }
 
@@ -68,7 +70,7 @@ interface Saisie {
 type EntreeSaisie = {
   [K in Exclude<keyof Saisie, 'fonds'>]?: Saisie[K] | undefined;
 } & Pick<Saisie, 'typeOperation' | 'typeClient' | 'clientNom' | 'montantBrut' | 'tauxFrais' | 'clientPrevendu'> & {
-  fonds?: { fondsId?: string | null; nom: string; isin?: string | null; montant: string }[];
+  fonds?: { fondsId?: string | null; nom: string; isin?: string | null; montant?: string | null; pourcentage?: string | null }[];
 };
 
 interface Preparation {
@@ -76,7 +78,7 @@ interface Preparation {
   net: Decimal;
   codeApporteurId: string | null;
   restante: Decimal;
-  fonds: { fondsId: string | null; nom: string; isin: string | null; montant: string; horsReferentiel: boolean }[];
+  fonds: { fondsId: string | null; nom: string; isin: string | null; montant: string; pourcentage: string | null; horsReferentiel: boolean }[];
 }
 
 /** Statuts où le mandataire peut encore modifier sa réservation. */
@@ -163,10 +165,47 @@ export class ReservationsService {
     if (!motif || !motif.actif || motif.categorie !== categorie) {
       throw new BadRequestException({ code: 'MOTIF', message: 'Motif inconnu pour cette action.' });
     }
-    if (motif.commentaireObligatoire && !commentaire?.trim()) {
+    // Un motif au choix du back-office est contrôlé à part : son commentaire explique le choix.
+    if (motif.imputabilite !== 'AU_CHOIX' && motif.commentaireObligatoire && !commentaire?.trim()) {
       throw new BadRequestException({ code: 'COMMENTAIRE', message: `Le motif « ${motif.libelle} » demande un commentaire.` });
     }
     return motif;
+  }
+
+  /**
+   * Motif « au choix » (refus de la compagnie, opération déjà en cours) : le back-office décide,
+   * au cas par cas, si l'annulation est imputable au mandataire, et en donne la raison.
+   */
+  private exigerChoixSiBesoin(motif: { imputabilite: string; libelle: string }, u: UtilisateurConnecte, choix: boolean | undefined, commentaire?: string) {
+    if (motif.imputabilite !== 'AU_CHOIX') return;
+    if (!estGestion(u)) {
+      throw new ForbiddenException({ code: 'MOTIF_BACK_OFFICE', message: `Le motif « ${motif.libelle} » est retenu par le back-office, qui décide s’il est imputable.` });
+    }
+    if (choix === undefined) {
+      throw new BadRequestException({ code: 'IMPUTABILITE', message: `Pour « ${motif.libelle} », précisez si l’annulation est imputable au mandataire.` });
+    }
+    if (!commentaire?.trim()) {
+      throw new BadRequestException({ code: 'COMMENTAIRE', message: `Pour « ${motif.libelle} », expliquez votre choix en commentaire.` });
+    }
+  }
+
+  private ponderer(
+    motif: { imputabilite: ImputabiliteMotif },
+    choix: boolean | undefined,
+    tardive: boolean,
+    saisieLe: Date,
+    maintenant: Date,
+    p: { ancienneteAnnulationJours: number; poidsAnnulationAggravee: number },
+  ): { imputable: boolean; poids: number } {
+    const imputable = imputabiliteRetenue(motif.imputabilite, { tardive, choixBackOffice: choix ?? null });
+    const poids = poidsAnnulation({
+      imputable,
+      tardive,
+      ancienneteJours: ancienneteJours(saisieLe, maintenant),
+      seuilAncienneteJours: p.ancienneteAnnulationJours,
+      poidsAggrave: p.poidsAnnulationAggravee,
+    });
+    return { imputable, poids };
   }
 
   private async apporteurCible(apporteurId: string | undefined, u: UtilisateurConnecte): Promise<Apporteur> {
@@ -210,10 +249,16 @@ export class ReservationsService {
       gammeId: dto.gammeId ?? null,
       modeArbitrage: mode,
       pourcentageArbitrage: mode === 'GLOBAL' ? (dto.pourcentageArbitrage ?? null) : null,
-      valeurContrat: mode === 'GLOBAL' ? (dto.valeurContrat ?? null) : null,
+      valeurContrat: mode ? (dto.valeurContrat ?? null) : null,
       fonds:
         mode === 'PAR_FONDS'
-          ? (dto.fonds ?? []).map((f) => ({ fondsId: f.fondsId ?? null, nom: f.nom.trim(), isin: f.isin?.trim().toUpperCase() || null, montant: f.montant }))
+          ? (dto.fonds ?? []).map((f) => ({
+              fondsId: f.fondsId ?? null,
+              nom: f.nom.trim(),
+              isin: f.isin?.trim().toUpperCase() || null,
+              montant: f.pourcentage ? null : (f.montant ?? null),
+              pourcentage: f.pourcentage ?? null,
+            }))
           : [],
       reservationGlobaleId: dto.reservationGlobaleId ?? null,
     };
@@ -239,7 +284,15 @@ export class ReservationsService {
       if (f.isin && !isinValide(f.isin)) {
         throw new BadRequestException({ code: 'ISIN', message: `Code ISIN invalide pour ${f.nom} (clé de contrôle comprise).` });
       }
+      if (!f.montant && !f.pourcentage) {
+        throw new BadRequestException({ code: 'FONDS', message: `Indiquez un montant ou un pourcentage pour ${f.nom}.` });
+      }
     }
+    // Pourcentage de l'encours du contrat : le montant de la ligne en est calculé, arrondi au centime.
+    const lignes = s.fonds.map((f) => ({
+      ...f,
+      montant: f.pourcentage ? (s.valeurContrat ? arrondirAuCentime(d(f.pourcentage).times(d(s.valeurContrat))).toFixed(2) : '0.00') : (f.montant as string),
+    }));
 
     const net = montantNet(s.montantBrut, s.tauxFrais);
     const donnees = await this.repository.donneesCompteurs(e.id, db);
@@ -288,6 +341,7 @@ export class ReservationsService {
       reservation: {
         typeOperation: s.typeOperation,
         numeroContrat: s.numeroContrat,
+        montantBrut: s.montantBrut,
         montantNet: net,
         encoursClient: s.encoursClient,
         gammeId: s.gammeId,
@@ -295,7 +349,7 @@ export class ReservationsService {
         modeArbitrage: s.modeArbitrage,
         pourcentageArbitrage: s.pourcentageArbitrage,
         valeurContrat: s.valeurContrat,
-        fonds: s.fonds,
+        fonds: lignes,
       },
       restante: compteurs.restante,
       soldeGlobale: soldeGlobaleRestant,
@@ -308,7 +362,7 @@ export class ReservationsService {
       net,
       codeApporteurId,
       restante: compteurs.restante,
-      fonds: s.fonds.map((f) => ({ ...f, horsReferentiel: !f.fondsId })),
+      fonds: lignes.map((f) => ({ ...f, horsReferentiel: !f.fondsId })),
     };
   }
 
@@ -517,7 +571,7 @@ export class ReservationsService {
       modeArbitrage: avant.modeArbitrage,
       pourcentageArbitrage: avant.pourcentageArbitrage?.toString() ?? null,
       valeurContrat: avant.valeurContrat?.toFixed(2) ?? null,
-      fonds: avant.fonds.map((f) => ({ fondsId: f.fondsId, nom: f.nom, isin: f.isin, montant: f.montant.toFixed(2) })),
+      fonds: avant.fonds.map((f) => ({ fondsId: f.fondsId, nom: f.nom, isin: f.isin, montant: f.pourcentage ? null : f.montant.toFixed(2), pourcentage: f.pourcentage?.toString() ?? null })),
       reservationGlobaleId: avant.reservationGlobaleId,
     };
     const garder = <T>(nouveau: T | undefined, ancien: T): T => (nouveau !== undefined ? nouveau : ancien);
@@ -537,7 +591,7 @@ export class ReservationsService {
       modeArbitrage: garder(dto.modeArbitrage, actuelle.modeArbitrage),
       pourcentageArbitrage: garder(dto.pourcentageArbitrage, actuelle.pourcentageArbitrage),
       valeurContrat: garder(dto.valeurContrat, actuelle.valeurContrat),
-      fonds: dto.fonds ? dto.fonds.map((f) => ({ fondsId: f.fondsId ?? null, nom: f.nom, isin: f.isin ?? null, montant: f.montant })) : actuelle.fonds,
+      fonds: dto.fonds ? dto.fonds.map((f) => ({ fondsId: f.fondsId ?? null, nom: f.nom, isin: f.isin ?? null, montant: f.montant ?? null, pourcentage: f.pourcentage ?? null })) : actuelle.fonds,
       reservationGlobaleId: actuelle.reservationGlobaleId,
     });
 
@@ -550,6 +604,7 @@ export class ReservationsService {
         throw new BadRequestException({ code: 'MOTIF', message: 'Une baisse de montant est une annulation partielle : indiquez son motif.' });
       }
       motifBaisse = await this.motifValable(dto.motifBaisseId, 'ANNULATION', dto.commentaire);
+      this.exigerChoixSiBesoin(motifBaisse, u, dto.imputable, dto.commentaire);
     }
     const apporteur = await this.referentiels.apporteur(avant.apporteurId);
     const parametres = await this.enveloppes.parametres();
@@ -603,11 +658,12 @@ export class ReservationsService {
         },
       });
       const tardive = estTardive(depuisDateBase(e.dateLimiteInterne), maintenant, parametres.delaiAnnulationTardiveJours);
+      const ponderation = motifBaisse ? this.ponderer(motifBaisse, dto.imputable, tardive, avant.createdAt, maintenant, parametres) : null;
       await this.historique(tx, avant, u, baisse ? 'BAISSE' : 'MODIFICATION', statut !== avant.statut ? statut : null, dto.commentaire ?? null, {
         avant: { montantBrut: actuelle.montantBrut, tauxFrais: actuelle.tauxFrais, montantNet: avant.montantNet.toFixed(2), numeroContrat: actuelle.numeroContrat, clientNom: actuelle.clientNom, fonds: actuelle.fonds },
         apres: { montantBrut: fusion.montantBrut, tauxFrais: fusion.tauxFrais, montantNet: p.net.toFixed(2), numeroContrat: fusion.numeroContrat, clientNom: fusion.clientNom, fonds: fusion.fonds },
         ...(motifBaisse
-          ? { montantRetire: avant.montantNet.minus(p.net).toFixed(2), tardive, imputable: motifBaisse.imputable, motif: motifBaisse.libelle }
+          ? { montantRetire: avant.montantNet.minus(p.net).toFixed(2), tardive, imputable: ponderation!.imputable, poids: ponderation!.poids, motif: motifBaisse.libelle }
           : {}),
         ...(changeAvenant ? { avenant: `Avenant version ${avant.avenantVersion} périmé ; version ${avant.avenantVersion + 1} produite.` } : {}),
       });
@@ -626,7 +682,14 @@ export class ReservationsService {
   // Décisions du back-office
 
   async valider(id: string, u: UtilisateurConnecte) {
-    const r = await this.decidable(id, u);
+    exigerGestion(u);
+    const r = await this.reservation(id);
+    // Décision du 18 novembre : un super administrateur peut valider sa propre réservation ;
+    // c'est tracé et les autres super administrateurs en sont prévenus.
+    const saPropre = this.estApporteur(r, u) && estSuperAdministrateur(u);
+    if (!saPropre) {
+      interdireSurSaPropreReservation(u, r.apporteur.userId);
+    }
     this.exigerStatut(r, ['SOUMISE'], 'valider');
     if (r.accordAdministrateur && !estAdministrateur(u)) {
       throw new ForbiddenException({ code: 'RESTREINT', message: 'Cet apporteur est restreint : sa réservation est soumise à l’accord d’un administrateur.' });
@@ -643,7 +706,21 @@ export class ReservationsService {
       });
       await this.historique(tx, r, u, 'VALIDATION', 'VALIDEE', null, { echeance, taux: taux.toString() });
     });
-    await this.tracer(u, 'RESERVATION_VALIDEE', `Réservation n° ${r.numero} validée.`, id, { apporteurId: r.apporteurId });
+    await this.tracer(u, 'RESERVATION_VALIDEE', `Réservation n° ${r.numero} validée${saPropre ? ' par son propre apporteur, super administrateur' : ''}.`, id, {
+      apporteurId: r.apporteurId,
+      saPropreReservation: saPropre,
+    });
+    if (saPropre) {
+      const autres = await this.repository.prisma.user.findMany({
+        where: { profil: 'SUPER_ADMINISTRATEUR', actif: true, id: { not: u.id }, motDePasse: { not: null } },
+        select: { email: true },
+      });
+      await this.notifications.envoyer(autres.map((a) => a.email), `validation de sa propre réservation · ${r.enveloppe.nomProduit}`, [
+        `${nomComplet(u)} a validé sa propre réservation : ${this.notifications.designation(r)}.`,
+        'L’action est inscrite au journal.',
+        this.notifications.lienReservation(r),
+      ]);
+    }
     await this.notifications.decision(r, `réservation validée · ${r.enveloppe.nomProduit}`, [
       'Votre réservation est validée.',
       `Elle doit être honorée au plus tard le ${this.notifications.dateLisible(echeance)}.`,
@@ -693,7 +770,9 @@ export class ReservationsService {
     const parametres = await this.enveloppes.parametres();
     const maintenant = new Date();
     const tardive = estTardive(depuisDateBase(r.enveloppe.dateLimiteInterne), maintenant, parametres.delaiAnnulationTardiveJours);
-    if (tardive && motif.imputable && !estGestion(u) && !dto.confirmeTardive) {
+    this.exigerChoixSiBesoin(motif, u, dto.imputable, dto.commentaire);
+    const { imputable, poids } = this.ponderer(motif, dto.imputable, tardive, r.createdAt, maintenant, parametres);
+    if (tardive && imputable && !estGestion(u) && !dto.confirmeTardive) {
       throw new ConflictException({
         code: 'TARDIVE',
         message: `Nous sommes à moins de ${parametres.delaiAnnulationTardiveJours} jours de la date limite interne : cette annulation sera comptée comme tardive. Confirmez-vous ?`,
@@ -702,9 +781,17 @@ export class ReservationsService {
     await this.repository.transaction(async (tx) => {
       await tx.reservation.update({
         where: { id },
-        data: { statut: 'ANNULEE', annuleeLe: maintenant, annulationTardive: tardive, motifId: motif.id, commentaireMotif: dto.commentaire?.trim() || null },
+        data: {
+          statut: 'ANNULEE',
+          annuleeLe: maintenant,
+          annulationTardive: tardive,
+          annulationImputable: imputable,
+          poidsAnnulation: poids,
+          motifId: motif.id,
+          commentaireMotif: dto.commentaire?.trim() || null,
+        },
       });
-      await this.historique(tx, r, u, 'ANNULATION', 'ANNULEE', dto.commentaire, { motif: motif.libelle, imputable: motif.imputable, tardive });
+      await this.historique(tx, r, u, 'ANNULATION', 'ANNULEE', dto.commentaire, { motif: motif.libelle, imputable, tardive, poids });
     });
     await this.tracer(u, 'RESERVATION_ANNULEE', `Réservation n° ${r.numero} annulée${tardive ? ' (tardive)' : ''}.`, id, { motif: motif.libelle });
     if (!this.estApporteur(r, u)) {
@@ -762,7 +849,7 @@ export class ReservationsService {
       montantNet: r.montantNet.toFixed(2),
       modeArbitrage: r.modeArbitrage,
       pourcentageArbitrage: r.pourcentageArbitrage?.toString() ?? null,
-      fonds: r.fonds.map((f) => ({ nom: f.nom, isin: f.isin, montant: f.montant.toFixed(2) })),
+      fonds: r.fonds.map((f) => ({ nom: f.nom, isin: f.isin, montant: f.montant.toFixed(2), pourcentage: f.pourcentage?.toString() ?? null })),
       apporteur: `${r.apporteur.prenom} ${r.apporteur.nom}`,
       codeApporteur: r.codeApporteur?.code ?? null,
       date: dateParis(new Date()),
@@ -942,12 +1029,22 @@ export class ReservationsService {
     const parametres = await this.enveloppes.parametres();
     const maintenant = new Date();
     const tardive = estTardive(depuisDateBase(r.enveloppe.dateLimiteInterne), maintenant, parametres.delaiAnnulationTardiveJours);
+    this.exigerChoixSiBesoin(motif, u, dto.imputable, dto.commentaire);
+    const { imputable, poids } = this.ponderer(motif, dto.imputable, tardive, r.createdAt, maintenant, parametres);
     await this.repository.transaction(async (tx) => {
       await tx.reservation.update({
         where: { id },
-        data: { statut: 'ANNULEE_APRES_OPERATION', annuleeLe: maintenant, annulationTardive: tardive, motifId: motif.id, commentaireMotif: dto.commentaire?.trim() || null },
+        data: {
+          statut: 'ANNULEE_APRES_OPERATION',
+          annuleeLe: maintenant,
+          annulationTardive: tardive,
+          annulationImputable: imputable,
+          poidsAnnulation: poids,
+          motifId: motif.id,
+          commentaireMotif: dto.commentaire?.trim() || null,
+        },
       });
-      await this.historique(tx, r, u, 'ANNULATION_APRES_OPERATION', 'ANNULEE_APRES_OPERATION', dto.commentaire, { motif: motif.libelle, imputable: motif.imputable });
+      await this.historique(tx, r, u, 'ANNULATION_APRES_OPERATION', 'ANNULEE_APRES_OPERATION', dto.commentaire, { motif: motif.libelle, imputable, tardive, poids });
     });
     await this.tracer(u, 'RESERVATION_ANNULEE_APRES_OPERATION', `Réservation n° ${r.numero} annulée après opération.`, id, { motif: motif.libelle });
     await this.notifications.decision(r, `opération annulée · ${r.enveloppe.nomProduit}`, [`L’opération est annulée. Motif : ${motif.libelle}. Aucune commission n’est due sur cette ligne.`]);
@@ -1082,7 +1179,7 @@ export class ReservationsService {
       modeArbitrage: r.modeArbitrage,
       pourcentageArbitrage: texteTaux(r.pourcentageArbitrage),
       valeurContrat: texteMontant(r.valeurContrat),
-      fonds: r.fonds.map((f) => ({ ...f, montant: texteMontant(f.montant) })),
+      fonds: r.fonds.map((f) => ({ ...f, montant: texteMontant(f.montant), pourcentage: texteTaux(f.pourcentage) })),
       accordClientLe: r.accordClientLe?.toISOString() ?? null,
       avenantVersion: r.avenantVersion,
       patrimoineAJour: r.patrimoineAJour,
@@ -1102,6 +1199,7 @@ export class ReservationsService {
       valideeLe: r.valideeLe?.toISOString() ?? null,
       annuleeLe: r.annuleeLe?.toISOString() ?? null,
       annulationTardive: r.annulationTardive,
+      annulationImputable: r.annulationImputable,
       operationDeclareeLe: r.operationDeclareeLe?.toISOString() ?? null,
       createdAt: r.createdAt.toISOString(),
       estApporteur: this.estApporteur(r, u),
@@ -1166,6 +1264,7 @@ export class ReservationsService {
         gestion,
         administrateur: estAdministrateur(u),
         decider: gestion && !proprietaire,
+        valider: gestion && (!proprietaire || estSuperAdministrateur(u)) && (!r.accordAdministrateur || estAdministrateur(u)),
         modifier: gestion || proprietaire,
       },
     };
@@ -1189,7 +1288,7 @@ export class ReservationsService {
         this.repository.prisma.apporteur.findUnique({ where: { id }, select: { id: true, nom: true, prenom: true, entite: { select: { nom: true } }, restreint: true } }),
         this.repository.prisma.reservation.findMany({
           where: { apporteurId: id },
-          select: { statut: true, montantNet: true, montantValide: true, valideeLe: true, dateOperation: true, annulationTardive: true, signalements: true, motif: { select: { imputable: true } } },
+          select: { statut: true, montantNet: true, montantValide: true, valideeLe: true, dateOperation: true, annulationTardive: true, annulationImputable: true, poidsAnnulation: true, signalements: true },
         }),
         this.repository.prisma.historiqueReservation.findMany({ where: { reservation: { apporteurId: id }, action: { in: ['BAISSE', 'PROLONGATION'] } }, select: { action: true, details: true } }),
       ]);
@@ -1203,14 +1302,15 @@ export class ReservationsService {
           valideeLe: r.valideeLe,
           dateOperation: r.dateOperation ? depuisDateBase(r.dateOperation) : null,
           annulationTardive: r.annulationTardive,
-          motifImputable: r.motif?.imputable ?? null,
+          annulationImputable: r.annulationImputable,
+          poidsAnnulation: r.poidsAnnulation,
           horsFiabilite: r.signalements.includes('PRODUIT_ANNULE_OU_REPORTE'),
         })),
         annulationsPartielles: historique
           .filter((h) => h.action === 'BAISSE' && h.details && typeof h.details === 'object' && 'montantRetire' in h.details)
           .map((h) => {
-            const x = h.details as { montantRetire: string; tardive: boolean; imputable: boolean };
-            return { montantRetire: x.montantRetire, tardive: x.tardive, imputable: x.imputable };
+            const x = h.details as { montantRetire: string; tardive: boolean; imputable: boolean; poids?: number };
+            return { montantRetire: x.montantRetire, tardive: x.tardive, imputable: x.imputable, poids: x.poids ?? (x.imputable ? 1 : 0) };
           }),
         prolongations: historique.filter((h) => h.action === 'PROLONGATION').length,
       });
@@ -1220,6 +1320,7 @@ export class ReservationsService {
         lignesComptees: f.lignesComptees,
         annulationsDansLesDelais: { nombre: f.annulationsDansLesDelais.nombre, montant: f.annulationsDansLesDelais.montant.toFixed(2) },
         annulationsTardives: { nombre: f.annulationsTardives.nombre, montant: f.annulationsTardives.montant.toFixed(2) },
+        poidsAnnulations: f.poidsAnnulations,
         prolongations: f.prolongations,
         nonHonorees: { nombre: f.nonHonorees.nombre, montant: f.nonHonorees.montant.toFixed(2) },
         delaiMoyenJours: f.delaiMoyenJours,

@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res } from '@nestjs
 import type { Request, Response } from 'express';
 import { Public, UtilisateurCourant } from '../../shared/acces/acces.decorateurs';
 import type { UtilisateurConnecte } from '../../shared/acces/acces.types';
-import { NOM_COOKIE_SESSION, origineDemande } from '../../shared/acces/requete';
+import { lireCookie, NOM_COOKIE_APPAREIL, NOM_COOKIE_SESSION, origineDemande } from '../../shared/acces/requete';
 import { CONFIGURATION } from '../../shared/configuration';
 import type { Configuration } from '../../shared/configuration';
 import { AuthService } from './auth.service';
@@ -19,8 +19,24 @@ export class AuthController {
   @Public()
   @Post('connexion')
   @HttpCode(200)
-  connexion(@Body() dto: ConnexionDto, @Req() requete: Request): Promise<ReponseConnexion> {
-    return this.auth.connexion(dto.email, dto.motDePasse, origineDemande(requete));
+  async connexion(@Body() dto: ConnexionDto, @Req() requete: Request, @Res({ passthrough: true }) reponse: Response): Promise<ReponseConnexion> {
+    const resultat = await this.auth.connexion(dto.email, dto.motDePasse, origineDemande(requete), lireCookie(requete, NOM_COOKIE_APPAREIL));
+    if (resultat.etape === 'CONNECTE' && 'jeton' in resultat) {
+      this.poserSession(reponse, resultat.jeton, resultat.expireLe);
+      return { etape: 'CONNECTE', utilisateur: resultat.utilisateur };
+    }
+    return resultat;
+  }
+
+  private poserSession(reponse: Response, jeton: string, expireLe: Date): void {
+    // Le jeton de session reste dans un cookie illisible par le code de la page.
+    reponse.cookie(NOM_COOKIE_SESSION, jeton, {
+      httpOnly: true,
+      secure: this.configuration.production,
+      sameSite: 'strict',
+      path: '/api',
+      expires: expireLe,
+    });
   }
 
   @Public()
@@ -31,15 +47,18 @@ export class AuthController {
     @Req() requete: Request,
     @Res({ passthrough: true }) reponse: Response,
   ): Promise<ProfilConnecte> {
-    const resultat = await this.auth.validerCode(dto.demande, dto.code, origineDemande(requete));
-    // Le jeton de session reste dans un cookie illisible par le code de la page.
-    reponse.cookie(NOM_COOKIE_SESSION, resultat.jeton, {
-      httpOnly: true,
-      secure: this.configuration.production,
-      sameSite: 'strict',
-      path: '/api',
-      expires: resultat.expireLe,
-    });
+    const resultat = await this.auth.validerCode(dto.demande, dto.code, origineDemande(requete), dto.faireConfiance ?? false);
+    this.poserSession(reponse, resultat.jeton, resultat.expireLe);
+    if (resultat.appareil) {
+      // Appareil reconnu : cookie limité aux routes de connexion, sans valeur sans le mot de passe.
+      reponse.cookie(NOM_COOKIE_APPAREIL, resultat.appareil.jeton, {
+        httpOnly: true,
+        secure: this.configuration.production,
+        sameSite: 'strict',
+        path: '/api/auth',
+        expires: resultat.appareil.expireLe,
+      });
+    }
     return resultat.utilisateur;
   }
 

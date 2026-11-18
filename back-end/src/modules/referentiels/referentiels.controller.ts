@@ -1,11 +1,16 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, Res, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Response } from 'express';
 import { ModuleOuAdministration, Profils, UtilisateurCourant } from '../../shared/acces/acces.decorateurs';
 import { PROFILS_ADMINISTRATION } from '../../shared/acces/acces.types';
 import type { UtilisateurConnecte } from '../../shared/acces/acces.types';
+import { DocumentsService, enTeteFichier, TAILLE_MAX_DOCUMENT } from '../../shared/documents/documents.service';
+import type { FichierRecu } from '../../shared/documents/documents.service';
 import {
   ApporteurDto,
   CodeApporteurDto,
   CompagnieDto,
+  ConventionDto,
   FondsDto,
   GammeDto,
   ImportFondsDto,
@@ -22,7 +27,10 @@ const PROFILS_GESTION = [...PROFILS_ADMINISTRATION, 'BACK_OFFICE' as const];
 @Controller('referentiels')
 @ModuleOuAdministration('ENVELOPPES')
 export class ReferentielsController {
-  constructor(private readonly service: ReferentielsService) {}
+  constructor(
+    private readonly service: ReferentielsService,
+    private readonly documents: DocumentsService,
+  ) {}
 
   @Get('compagnies')
   listerCompagnies() {
@@ -57,6 +65,48 @@ export class ReferentielsController {
   @Get('apporteurs/moi')
   moi(@UtilisateurCourant() utilisateur: UtilisateurConnecte) {
     return this.service.apporteurDeCompte(utilisateur.id);
+  }
+
+  /** Les conventions de l'apporteur connecté, pour les consulter. */
+  @Get('conventions/miennes')
+  mesConventions(@UtilisateurCourant() utilisateur: UtilisateurConnecte) {
+    return this.service.conventionsDeCompte(utilisateur.id);
+  }
+
+  /** Le document d'une convention : administrateurs et apporteur concerné (contrôle côté serveur). « ?voir=1 » l'affiche. */
+  @Get('conventions/documents/:id')
+  async documentConvention(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query('voir') voir: string | undefined,
+    @UtilisateurCourant() u: UtilisateurConnecte,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const doc = await this.documents.lire(id, u);
+    res.set({
+      'Content-Type': doc.typeMime,
+      'Content-Disposition': enTeteFichier(doc.nom, voir === '1' ? 'inline' : 'attachment'),
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+    });
+    return new StreamableFile(doc.contenu);
+  }
+
+  @Get('apporteurs/:id/conventions')
+  @Profils(...PROFILS_ADMINISTRATION)
+  conventions(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.service.conventions(id);
+  }
+
+  @Post('apporteurs/:id/conventions')
+  @Profils(...PROFILS_ADMINISTRATION)
+  @UseInterceptors(FileInterceptor('fichier', { limits: { fileSize: TAILLE_MAX_DOCUMENT, files: 1 } }))
+  ajouterConvention(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: ConventionDto,
+    @UploadedFile() fichier: FichierRecu | undefined,
+    @UtilisateurCourant() auteur: UtilisateurConnecte,
+  ) {
+    return this.service.ajouterConvention(id, dto, fichier, auteur);
   }
 
   @Get('apporteurs')

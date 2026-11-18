@@ -123,15 +123,25 @@ une compagnie, plusieurs mandataires qui se le partagent.
 | Upfront réel visible des deux super administrateurs seulement | début nov. | Appliqué : taux d'upfront attendu, jamais envoyé à un autre profil (test) |
 | Montant brut et frais saisis ; le net consomme l'enveloppe et porte la commission | début nov. | Appliqué (`regles/montants.ts`, tests) |
 | Un taux par enveloppe, le même pour tous | début nov. | Appliqué ; figé sur la réservation à sa validation |
-| Client confié : taux minoré de 0,5 % par défaut, modifiable | 15 nov. | Appliqué, paramètre réglable ; sens à confirmer (voir section 7) |
+| Client confié : taux minoré de 0,5 % par défaut, modifiable | 15 nov. | Appliqué, paramètre réglable |
+| Client confié : la règle est régie par une convention propre à chaque mandataire. La convention s'annexe à sa fiche, se télécharge, et le mandataire la consulte dans son espace. Son taux s'applique aux clients qui lui sont confiés ; à défaut de convention, le taux de l'enveloppe | 18 nov. | Appliqué (`referentiels`, `confier`, tests) |
 | Client confié : le mandataire propose, le client valide, le mandataire notifie, le back-office gère la signature, le mandataire est informé du montant réel | 15 nov. | Appliqué (test) |
 | Client confié : signature par l'outil de signature électronique de la compagnie ; si le client signe sur papier, l'opérateur le précise | 17 nov. | Appliqué : le back-office déclare l'opération, signature électronique ou papier |
 | Réservation globale puis affectation ligne par ligne ; réservations « à prévendre » libres | début nov. | Appliqué (`regles/compteurs.ts`, tests) |
 | Concentration limitée à 15 % de l'encours total du client | début nov. | Appliqué : alerte non bloquante, toutes enveloppes ouvertes cumulées |
 | Anomalie dès 5 % d'écart entre réservé et validé, dans les deux sens | 12 nov. | Appliqué, seuil réglable (test) |
-| Validations des super administrateurs tracées et visibles de l'autre ; aucun ne valide son propre règlement | 12 nov. | Appliqué pour les réservations : personne ne décide sur sa propre réservation, super administrateur compris (test) ; règlement à faire |
+| Validations des super administrateurs tracées et visibles de l'autre ; aucun ne valide son propre règlement | 12 nov. | Appliqué pour les réservations ; règlement à faire |
+| Un super administrateur peut valider sa propre réservation : c'est inscrit au journal et l'autre associé en est prévenu par courriel. Un administrateur, le back-office ou un mandataire ne valide jamais la sienne | 18 nov. | Appliqué (`valider`, test) |
 | Contrôle « mise à jour du patrimoine » propre aux produits Swiss Life, bloquant : sans situation patrimoniale à jour, l'opération ne peut pas être déclarée | 12 et 17 nov. | Appliqué (test) |
-| Fiabilité : statistiques remises à zéro à la mise en service ; annulation comptée, avec un poids qui croît à l'approche de la clôture | 12 nov. | Appliqué sans pondération : annulations comptées dans les délais ou tardives ; formule du poids à fixer |
+| Fiabilité : statistiques remises à zéro à la mise en service ; annulation comptée, avec un poids qui croît à l'approche de la clôture | 12 nov. | Appliqué |
+| Poids d'une annulation imputable : 1 ; 2 si elle tombe dans les 20 derniers jours avant la date limite interne et que la réservation avait plus de 30 jours. Une annulation non imputable pèse 0. Les trois valeurs sont réglables | 18 nov. | Appliqué (`regles/annulation.ts`, tests) |
+| Annulation tardive : dans les 20 derniers jours avant la date limite interne (15 dans le cahier des charges) | 18 nov. | Appliqué, réglable |
+| Motifs d'annulation et imputabilité. Le client renonce, le client ne répond plus : imputables si tardives (surtout sur une réservation ancienne). Dossier incomplet ou mal rempli, contrat ou fonds non éligible, enveloppe clôturée, erreur de saisie ou doublon : imputables. Enveloppe épuisée, décès du client : non imputables. Arbitrage refusé par la compagnie, opération déjà en cours sur le contrat : au choix du back-office, selon la raison, avec un commentaire | 18 nov. | Appliqué (motifs de départ, tests) |
+| Pas de délai standard pour honorer une réservation : aucune péremption. À la place, un récapitulatif hebdomadaire par mail à chaque mandataire : ses réservations, ce qui est fait et ce qui reste à faire, un mot pour avancer et le lien vers la plateforme (identifiant et mot de passe) | 18 nov. | Appliqué (`regles/emailing.ts`, planificateur, tests) |
+| Plus la date limite approche, plus les rappels sont fréquents : à 20 jours, deux récapitulatifs par semaine, le lundi (ce qui reste) et le jeudi (ce qui est fait et ce qui ne l'est pas) | 18 nov. | Appliqué, réglable (tests) |
+| À deux semaines de la date limite, alerte au back-office : les réservations pas encore assez avancées, par mandataire, pour les appeler et les motiver. Les rôles sont partagés, le mandataire garde un niveau de responsabilité important | 18 nov. | Appliqué, réglable (test) |
+| Arbitrage fonds par fonds : le total des lignes égale le montant brut, frais compris. L'arbitrage se fait sur les lignes en brut ; l'investissement réel se fait net des frais | 18 nov. | Appliqué (`regles/controles.ts`, tests) |
+| Désinvestissement en pourcentage : pourcentage de l'encours du contrat. Euros ou pourcentage, au choix, pour tout le contrat ; par défaut en euros. Une bascule passe de l'un à l'autre, la valeur de l'autre côté est grisée. En pourcentage, l'encours du contrat devient obligatoire. L'encours total du client reste demandé pour le contrôle des 15 % | 18 nov. | Appliqué (serveur, écran, tests) |
 | Deux campagnes menées en même temps dans deux compagnies | 15 nov. | Appliqué |
 | Entités du groupe à créer : SR CONSEIL, Label Assurances, Label Santé, RJ Assurances, Nembrini Colombani, A2C Courtage, A3C (Midi Courtage) ; ajout le 17 nov. de TC2K, cabinet de co-courtage avec un cabinet d'expertise comptable. Pas CPA pour l'instant. Liste non définitive : l'administrateur peut ajouter une entité | 16 et 17 nov. | Appliqué (script d'initialisation, écran) |
 | À l'ouverture d'une campagne : avenant pré-rempli, mail hebdomadaire, clients confiés, liste d'attente, indicateurs de fiabilité | 15 nov. | Appliqué ; l'avenant est fourni sous forme de fiche des valeurs à reporter, tant que les champs de l'avenant de chaque compagnie ne sont pas repérés |
@@ -147,6 +157,8 @@ une compagnie, plusieurs mandataires qui se le partagent.
 | Dépôt de code privé | 15 nov. | Appliqué : vérifié invisible de l'extérieur le 16 nov. |
 | Hébergement chez IONOS, sur l'infrastructure déjà utilisée par Label, sans surcoût technique | 16 nov. | À faire ; réglages à voir avec Willie (machine et base propres, centre de données, sauvegarde quotidienne) |
 | Connexion à deux étapes par code envoyé par courriel | 15 nov. | Appliqué : mot de passe, puis code à six chiffres envoyé par courriel |
+| Appareil reconnu : après le code, « faire confiance à cet appareil » évite le code pendant 30 jours sur cet appareil ; le mot de passe reste demandé. Un nouvel appareil redemande le code. Un nouveau mot de passe ou la fermeture des sessions retire la confiance | 18 nov. | Appliqué (tests de bout en bout) |
+| Accès par un site internet ; à terme, des applications mobiles iOS et Android | 18 nov. | Site appliqué (utilisable sur téléphone) ; applications à faire |
 | Réglages de sécurité retenus par défaut, à valider par le cabinet : code valable 10 minutes et 5 essais ; compte bloqué 15 minutes après 5 mots de passe faux ; session de 12 heures, fermée après 2 heures sans activité ; mot de passe de 12 caractères au moins ; seul un super administrateur agit sur un super administrateur ; personne ne change son propre profil ni ne se désactive | 17 nov. | Appliqué, tests de bout en bout |
 | Une adresse de connexion par personne : le code y est envoyé et chaque acte est tracé à son nom, back-office compris. Une adresse commune reste possible comme simple contact d'une société | 17 nov. | Appliqué pour l'adresse de connexion ; contact de société à faire avec les fiches mandataires |
 | Un mandataire a un seul espace, qui regroupe ses sociétés et ses codes apporteur | 17 nov. | À faire |
@@ -156,8 +168,8 @@ une compagnie, plusieurs mandataires qui se le partagent.
 | Modules activables par utilisateur, par case à cocher | 15 nov. | Appliqué : vérifié par le serveur à chaque demande ; le simulateur demande son module |
 | Un mandataire ne voit que ses clients et ses commissions | 15 nov. | Appliqué pour les enveloppes, filtré par le serveur (test) |
 | Un mandataire peut avoir plusieurs codes apporteur chez une même compagnie | 15 nov. | Appliqué (référentiel des codes apporteur) |
-| Conservation des données : durée du contrat puis dix ans ; trois ans sans contact pour un prospect | 15 nov. | À faire ; à valider par le conseil RGPD |
-| Conventions et protocoles signés versés dans la plateforme, consultables par l'administrateur et le mandataire concerné | 15 nov. | À faire |
+| Conservation des données : durée du contrat puis dix ans ; trois ans sans contact pour un prospect | 15 nov., confirmé le 18 nov. | À faire (purge automatique) |
+| Conventions et protocoles signés versés dans la plateforme, consultables par l'administrateur et le mandataire concerné | 15 nov. | Appliqué pour les conventions des apporteurs (18 nov.) ; protocoles à faire |
 | Aucune donnée médicale, aucun IBAN | 15 nov. | Appliqué (`CLAUDE.md`) |
 
 ## 5. Synthèse des contrats (bilan client)
@@ -191,7 +203,6 @@ Ceux qui touchent le calcul :
 - Correction des affaires déjà réglées, ou application aux seules affaires nouvelles.
 - Nom du complément versé à un superviseur.
 - Co-courtage : base du taux. Le simulateur applique 30 % sur la commission brute de la compagnie (35,3 % de ce que reçoit le cabinet) ; confirmer qu'aucune convention n'est exprimée sur le net ou à 35 %.
-- Délai standard pour honorer une réservation, et délai du rappel avant échéance. En attendant, l'échéance est la date limite interne et aucun rappel ne part.
 - Règles de reprise en santé et en assurance de prêt, et pour les compagnies de prévoyance dont le protocole ne dit rien.
 - Abeille, versement unique et transfert : reprise sur toute la commission ou sur la surcommission seule.
 - Swiss Life prévoyance : répartition du taux de la grille entre commission d'apport et surcommission, et baisse de la reprise la 2e année.
@@ -208,29 +219,38 @@ Ceux qui touchent le calcul :
 Chacune est appliquée telle qu'écrite dans le cahier des charges ; la question porte sur
 le sens exact. La plateforme la signale à l'écran quand elle a un effet visible.
 
-- Client confié : 0,5 % est le taux appliqué au client confié, et non une baisse de
-  0,5 point du taux de l'enveloppe.
-- Super administrateur : il ne valide pas sa propre réservation ; le back-office ou
-  l'autre associé le fait. Le cahier des charges dit aussi que ce qu'il valide sur ses
-  propres réservations est « tracé et visible de l'autre » : faut-il l'autoriser ?
-- Arbitrage fonds par fonds : le total des désinvestissements doit égaler le montant
-  réservé, c'est-à-dire le net, comme écrit. Faut-il plutôt le brut, puisque les frais
-  d'arbitrage se prélèvent sur ce qui est désinvesti ? Et un désinvestissement « en
-  pourcentage », pourcentage de quoi ? Seuls les montants en euros sont proposés.
 - Taux de réalisation : lignes validées par le back-office dans les 12 derniers mois et
   arrivées à leur terme (vérifiées, libérées, annulées pour un motif imputable).
-- Motifs : seul « Arbitrage refusé par la compagnie » est classé non imputable (exemple du
-  cahier des charges). Les autres motifs d'annulation et les motifs de refus sont à
-  donner par le cabinet, avec leur classement.
 - Liste d'attente à la date limite interne : les demandes non servies restent en liste
   d'attente, les mandataires sont prévenus, et le back-office les annule avant la
   clôture. Faut-il un statut propre ?
-- Relances automatiques (tous les N jours, nombre maximal), alerte au back-office sans
-  décision après N jours ouvrés, écart sans motif après un délai : valeurs à fixer ;
-  rien ne part tant qu'elles ne le sont pas.
+- Alerte au back-office sans décision après N jours ouvrés, écart sans motif après un
+  délai : valeurs à fixer ; rien ne part tant qu'elles ne le sont pas. Les relances au
+  mandataire sont remplacées par les récapitulatifs décidés le 18 novembre.
 - « Montant élevé rapporté à l'encours » : aucun seuil n'est écrit ; la part de
   l'encours est affichée au back-office, sans alerte.
 - Concentration : le client est reconnu à son nom et son prénom (ou sa raison sociale),
   la date de naissance n'étant pas retenue ; deux homonymes sont donc cumulés.
 - Numéro de contrat : un modèle simple par compagnie (9 pour un chiffre, A pour une
   lettre), à remplir à partir des bordereaux ; vide, seule la présence est contrôlée.
+
+### Lectures retenues en appliquant les décisions du 18 novembre, à confirmer
+
+Petits choix faits pour coder ce qui a été décidé. Chacun se règle depuis l'écran des
+paramètres ou se change en une ligne.
+
+- Le second récapitulatif part le lundi à la même heure que celui du jeudi (9 h 01).
+- Le récapitulatif du lundi ne reprend que ce qui reste à faire ; celui du jeudi, ce qui
+  reste et ce qui est fait.
+- L'alerte de J-14 part au back-office seul. Elle liste les réservations soumises,
+  renvoyées, en liste d'attente, validées sans opération, ou échues.
+- Motifs de refus de départ : ceux des motifs d'annulation qui ont un sens avant la
+  validation (dossier incomplet, contrat ou fonds non éligible, enveloppe épuisée ou
+  clôturée, erreur de saisie ou doublon, opération déjà en cours).
+- Un motif « au choix du back-office » n'est pas proposé au mandataire.
+- « Faire confiance à cet appareil » est coché par défaut ; la personne le décoche sur
+  un ordinateur partagé.
+- Convention : une convention s'ajoute toujours avec son document signé. Le taux retenu
+  pour un client confié est celui de la dernière convention qui en fixe un, en vigueur
+  le jour où le client est confié ; il est ensuite figé sur ce client.
+- Ancienneté d'une réservation pour le poids double : de sa saisie à son annulation.

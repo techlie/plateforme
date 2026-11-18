@@ -78,6 +78,7 @@ model User {
   jetons            JetonMotDePasse[]
   journal           Log[]
   apporteur         Apporteur?
+  appareils         AppareilReconnu[]
 
   @@index([entiteId])
   @@map("users")
@@ -244,6 +245,7 @@ model Apporteur {
   reservations               Reservation[]
   reservationsGlobales       ReservationGlobale[]
   clientsConfies             ClientConfie[]
+  conventions                Convention[]
 
   @@index([entiteId])
   @@map("apporteurs")
@@ -395,6 +397,17 @@ enum CategorieDocument {
   AVENANT_VIERGE
   PREUVE_VERIFICATION
   JUSTIFICATIF_OPERATION
+  CONVENTION
+}
+
+/// Une annulation compte-t-elle dans la fiabilité du mandataire (décisions du 18 novembre).
+enum ImputabiliteMotif {
+  IMPUTABLE
+  NON_IMPUTABLE
+  /// Le back-office décide au cas par cas, avec un commentaire.
+  AU_CHOIX
+  /// Imputable seulement dans les derniers jours avant la date limite interne.
+  SELON_DELAI
 }
 
 /// Paramètres du module, réglés par l'administrateur. Une seule ligne.
@@ -420,6 +433,15 @@ model ParametresEnveloppes {
   emailingHeure                String
   emailingValideLe             DateTime?
   emailingValidePar            String?
+  /// Décision du 18 novembre : à 20 jours de la date limite interne, deux rappels par semaine.
+  relancesRapprocheesJours     Int       @default(20)
+  /// Jour du second rappel hebdomadaire (1 = lundi), à la même heure.
+  emailingJourRapproche        Int       @default(1)
+  /// Décision du 18 novembre : à 14 jours, alerte au back-office sur les réservations pas assez avancées.
+  alerteBackOfficeJours        Int       @default(14)
+  /// Décision du 18 novembre : une annulation imputable compte double si la réservation avait plus de 30 jours.
+  ancienneteAnnulationJours    Int       @default(30)
+  poidsAnnulationAggravee      Int       @default(2)
   createdAt                    DateTime  @default(now())
   updatedAt                    DateTime  @updatedAt
 
@@ -428,17 +450,17 @@ model ParametresEnveloppes {
 
 /// Motif de refus, de renvoi, d'annulation ou d'écart. Liste modifiable par l'administrateur.
 model Motif {
-  id                     String         @id @default(uuid()) @db.Uuid
+  id                     String            @id @default(uuid()) @db.Uuid
   categorie              CategorieMotif
   libelle                String
-  /// Pour une annulation : le motif est-il imputable au mandataire.
-  imputable              Boolean        @default(false)
-  commentaireObligatoire Boolean        @default(false)
-  actif                  Boolean        @default(true)
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
-  reservations           Reservation[]  @relation("MotifReservation")
-  ecarts                 Reservation[]  @relation("MotifEcart")
+  /// Pour une annulation : imputable au mandataire, non imputable, au choix du back-office, ou selon le délai.
+  imputabilite           ImputabiliteMotif @default(NON_IMPUTABLE)
+  commentaireObligatoire Boolean           @default(false)
+  actif                  Boolean           @default(true)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  reservations           Reservation[]     @relation("MotifReservation")
+  ecarts                 Reservation[]     @relation("MotifEcart")
 
   @@unique([categorie, libelle])
   @@map("motifs")
@@ -601,6 +623,9 @@ model Reservation {
   valideeLe               DateTime?
   annuleeLe               DateTime?
   annulationTardive       Boolean?
+  /// Imputabilité retenue au moment de l'annulation, et son poids dans la fiabilité.
+  annulationImputable     Boolean?
+  poidsAnnulation         Int?
   /// Alertes non bloquantes relevées à la saisie : concentration, estimation d'arbitrage…
   signalements            String[]                @default([])
   /// Dérogations accordées, chacune tracée avec son motif dans l'historique.
@@ -631,6 +656,8 @@ model LigneFonds {
   nom             String
   isin            String?
   montant         Decimal     @db.Decimal(14, 2)
+  /// Saisie en pourcentage de l'encours du contrat ; le montant en est alors calculé.
+  pourcentage     Decimal?    @db.Decimal(9, 6)
   horsReferentiel Boolean     @default(false)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
@@ -696,6 +723,8 @@ model Document {
   enveloppe     Enveloppe?        @relation(fields: [enveloppeId], references: [id], onDelete: Restrict)
   reservationId String?           @db.Uuid
   reservation   Reservation?      @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+  conventionId  String?           @unique @db.Uuid
+  convention    Convention?       @relation(fields: [conventionId], references: [id], onDelete: Restrict)
   auteurId      String?           @db.Uuid
   auteur        String
   createdAt     DateTime          @default(now())
@@ -722,4 +751,41 @@ model EnvoiEmailing {
 
   @@unique([enveloppeId, semaine, bloque])
   @@map("envois_emailing")
+}
+
+/// Appareil reconnu après un code de connexion : le code n'est pas redemandé pendant 30 jours.
+/// Seule l'empreinte du jeton est gardée ; le mot de passe reste demandé à chaque connexion.
+model AppareilReconnu {
+  id                  String    @id @default(uuid()) @db.Uuid
+  userId              String    @db.Uuid
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  empreinte           String    @unique
+  expireLe            DateTime
+  navigateur          String?
+  derniereUtilisation DateTime  @default(now())
+  revoqueLe           DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("appareils_reconnus")
+}
+
+/// Convention signée entre le cabinet et un apporteur : datée, jointe, consultable par
+/// l'administrateur et par l'apporteur concerné. Elle peut fixer le taux de ses clients confiés.
+model Convention {
+  id                 String    @id @default(uuid()) @db.Uuid
+  apporteurId        String    @db.Uuid
+  apporteur          Apporteur @relation(fields: [apporteurId], references: [id], onDelete: Restrict)
+  dateEffet          DateTime  @db.Date
+  tauxClientsConfies Decimal?  @db.Decimal(9, 6)
+  commentaire        String?
+  auteurId           String?   @db.Uuid
+  auteur             String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  document           Document?
+
+  @@index([apporteurId])
+  @@map("conventions")
 }

@@ -5,8 +5,8 @@ import { ModuleRequis, Profils, UtilisateurCourant } from '../../shared/acces/ac
 import { PROFILS_ADMINISTRATION } from '../../shared/acces/acces.types';
 import type { UtilisateurConnecte } from '../../shared/acces/acces.types';
 import { estGestion, PROFILS_GESTION } from './acces-enveloppes';
-import { DocumentsService, TAILLE_MAX_DOCUMENT } from './documents.service';
-import type { FichierRecu } from './documents.service';
+import { DocumentsService, enTeteFichier, TAILLE_MAX_DOCUMENT } from '../../shared/documents/documents.service';
+import type { FichierRecu } from '../../shared/documents/documents.service';
 import { DepotDocumentReservationDto } from './dto/documents.dto';
 import {
   AnnulationDto,
@@ -23,7 +23,6 @@ import {
   TraitementEcheanceDto,
   VerificationDto,
 } from './dto/reservations.dto';
-import { enTeteFichier } from './enveloppes.controller';
 import { ReservationsService } from './reservations.service';
 
 @Controller('reservations')

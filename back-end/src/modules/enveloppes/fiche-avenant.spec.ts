@@ -43,6 +43,11 @@ describe('Fiche des valeurs à reporter sur l’avenant', () => {
     expect(v).toContainEqual(['Désinvestissement', '15 % du contrat, au prorata des supports']);
   });
 
+  it('reprend un désinvestissement saisi en pourcentage de l’encours du contrat', () => {
+    const v = valeursAvenant({ ...base, fonds: [{ nom: 'Fonds Alpha', isin: null, montant: '12500', pourcentage: '0.25' }] });
+    expect(v).toContainEqual(['Fonds à désinvestir 1', 'Fonds Alpha : 25 % de l’encours du contrat, soit 12 500,00 €']);
+  });
+
   it('produit un PDF lisible', async () => {
     const octets = await ficheAvenantPdf(base);
     expect(Buffer.from(octets.slice(0, 5)).toString()).toBe('%PDF-');

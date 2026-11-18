@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { FormsModule } from '@angular/forms';
 import { messageErreur } from '../../core/session.types';
 import { EnveloppesApi } from '../enveloppes/enveloppes.api';
-import { Apporteur, CodeApporteur, Compagnie, Fonds } from '../enveloppes/enveloppes.types';
+import { Apporteur, CodeApporteur, Compagnie, Convention, Fonds } from '../enveloppes/enveloppes.types';
+import { aujourdhuiParis, dateCourte, depuisTaux, pourcent, versTaux } from '../enveloppes/formats';
 import { AdministrationApi, Entite, FicheUtilisateur } from './administration.api';
 
 type Onglet = 'compagnies' | 'apporteurs' | 'codes' | 'fonds';
@@ -28,6 +29,9 @@ export class ReferentielsComponent implements OnInit {
 
   readonly roles = ROLES;
   readonly natures = NATURES;
+  readonly dateCourte = dateCourte;
+  readonly pourcent = pourcent;
+  readonly depuisTaux = depuisTaux;
   readonly onglet = signal<Onglet>('compagnies');
   readonly erreur = signal<string | null>(null);
   readonly message = signal<string | null>(null);
@@ -53,6 +57,14 @@ export class ReferentielsComponent implements OnInit {
   readonly aEntite = signal('');
   readonly aCompte = signal('');
   readonly aHabilite = signal(false);
+  // Conventions d'un apporteur (décision du 18 novembre)
+  readonly conventionsDe = signal<string | null>(null);
+  readonly conventions = signal<Convention[]>([]);
+  readonly vDate = signal(aujourdhuiParis());
+  readonly vTaux = signal('');
+  readonly vCommentaire = signal('');
+  readonly vFichier = signal<File | null>(null);
+  readonly erreurConvention = signal<string | null>(null);
   // Code
   readonly kCompagnie = signal('');
   readonly kCode = signal('');
@@ -183,6 +195,54 @@ export class ReferentielsComponent implements OnInit {
 
   modifierApporteur(a: Apporteur, champs: Record<string, unknown>, confirmation: string): Promise<boolean> {
     return this.executer(() => this.api.modifierApporteur(a.id, champs), confirmation);
+  }
+
+  async ouvrirConventions(a: Apporteur): Promise<void> {
+    if (this.conventionsDe() === a.id) {
+      this.conventionsDe.set(null);
+      return;
+    }
+    this.conventionsDe.set(a.id);
+    this.conventions.set([]);
+    this.erreurConvention.set(null);
+    this.vDate.set(aujourdhuiParis());
+    this.vTaux.set('');
+    this.vCommentaire.set('');
+    this.vFichier.set(null);
+    try {
+      this.conventions.set(await this.api.conventions(a.id));
+    } catch (e) {
+      this.erreurConvention.set(messageErreur(e));
+    }
+  }
+
+  choisirConvention(evenement: Event): void {
+    this.vFichier.set((evenement.target as HTMLInputElement).files?.[0] ?? null);
+  }
+
+  async ajouterConvention(a: Apporteur): Promise<void> {
+    const fichier = this.vFichier();
+    const taux = this.vTaux().trim() ? versTaux(this.vTaux()) : undefined;
+    if (!fichier) return this.erreurConvention.set('Joignez la convention signée (PDF, PNG ou JPEG).');
+    if (taux === null) return this.erreurConvention.set('Taux illisible.');
+    this.envoi.set(true);
+    this.erreurConvention.set(null);
+    try {
+      await this.api.ajouterConvention(a.id, { dateEffet: this.vDate(), tauxClientsConfies: taux, commentaire: this.vCommentaire().trim() || undefined }, fichier);
+      this.conventions.set(await this.api.conventions(a.id));
+      this.vTaux.set('');
+      this.vCommentaire.set('');
+      this.vFichier.set(null);
+      this.message.set(`Convention de ${a.prenom} ${a.nom} ajoutée.`);
+    } catch (e) {
+      this.erreurConvention.set(messageErreur(e));
+    } finally {
+      this.envoi.set(false);
+    }
+  }
+
+  lienConvention(documentId: string): string {
+    return this.api.lienConvention(documentId);
   }
 
   rattacherCompte(a: Apporteur, userId: string): Promise<boolean> {

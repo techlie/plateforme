@@ -29,6 +29,8 @@ export const REGLES_CONNEXION = {
   reinitialisationValiditeMinutes: 60,
   /** Coût du hachage des mots de passe. */
   coutHachage: 12,
+  /** Décision du 18 novembre : un appareil reconnu ne redemande pas le code pendant 30 jours. */
+  appareilReconnuJours: 30,
 } as const;
 
 /** Empreinte d'un mot de passe qui n'existe pas : la vérification prend le même temps qu'un compte réel. */
@@ -70,8 +72,16 @@ export class AuthService {
     @Inject(CONFIGURATION) private readonly configuration: Configuration,
   ) {}
 
-  /** Première étape : mot de passe. Si tout est bon, un code part par courriel. */
-  async connexion(emailSaisi: string, motDePasse: string, origine: Origine): Promise<ReponseConnexion> {
+  /**
+   * Première étape : mot de passe. Si tout est bon, un code part par courriel ; sur un appareil
+   * reconnu depuis moins de 30 jours, la session s'ouvre sans code. Le mot de passe reste exigé.
+   */
+  async connexion(
+    emailSaisi: string,
+    motDePasse: string,
+    origine: Origine,
+    jetonAppareil?: string,
+  ): Promise<ReponseConnexion | { etape: 'CONNECTE'; jeton: string; expireLe: Date; utilisateur: ProfilConnecte }> {
     const email = normaliserAdresse(emailSaisi);
     const maintenant = new Date();
     const utilisateur = await this.repository.trouverParEmail(email);
@@ -130,6 +140,24 @@ export class AuthService {
       await this.repository.remettreAZeroEchecs(utilisateur.id);
     }
 
+    if (jetonAppareil) {
+      const appareil = await this.repository.trouverAppareil(empreinteJeton(jetonAppareil));
+      if (appareil && appareil.userId === utilisateur.id && !appareil.revoqueLe && appareil.expireLe > maintenant) {
+        await this.repository.noterAppareil(appareil.id, maintenant);
+        const session = await this.ouvrirSession(utilisateur, maintenant, origine);
+        await this.journal.ecrire({
+          action: 'CONNEXION',
+          message: 'Connexion réussie sur un appareil reconnu : code non redemandé.',
+          succes: true,
+          userId: utilisateur.id,
+          auteur: nomComplet(utilisateur),
+          details: { appareil: appareil.id },
+          ...origine,
+        });
+        return { etape: 'CONNECTE', ...session };
+      }
+    }
+
     const code = genererCode();
     const demande = await this.repository.creerCode(
       utilisateur.id,
@@ -160,7 +188,8 @@ export class AuthService {
     demandeId: string,
     code: string,
     origine: Origine,
-  ): Promise<{ jeton: string; expireLe: Date; utilisateur: ProfilConnecte }> {
+    faireConfiance = false,
+  ): Promise<{ jeton: string; expireLe: Date; utilisateur: ProfilConnecte; appareil: { jeton: string; expireLe: Date } | null }> {
     const maintenant = new Date();
     const demande = await this.repository.trouverCode(demandeId);
 
@@ -198,6 +227,27 @@ export class AuthService {
       throw new UnauthorizedException({ code: 'CODE_PERIME', message: MESSAGE_CODE_PERIME });
     }
 
+    const session = await this.ouvrirSession(utilisateur, maintenant, origine);
+    let appareil: { jeton: string; expireLe: Date } | null = null;
+    if (faireConfiance) {
+      const jetonAppareil = genererJeton();
+      const expireAppareil = new Date(maintenant.getTime() + REGLES_CONNEXION.appareilReconnuJours * 86_400_000);
+      await this.repository.creerAppareil(utilisateur.id, empreinteJeton(jetonAppareil), expireAppareil, origine.navigateur);
+      appareil = { jeton: jetonAppareil, expireLe: expireAppareil };
+    }
+    await this.journal.ecrire({
+      action: 'CONNEXION',
+      message: `Connexion réussie après le code reçu par courriel${appareil ? ' ; appareil reconnu pour 30 jours' : ''}.`,
+      succes: true,
+      userId: utilisateur.id,
+      auteur: nomComplet(utilisateur),
+      ...origine,
+    });
+
+    return { ...session, appareil };
+  }
+
+  private async ouvrirSession(utilisateur: UtilisateurAvecDroits, maintenant: Date, origine: Origine) {
     const jeton = genererJeton();
     const expireLe = new Date(maintenant.getTime() + this.configuration.session.dureeHeures * 3_600_000);
     await this.repository.creerSession({
@@ -207,15 +257,6 @@ export class AuthService {
       maintenant,
       ...origine,
     });
-    await this.journal.ecrire({
-      action: 'CONNEXION',
-      message: 'Connexion réussie après le code reçu par courriel.',
-      succes: true,
-      userId: utilisateur.id,
-      auteur: nomComplet(utilisateur),
-      ...origine,
-    });
-
     return { jeton, expireLe, utilisateur: profilConnecte(utilisateur) };
   }
 

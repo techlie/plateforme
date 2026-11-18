@@ -506,6 +506,22 @@ h3 {
   align-items: center;
 }
 
+.fonds-choisis--double li {
+  grid-template-columns: minmax(0, 1fr) 150px 150px auto;
+}
+
+/* Valeur calculée, grisée : l'autre côté de la saisie euros / pourcentage. */
+.champ__zone--calcule {
+  background: var(--surface);
+  opacity: 0.7;
+}
+
+.champ__zone--calcule .champ__saisie:disabled {
+  color: var(--texte-moyen);
+  -webkit-text-fill-color: var(--texte-moyen);
+  cursor: default;
+}
+
 .avatar {
   width: 40px;
   height: 40px;
@@ -587,7 +603,22 @@ h3 {
     gap: 2px;
   }
 
-  .fonds-choisis li {
+  .fonds-choisis li,
+  .fonds-choisis--double li {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Paramètres : l'imputabilité et « actif » restent sur une ligne, le libellé se replie. */
+.motif-actions {
+  flex: none;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 640px) {
+  .motif-actions {
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }

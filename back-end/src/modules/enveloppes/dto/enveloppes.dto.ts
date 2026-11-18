@@ -15,7 +15,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { CategorieMotif, TypeClient, TypeMouvement } from '@prisma/client';
+import { CategorieMotif, ImputabiliteMotif, TypeClient, TypeMouvement } from '@prisma/client';
 import { EstDate, EstMontant, EstTaux } from '../../../shared/validation/decimaux';
 
 export class EnveloppeDto {
@@ -235,7 +235,7 @@ export class ClientConfieDto {
   @MaxLength(60)
   numeroContrat?: string;
 
-  /** Par défaut, le taux des clients confiés de l'enveloppe. */
+  /** Vide : le taux de la convention de l'apporteur ; à défaut, celui de l'enveloppe. */
   @IsOptional()
   @EstTaux()
   taux?: string;
@@ -251,8 +251,8 @@ export class MotifDto {
   libelle: string;
 
   @IsOptional()
-  @IsBoolean()
-  imputable?: boolean;
+  @IsEnum(ImputabiliteMotif)
+  imputabilite?: ImputabiliteMotif;
 
   @IsOptional()
   @IsBoolean()
@@ -267,8 +267,8 @@ export class ModificationMotifDto {
   libelle?: string;
 
   @IsOptional()
-  @IsBoolean()
-  imputable?: boolean;
+  @IsEnum(ImputabiliteMotif)
+  imputabilite?: ImputabiliteMotif;
 
   @IsOptional()
   @IsBoolean()
@@ -335,5 +335,40 @@ export class ParametresDto {
   @IsOptional()
   @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, { message: 'Heure invalide : HH:MM attendu.' })
   emailingHeure?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(120)
+  relancesRapprocheesJours?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(7)
+  emailingJourRapproche?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(120)
+  alerteBackOfficeJours?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(365)
+  ancienneteAnnulationJours?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  poidsAnnulationAggravee?: number;
 }
 

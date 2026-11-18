@@ -23,6 +23,7 @@ export type CodeControle =
   | 'MODE_ARBITRAGE'
   | 'FONDS_ABSENTS'
   | 'FONDS_TOTAL'
+  | 'ENCOURS_CONTRAT'
   | 'ARBITRAGE_GLOBAL'
   | 'DEPASSEMENT'
   | 'DEPASSE_SOLDE_GLOBALE'
@@ -56,6 +57,8 @@ export interface EntreeControle {
   reservation: {
     typeOperation: TypeOperation;
     numeroContrat: string | null;
+    /** Montant brut : c'est lui que les désinvestissements doivent égaler (décision du 18 novembre). */
+    montantBrut: Montant;
     montantNet: Montant;
     encoursClient: Montant | null;
     gammeId: string | null;
@@ -63,7 +66,8 @@ export interface EntreeControle {
     modeArbitrage: ModeArbitrage | null;
     pourcentageArbitrage: Montant | null;
     valeurContrat: Montant | null;
-    fonds: { montant: Montant }[];
+    /** Montant de chaque ligne, calculé depuis le pourcentage de l'encours du contrat quand il est saisi ainsi. */
+    fonds: { montant: Montant; pourcentage?: Montant | null }[];
   };
   /** Enveloppe restante, sans compter la réservation contrôlée. */
   restante: Montant;
@@ -99,6 +103,7 @@ export function controlerReservation(e: EntreeControle): ResultatControle {
   const alertes: Constat[] = [];
   const r = e.reservation;
   const net = d(r.montantNet);
+  const brut = d(r.montantBrut);
 
   if (e.enveloppe.statut !== 'OUVERTE' && e.enveloppe.statut !== 'FERMEE') {
     bloquants.push({ code: 'ENVELOPPE_FERMEE', message: 'Cette enveloppe n’est pas ouverte aux réservations.' });
@@ -145,25 +150,27 @@ export function controlerReservation(e: EntreeControle): ResultatControle {
     } else if (r.modeArbitrage === 'PAR_FONDS') {
       if (r.fonds.length === 0) {
         bloquants.push({ code: 'FONDS_ABSENTS', message: 'Indiquez les fonds à désinvestir.' });
+      } else if (r.fonds.some((f) => f.pourcentage !== null && f.pourcentage !== undefined) && (r.valeurContrat === null || d(r.valeurContrat).lessThanOrEqualTo(0))) {
+        bloquants.push({ code: 'ENCOURS_CONTRAT', message: 'Pour désinvestir en pourcentage, indiquez l’encours du contrat.' });
       } else {
         const total = somme(r.fonds.map((f) => f.montant));
-        if (!total.equals(net)) {
+        if (!total.equals(brut)) {
           bloquants.push({
             code: 'FONDS_TOTAL',
-            message: `Le total des désinvestissements (${euros(total)}) doit égaler le montant réservé (${euros(net)}) : reste ${euros(net.minus(total))} à répartir.`,
+            message: `Le total des désinvestissements (${euros(total)}) doit égaler le montant brut (${euros(brut)}) : reste ${euros(brut.minus(total))} à répartir.`,
           });
         }
       }
     } else {
       const pct = r.pourcentageArbitrage === null ? null : d(r.pourcentageArbitrage);
       if (pct === null || r.valeurContrat === null || pct.lessThanOrEqualTo(0) || pct.greaterThan(1) || d(r.valeurContrat).lessThanOrEqualTo(0)) {
-        bloquants.push({ code: 'ARBITRAGE_GLOBAL', message: 'Pour un arbitrage global, indiquez le pourcentage (100 % au plus) et la valeur du contrat.' });
+        bloquants.push({ code: 'ARBITRAGE_GLOBAL', message: 'Pour un arbitrage global, indiquez le pourcentage (100 % au plus) et l’encours du contrat.' });
       } else {
         const estime = pct.times(d(r.valeurContrat));
-        if (part(estime.minus(net).abs(), net).greaterThan(d(e.seuilEstimationArbitrage))) {
+        if (part(estime.minus(brut).abs(), brut).greaterThan(d(e.seuilEstimationArbitrage))) {
           alertes.push({
             code: 'ESTIMATION_ARBITRAGE',
-            message: `Le montant estimé (${euros(estime.toDecimalPlaces(2))}) s’écarte de plus de ${pourcent(e.seuilEstimationArbitrage)} du montant réservé ; le montant réel dépendra de la valeur au jour de l’opération.`,
+            message: `Le montant estimé (${euros(estime.toDecimalPlaces(2))}) s’écarte de plus de ${pourcent(e.seuilEstimationArbitrage)} du montant brut ; le montant réel dépendra de la valeur au jour de l’opération.`,
           });
         }
       }

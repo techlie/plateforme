@@ -5,7 +5,8 @@ import { SessionService } from '../../core/session.service';
 import { messageErreur } from '../../core/session.types';
 import { codeErreur, controlesRefuses, EnveloppesApi } from './enveloppes.api';
 import { Apercu, Apporteur, ClientConfie, CodeDerogation, Constat, Enveloppe, Fonds, ModeArbitrage, TypeClient, TypeOperation } from './enveloppes.types';
-import { aujourdhuiParis, compteARebours, dateCourte, euros, eurosRonds, pourcent, versMontant, versTaux } from './formats';
+import { montantDuPourcentage, sommeMontants } from './calculs-fonds';
+import { aujourdhuiParis, compteARebours, dateCourte, depuisMontant, euros, eurosRonds, pourcent, versMontant, versTaux } from './formats';
 import { rechercherFonds } from './recherche-fonds';
 
 interface LigneSaisie {
@@ -14,8 +15,13 @@ interface LigneSaisie {
   nom: string;
   isin: string;
   montant: string;
+  /** En pourcentage de l'encours du contrat, saisi « 25 » pour 25 %. */
+  pourcentage: string;
   ferme: boolean;
 }
+
+/** Saisie des fonds, pour tout le contrat : en euros (par défaut) ou en pourcentage de l'encours du contrat. */
+type SaisieFonds = 'EUROS' | 'POURCENT';
 
 const LIBELLES_DEROGATIONS: Record<CodeDerogation, string> = {
   FORMAT_CONTRAT: 'Numéro hors format accepté (contrat ancien ou atypique)',
@@ -48,6 +54,7 @@ export class ReserverComponent implements OnInit {
   readonly pourcent = pourcent;
   readonly dateCourte = dateCourte;
   readonly compteARebours = compteARebours;
+  readonly depuisMontant = depuisMontant;
   readonly libellesDerogations = LIBELLES_DEROGATIONS;
 
   readonly gestion = computed(() => ['SUPER_ADMINISTRATEUR', 'ADMINISTRATEUR', 'BACK_OFFICE'].includes(this.session.utilisateur()?.profil ?? ''));
@@ -79,6 +86,7 @@ export class ReserverComponent implements OnInit {
   readonly modeArbitrage = signal<ModeArbitrage>('PAR_FONDS');
   readonly pourcentageArbitrage = signal('');
   readonly valeurContrat = signal('');
+  readonly saisieFonds = signal<SaisieFonds>('EUROS');
   readonly lignes = signal<LigneSaisie[]>([]);
   readonly rechercheFonds = signal('');
   readonly reservationGlobaleId = signal('');
@@ -96,9 +104,28 @@ export class ReserverComponent implements OnInit {
     if (!saisie) return [];
     return rechercherFonds(this.fondsCompagnie(), saisie, this.lignes().map((l) => l.fondsId ?? ''), 12);
   });
-  readonly totalFonds = computed(() => this.lignes().reduce((t, l) => t + Number(versMontant(l.montant) ?? 0), 0));
+  readonly parFondsEnPourcentage = computed(() => this.arbitrage() && this.modeArbitrage() === 'PAR_FONDS' && this.saisieFonds() === 'POURCENT');
+  readonly encoursContrat = computed(() => versMontant(this.valeurContrat()));
+  /** Montant de chaque ligne : saisi en euros, ou calculé depuis le pourcentage et l'encours du contrat. */
+  readonly montantsLignes = computed(() => {
+    const encours = this.encoursContrat();
+    return new Map(
+      this.lignes().map((l) => {
+        if (!this.parFondsEnPourcentage()) return [l.cle, versMontant(l.montant)];
+        const taux = versTaux(l.pourcentage);
+        return [l.cle, taux && encours ? montantDuPourcentage(taux, encours) : null];
+      }),
+    );
+  });
+  readonly totalFonds = computed(() => sommeMontants([...this.montantsLignes().values()].filter((m): m is string => !!m)) ?? '0.00');
+  /** En pourcentage, le montant brut est la somme des lignes ; sinon, il est saisi. */
+  readonly brut = computed(() => (this.parFondsEnPourcentage() ? (Number(this.totalFonds()) > 0 ? this.totalFonds() : null) : versMontant(this.montantBrut())));
   readonly net = computed(() => this.apercu()?.montantNet ?? null);
-  readonly resteARepartir = computed(() => (this.net() === null ? null : Number(this.net()) - this.totalFonds()));
+  /** Le total des lignes égale le montant brut, frais compris (décision du 18 novembre). */
+  readonly resteARepartir = computed(() => {
+    const brut = this.brut();
+    return brut === null ? null : Number(brut) - Number(this.totalFonds());
+  });
   readonly depassement = computed(() => this.apercu()?.derogeables.some((d) => d.code === 'DEPASSEMENT') ?? false);
   readonly derogeablesNonAccordes = computed(() => (this.apercu()?.derogeables ?? []).filter((d) => !(this.gestion() && this.derogations()[d.code as CodeDerogation]?.trim())));
   readonly peutEnvoyer = computed(() => {
@@ -169,17 +196,40 @@ export class ReserverComponent implements OnInit {
     void this.chargerApporteur();
   }
 
+  /** Bascule euros / pourcentage : la valeur déjà calculée de l'autre côté devient la saisie. */
+  basculerSaisieFonds(mode: SaisieFonds): void {
+    if (mode === this.saisieFonds()) return;
+    const encours = this.encoursContrat();
+    const montants = this.montantsLignes();
+    this.lignes.update((l) =>
+      l.map((x) => {
+        if (mode === 'EUROS') return { ...x, montant: depuisMontant(montants.get(x.cle) ?? '') };
+        const montant = versMontant(x.montant);
+        return { ...x, pourcentage: montant && encours && Number(encours) > 0 ? String(Math.round((Number(montant) / Number(encours)) * 1e6) / 1e4).replace('.', ',') : '' };
+      }),
+    );
+    this.saisieFonds.set(mode);
+  }
+
+  /** Ce qui est grisé à côté de la saisie : le pourcentage en euros, ou l'euro en pourcentage. */
+  equivalent(l: LigneSaisie): string {
+    if (this.parFondsEnPourcentage()) return depuisMontant(this.montantsLignes().get(l.cle) ?? '');
+    const montant = versMontant(l.montant);
+    const encours = this.encoursContrat();
+    return montant && encours && Number(encours) > 0 ? pourcent(String(Number(montant) / Number(encours))).replace(/\s?%$/, '') : '';
+  }
+
   ajouterFonds(f: Fonds): void {
-    this.lignes.update((l) => [...l, { cle: ++this.compteur, fondsId: f.id, nom: f.nom, isin: f.isin ?? '', montant: '', ferme: !f.ouvert }]);
+    this.lignes.update((l) => [...l, { cle: ++this.compteur, fondsId: f.id, nom: f.nom, isin: f.isin ?? '', montant: '', pourcentage: '', ferme: !f.ouvert }]);
     this.rechercheFonds.set('');
   }
 
   ajouterHorsReferentiel(): void {
-    this.lignes.update((l) => [...l, { cle: ++this.compteur, fondsId: null, nom: this.rechercheFonds().trim(), isin: '', montant: '', ferme: false }]);
+    this.lignes.update((l) => [...l, { cle: ++this.compteur, fondsId: null, nom: this.rechercheFonds().trim(), isin: '', montant: '', pourcentage: '', ferme: false }]);
     this.rechercheFonds.set('');
   }
 
-  modifierLigne(cle: number, champ: 'montant' | 'nom' | 'isin', valeur: string): void {
+  modifierLigne(cle: number, champ: 'montant' | 'pourcentage' | 'nom' | 'isin', valeur: string): void {
     this.lignes.update((l) => l.map((x) => (x.cle === cle ? { ...x, [champ]: valeur } : x)));
   }
 
@@ -201,7 +251,7 @@ export class ReserverComponent implements OnInit {
 
   /** La demande telle qu'elle part au serveur, ou null tant que l'essentiel manque. */
   corps(): Record<string, unknown> | null {
-    const brut = versMontant(this.montantBrut());
+    const brut = this.brut();
     const frais = versTaux(this.frais() || '0');
     if (!brut || frais === null || !this.clientNom().trim() || (this.gestion() && !this.apporteurId())) return null;
     const corps: Record<string, unknown> = {
@@ -227,6 +277,12 @@ export class ReserverComponent implements OnInit {
       if (this.modeArbitrage() === 'GLOBAL') {
         corps['pourcentageArbitrage'] = versTaux(this.pourcentageArbitrage()) ?? undefined;
         corps['valeurContrat'] = versMontant(this.valeurContrat()) ?? undefined;
+      } else if (this.saisieFonds() === 'POURCENT') {
+        // L'encours du contrat est obligatoire : le serveur recalcule chaque ligne et le contrôle.
+        corps['valeurContrat'] = this.encoursContrat() ?? undefined;
+        corps['fonds'] = this.lignes()
+          .filter((l) => versTaux(l.pourcentage))
+          .map((l) => ({ fondsId: l.fondsId ?? undefined, nom: l.nom, isin: l.isin.trim() || undefined, pourcentage: versTaux(l.pourcentage) }));
       } else {
         corps['fonds'] = this.lignes()
           .filter((l) => versMontant(l.montant))

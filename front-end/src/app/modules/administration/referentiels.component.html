@@ -90,8 +90,37 @@
               <label class="case"><input type="checkbox" [checked]="a.restreint" (change)="modifierApporteur(a, { restreint: $any($event.target).checked }, 'Restriction modifiée.')" /> Restreint</label>
               <label class="case"><input type="checkbox" [checked]="a.habiliteReservationGlobale" (change)="modifierApporteur(a, { habiliteReservationGlobale: $any($event.target).checked }, 'Habilitation modifiée.')" /> Globales</label>
               <label class="case"><input type="checkbox" [checked]="a.actif" (change)="modifierApporteur(a, { actif: $any($event.target).checked }, 'Apporteur modifié.')" /> Actif</label>
+              <button type="button" class="bouton bouton--petit" (click)="ouvrirConventions(a)" [attr.aria-expanded]="conventionsDe() === a.id">Conventions</button>
             </span>
           </li>
+          @if (conventionsDe() === a.id) {
+            <li class="panneau-convention">
+              <h3>Conventions de {{ a.prenom }} {{ a.nom }}</h3>
+              <p class="discret">Le taux des clients confiés de la convention en vigueur s’applique à ce mandataire ; à défaut, celui de l’enveloppe. Le mandataire consulte ses conventions depuis son espace.</p>
+              @if (conventions().length === 0) {
+                <p class="discret">Aucune convention annexée.</p>
+              } @else {
+                <ul class="liste-simple">
+                  @for (v of conventions(); track v.id) {
+                    <li>
+                      Effet au {{ dateCourte(v.dateEffet) }} · {{ v.tauxClientsConfies ? 'clients confiés ' + pourcent(v.tauxClientsConfies) : 'sans taux des clients confiés' }}{{ v.commentaire ? ' · ' + v.commentaire : '' }}
+                      @if (v.document) { · <a class="lien-texte" [href]="lienConvention(v.document.id)" download>{{ v.document.nom }}</a> }
+                      <span class="ligne__second"> · ajoutée par {{ v.auteur }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+              <div class="grille grille--trois">
+                <label class="champ"><span class="champ__libelle">Date d’effet</span><span class="champ__zone"><input class="champ__saisie" type="date" [ngModel]="vDate()" (ngModelChange)="vDate.set($event)" /></span></label>
+                <label class="champ"><span class="champ__libelle">Taux des clients confiés (facultatif)</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="vTaux()" (ngModelChange)="vTaux.set($event)" /><span class="champ__unite">%</span></span></label>
+                <label class="champ"><span class="champ__libelle">Commentaire (facultatif)</span><span class="champ__zone"><input class="champ__saisie" style="font-size: 15px" [ngModel]="vCommentaire()" (ngModelChange)="vCommentaire.set($event)" /></span></label>
+              </div>
+              <label class="champ"><span class="champ__libelle">Convention signée</span>
+                <input type="file" accept="application/pdf,image/png,image/jpeg" (change)="choisirConvention($event)" /></label>
+              @if (erreurConvention()) { <p class="note note--danger" role="alert">{{ erreurConvention() }}</p> }
+              <div class="actions"><button type="button" class="bouton bouton--principal" (click)="ajouterConvention(a)" [disabled]="envoi() || !vFichier()">Annexer la convention</button></div>
+            </li>
+          }
         }
       </ul>
     }

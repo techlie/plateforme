@@ -280,8 +280,9 @@
             <label class="champ"><span class="champ__libelle">Numéro de contrat (facultatif)</span>
               <span class="champ__zone"><input class="champ__saisie" [ngModel]="cfContrat()" (ngModelChange)="cfContrat.set($event)" /></span>
             </label>
-            <label class="champ"><span class="champ__libelle">Taux pour ce client</span>
+            <label class="champ"><span class="champ__libelle">Taux pour ce client (facultatif)</span>
               <span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="cfTaux()" (ngModelChange)="cfTaux.set($event)" /><span class="champ__unite">%</span></span>
+              <span class="champ__aide">Vide : le taux de la convention du mandataire ; à défaut, celui de l’enveloppe.</span>
             </label>
           </div>
           @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }

@@ -13,8 +13,9 @@ export interface LigneFiabilite {
   valideeLe: Date | null;
   dateOperation: string | null;
   annulationTardive: boolean | null;
-  /** Pour une réservation annulée : le motif est-il imputable au mandataire. */
-  motifImputable: boolean | null;
+  /** Pour une réservation annulée : imputabilité retenue au moment de l'annulation, et son poids. */
+  annulationImputable: boolean | null;
+  poidsAnnulation: number | null;
   /** Réservation libérée parce que le produit a été annulé ou reporté : sans effet sur la fiabilité. */
   horsFiabilite?: boolean;
 }
@@ -23,6 +24,7 @@ export interface AnnulationPartielle {
   montantRetire: Montant;
   tardive: boolean;
   imputable: boolean;
+  poids: number;
 }
 
 export interface Fiabilite {
@@ -31,6 +33,8 @@ export interface Fiabilite {
   lignesComptees: number;
   annulationsDansLesDelais: { nombre: number; montant: Decimal };
   annulationsTardives: { nombre: number; montant: Decimal };
+  /** Somme des poids des annulations imputables : 1 chacune, 2 si tardive sur une réservation ancienne. */
+  poidsAnnulations: number;
   prolongations: number;
   nonHonorees: { nombre: number; montant: Decimal };
   /** Jours entre la validation de la réservation et la date de l'opération déclarée. */
@@ -56,7 +60,7 @@ export function calculerFiabilite(entree: {
       l.valideeLe !== null &&
       l.valideeLe >= debut &&
       FINAUX_COMPTES.includes(l.statut) &&
-      !((l.statut === 'ANNULEE' || l.statut === 'ANNULEE_APRES_OPERATION') && l.motifImputable !== true),
+      !((l.statut === 'ANNULEE' || l.statut === 'ANNULEE_APRES_OPERATION') && l.annulationImputable !== true),
   );
   const reserve = somme(comptees.map((l) => l.montantNet));
   const realise = somme(
@@ -65,7 +69,7 @@ export function calculerFiabilite(entree: {
       .map((l) => Decimal.min(d(l.montantValide as Montant), d(l.montantNet))),
   );
 
-  const annulees = entree.lignes.filter((l) => (l.statut === 'ANNULEE' || l.statut === 'ANNULEE_APRES_OPERATION') && l.motifImputable === true);
+  const annulees = entree.lignes.filter((l) => (l.statut === 'ANNULEE' || l.statut === 'ANNULEE_APRES_OPERATION') && l.annulationImputable === true);
   const partielles = entree.annulationsPartielles.filter((a) => a.imputable);
   const dansLesDelais = [
     ...annulees.filter((l) => !l.annulationTardive).map((l) => l.montantNet),
@@ -76,6 +80,7 @@ export function calculerFiabilite(entree: {
     ...partielles.filter((a) => a.tardive).map((a) => a.montantRetire),
   ];
 
+  const poidsAnnulations = annulees.reduce((t, l) => t + (l.poidsAnnulation ?? 1), 0) + partielles.reduce((t, a) => t + a.poids, 0);
   const liberees = entree.lignes.filter((l) => l.statut === 'LIBEREE');
   const delais = entree.lignes
     .filter((l) => l.valideeLe !== null && l.dateOperation !== null)
@@ -86,6 +91,7 @@ export function calculerFiabilite(entree: {
     lignesComptees: comptees.length,
     annulationsDansLesDelais: { nombre: dansLesDelais.length, montant: somme(dansLesDelais) },
     annulationsTardives: { nombre: tardives.length, montant: somme(tardives) },
+    poidsAnnulations,
     prolongations: entree.prolongations,
     nonHonorees: { nombre: liberees.length, montant: liberees.length ? somme(liberees.map((l) => l.montantNet)) : ZERO },
     delaiMoyenJours: delais.length === 0 ? null : Math.round((delais.reduce((a, b) => a + b, 0) / delais.length) * 10) / 10,

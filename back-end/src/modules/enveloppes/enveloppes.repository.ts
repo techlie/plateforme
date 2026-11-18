@@ -18,11 +18,11 @@ export const SELECTION_RESERVATION = {
   entite: { select: { id: true, nom: true } },
   codeApporteur: { select: { id: true, code: true } },
   gamme: { select: { id: true, nom: true } },
-  motif: { select: { id: true, libelle: true, imputable: true, categorie: true } },
+  motif: { select: { id: true, libelle: true, imputabilite: true, categorie: true } },
   motifEcart: { select: { id: true, libelle: true } },
   reservationGlobale: { select: { id: true, montant: true, montantLibere: true } },
   clientConfie: { select: { id: true, taux: true } },
-  fonds: { select: { id: true, fondsId: true, nom: true, isin: true, montant: true, horsReferentiel: true }, orderBy: { createdAt: 'asc' } },
+  fonds: { select: { id: true, fondsId: true, nom: true, isin: true, montant: true, pourcentage: true, horsReferentiel: true }, orderBy: { createdAt: 'asc' } },
 } satisfies Prisma.ReservationInclude;
 
 export type ReservationComplete = Prisma.ReservationGetPayload<{ include: typeof SELECTION_RESERVATION }>;

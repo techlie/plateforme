@@ -3,13 +3,12 @@ import { CategorieDocument } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { nomComplet, UtilisateurConnecte } from '../../shared/acces/acces.types';
-import { CONFIGURATION } from '../../shared/configuration';
-import type { Configuration } from '../../shared/configuration';
-import { JournalService } from '../../shared/journal/journal.service';
-import { PrismaService } from '../../shared/prisma/prisma.service';
-import { genererJeton } from '../../shared/securite/securite';
-import { estGestion } from './acces-enveloppes';
+import { nomComplet, PROFILS_ADMINISTRATION, UtilisateurConnecte } from '../acces/acces.types';
+import { CONFIGURATION } from '../configuration';
+import type { Configuration } from '../configuration';
+import { JournalService } from '../journal/journal.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { genererJeton } from '../securite/securite';
 
 export const TAILLE_MAX_DOCUMENT = 15 * 1024 * 1024;
 
@@ -23,6 +22,22 @@ const SIGNATURES: { type: string; extension: string; debut: number[] }[] = [
 export const CATEGORIES_ENVELOPPE: CategorieDocument[] = ['DOCUMENTATION_TECHNIQUE', 'AVENANT_COMPAGNIE', 'FICHE_PRODUIT', 'AVENANT_VIERGE'];
 export const CATEGORIES_RESERVATION: CategorieDocument[] = ['PREUVE_VERIFICATION', 'JUSTIFICATIF_OPERATION'];
 
+/** Nom de fichier sûr dans un en-tête de téléchargement ; « inline » pour l'afficher dans le navigateur. */
+export function enTeteFichier(nom: string, affichage: 'attachment' | 'inline' = 'attachment'): string {
+  const ascii = nom.normalize('NFD').replace(/[^\x20-\x7e]/g, '').replace(/["\\]/g, '_');
+  return `${affichage}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(nom)}`;
+}
+
+/** Rattachement d'un document : une enveloppe, une réservation ou la convention d'un apporteur. */
+export interface Rattachement {
+  enveloppeId?: string;
+  reservationId?: string;
+  conventionId?: string;
+}
+
+const estAdministrateur = (u: UtilisateurConnecte) => PROFILS_ADMINISTRATION.includes(u.profil);
+const estGestion = (u: UtilisateurConnecte) => estAdministrateur(u) || u.profil === 'BACK_OFFICE';
+
 export interface FichierRecu {
   originalname: string;
   size: number;
@@ -31,7 +46,8 @@ export interface FichierRecu {
 
 /**
  * Documents déposés : rangés hors du dossier public sous un nom tiré au hasard, avec leur
- * empreinte. Chaque dépôt et chaque téléchargement est journalisé.
+ * empreinte. Chaque dépôt et chaque téléchargement est journalisé. Partagé par les modules :
+ * enveloppes et réservations, conventions des apporteurs.
  */
 @Injectable()
 export class DocumentsService {
@@ -48,7 +64,7 @@ export class DocumentsService {
   async deposer(
     fichier: FichierRecu | undefined,
     categorie: CategorieDocument,
-    rattachement: { enveloppeId?: string; reservationId?: string },
+    rattachement: Rattachement,
     auteur: UtilisateurConnecte,
   ) {
     if (!fichier) {
@@ -76,6 +92,7 @@ export class DocumentsService {
         empreinte,
         enveloppeId: rattachement.enveloppeId ?? null,
         reservationId: rattachement.reservationId ?? null,
+        conventionId: rattachement.conventionId ?? null,
         auteurId: auteur.id,
         auteur: nomComplet(auteur),
       },
@@ -100,13 +117,19 @@ export class DocumentsService {
       include: {
         enveloppe: { select: { statut: true } },
         reservation: { select: { apporteur: { select: { userId: true } } } },
+        convention: { select: { apporteur: { select: { userId: true } } } },
       },
     });
     const introuvable = new NotFoundException({ code: 'INCONNU', message: 'Document introuvable.' });
     if (!doc) {
       throw introuvable;
     }
-    if (!estGestion(u)) {
+    if (doc.convention) {
+      // Une convention se lit par les administrateurs et par l'apporteur qu'elle concerne.
+      if (!estAdministrateur(u) && doc.convention.apporteur.userId !== u.id) {
+        throw introuvable;
+      }
+    } else if (!estGestion(u)) {
       const permisEnveloppe = doc.enveloppe && doc.categorie !== 'AVENANT_VIERGE' && ['OUVERTE', 'FERMEE'].includes(doc.enveloppe.statut);
       const permisReservation = doc.reservation && doc.reservation.apporteur.userId === u.id;
       if (!permisEnveloppe && !permisReservation) {

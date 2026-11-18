@@ -59,3 +59,33 @@
 .acces__texte strong {
   white-space: nowrap;
 }
+
+.case-confiance {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding: 12px 14px;
+  border-radius: var(--rayon);
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.case-confiance input {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.case-confiance small {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--texte-moyen);
+}

@@ -8,11 +8,12 @@ import request from 'supertest';
 import { MOTIFS_INITIAUX, PARAMETRES_INITIAUX } from '../src/modules/enveloppes/parametres-initiaux';
 import { PlanificateurService } from '../src/modules/enveloppes/planificateur.service';
 import { PrismaService } from '../src/shared/prisma/prisma.service';
-import { ajouterJours, dateParis } from '../src/shared/regles/dates';
+import { ajouterJours, dateParis, jourEtHeureParis } from '../src/shared/regles/dates';
 import { BoiteDeTest, demarrer, seConnecter } from './outils';
 
 const MDP = 'une phrase de passe assez longue';
 const SA = 'sa.enveloppes@exemple.fr';
+const SA2 = 'sa2.enveloppes@exemple.fr';
 const ADMIN = 'admin.enveloppes@exemple.fr';
 const BO = 'bo.enveloppes@exemple.fr';
 const M1 = 'm1.enveloppes@exemple.fr';
@@ -20,6 +21,17 @@ const M2 = 'm2.enveloppes@exemple.fr';
 const M3 = 'm3.enveloppes@exemple.fr';
 
 const aujourdHui = dateParis(new Date());
+
+/** L'instant où il est l'heure donnée à Paris, ce jour-là, été comme hiver. */
+function aParis(jour: string, heure: string): Date {
+  for (const decalage of ['+01:00', '+02:00']) {
+    const instant = new Date(`${jour}T${heure}:00${decalage}`);
+    if (dateParis(instant) === jour && jourEtHeureParis(instant).heure === heure) return instant;
+  }
+  throw new Error(`Heure de Paris introuvable : ${jour} ${heure}`);
+}
+
+const PDF = Buffer.from('%PDF-1.4\n%essai\n');
 
 describe('Module Enveloppes (bout en bout)', () => {
   let app: INestApplication;
@@ -58,8 +70,10 @@ describe('Module Enveloppes (bout en bout)', () => {
     await prisma.parametresEnveloppes.create({ data: PARAMETRES_INITIAUX });
     for (const motif of MOTIFS_INITIAUX) await prisma.motif.create({ data: motif });
     ids.refus = (await prisma.motif.create({ data: { categorie: 'REFUS', libelle: 'Hors cible' } })).id;
-    ids.annulationImputable = (await prisma.motif.create({ data: { categorie: 'ANNULATION', libelle: 'Client renonce', imputable: true } })).id;
+    ids.annulationImputable = (await prisma.motif.create({ data: { categorie: 'ANNULATION', libelle: 'Client renonce', imputabilite: 'IMPUTABLE' } })).id;
     ids.annulationCompagnie = (await prisma.motif.findFirstOrThrow({ where: { categorie: 'ANNULATION', libelle: 'Arbitrage refusé par la compagnie' } })).id;
+    ids.annulationDeces = (await prisma.motif.findFirstOrThrow({ where: { categorie: 'ANNULATION', libelle: 'Décès du client' } })).id;
+    ids.annulationRenonce = (await prisma.motif.findFirstOrThrow({ where: { categorie: 'ANNULATION', libelle: 'Le client renonce' } })).id;
     ids.ecartValorisation = (await prisma.motif.findFirstOrThrow({ where: { categorie: 'ECART', libelle: 'Valorisation au jour de l’opération' } })).id;
     ids.renvoi = (await prisma.motif.findFirstOrThrow({ where: { categorie: 'RENVOI', libelle: 'Client à prévendre' } })).id;
 
@@ -68,6 +82,7 @@ describe('Module Enveloppes (bout en bout)', () => {
     const empreinte = await bcrypt.hash(MDP, 4);
     const comptes: [string, string, string, 'SUPER_ADMINISTRATEUR' | 'ADMINISTRATEUR' | 'BACK_OFFICE' | 'MANDATAIRE', boolean][] = [
       ['SA', SA, 'Sarah', 'SUPER_ADMINISTRATEUR', true],
+      ['SA2', SA2, 'Simon', 'SUPER_ADMINISTRATEUR', true],
       ['ADMIN', ADMIN, 'Adam', 'ADMINISTRATEUR', true],
       ['BO', BO, 'Bérénice', 'BACK_OFFICE', true],
       ['M1', M1, 'Marc', 'MANDATAIRE', true],
@@ -102,11 +117,13 @@ describe('Module Enveloppes (bout en bout)', () => {
     ids.a1 = a1.body.id;
     ids.a2 = a2.body.id;
     ids.aSa = aSa.body.id;
+    ids.aAdmin = (await post('ADMIN', '/referentiels/apporteurs', { nom: 'Essai', prenom: 'Adam', role: 'ASSOCIE', entiteId: ids.entite, userId: ids.userADMIN }).expect(201)).body.id;
     await post('ADMIN', '/referentiels/apporteurs', { nom: 'X', prenom: 'Y', role: 'MANDATAIRE', userId: ids.userM1 }).expect(409);
 
     ids.codeM1 = (await post('ADMIN', '/referentiels/codes', { compagnieId: ids.compagnie, code: 'C-001', nature: 'PROPRE', apporteurIds: [ids.a1] }).expect(201)).body.id;
     ids.codeM2 = (await post('ADMIN', '/referentiels/codes', { compagnieId: ids.compagnie, code: 'C-002', nature: 'PROPRE', apporteurIds: [ids.a2] }).expect(201)).body.id;
     ids.codeSa = (await post('ADMIN', '/referentiels/codes', { compagnieId: ids.compagnie, code: 'C-SA', nature: 'PROPRE', apporteurIds: [ids.aSa] }).expect(201)).body.id;
+    ids.codeAdmin = (await post('ADMIN', '/referentiels/codes', { compagnieId: ids.compagnie, code: 'C-AD', nature: 'PROPRE', apporteurIds: [ids.aAdmin] }).expect(201)).body.id;
 
     const csv = 'Nom du fonds;Code ISIN\nFonds Alpha;US0378331005\nMandat Prudent;\n';
     const apercu = await post('ADMIN', '/referentiels/fonds/import', { compagnieId: ids.compagnie, contenu: csv, appliquer: false }).expect(201);
@@ -192,9 +209,17 @@ describe('Module Enveloppes (bout en bout)', () => {
     const format = await codes(reservation({ numeroContrat: '123' }));
     expect(format.derogeables[0].code).toBe('FORMAT_CONTRAT');
     await post('M1', '/reservations', reservation({ numeroContrat: '123', derogations: [{ code: 'FORMAT_CONTRAT', motif: 'Contrat ancien' }] })).expect(403);
-    // Arbitrage fonds par fonds : le total doit égaler le montant réservé.
-    const fonds = await codes(reservation({ typeOperation: 'ARBITRAGE', modeArbitrage: 'PAR_FONDS', fonds: [{ fondsId: ids.fondsAlpha, nom: 'Fonds Alpha (C)', montant: '10000' }] }));
+    // Arbitrage fonds par fonds : le total des lignes égale le montant brut, frais compris.
+    const fonds = await codes(reservation({ typeOperation: 'ARBITRAGE', modeArbitrage: 'PAR_FONDS', fonds: [{ fondsId: ids.fondsAlpha, nom: 'Fonds Alpha (C)', montant: '19800' }] }));
     expect(fonds.bloquants[0].code).toBe('FONDS_TOTAL');
+    const auBrut = await post('M1', '/reservations/apercu', reservation({ typeOperation: 'ARBITRAGE', modeArbitrage: 'PAR_FONDS', fonds: [{ fondsId: ids.fondsAlpha, nom: 'Fonds Alpha (C)', montant: '20000' }] })).expect(201);
+    expect(auBrut.body.bloquants).toEqual([]);
+    // En pourcentage de l'encours du contrat : l'encours devient obligatoire, le montant en découle.
+    const enPourcentage = { typeOperation: 'ARBITRAGE', modeArbitrage: 'PAR_FONDS', fonds: [{ fondsId: ids.fondsAlpha, nom: 'Fonds Alpha (C)', pourcentage: '0.4' }] };
+    expect((await codes(reservation(enPourcentage))).bloquants.map((b: { code: string }) => b.code)).toContain('ENCOURS_CONTRAT');
+    const pourcentage = await post('M1', '/reservations/apercu', reservation({ ...enPourcentage, valeurContrat: '50000' })).expect(201);
+    expect(pourcentage.body.bloquants).toEqual([]);
+    await post('M1', '/reservations/apercu', reservation({ ...enPourcentage, fonds: [{ nom: 'Sans montant' }] })).expect(400);
     await post('M1', '/reservations', reservation({ typeOperation: 'ARBITRAGE', modeArbitrage: 'PAR_FONDS', fonds: [{ nom: 'Libre', isin: 'US0378331006', montant: '19800' }] })).expect(400);
     expect(await prisma.reservation.count()).toBe(0);
   });
@@ -225,18 +250,32 @@ describe('Module Enveloppes (bout en bout)', () => {
     await get('M1', '/referentiels/apporteurs').expect(403);
   });
 
-  it('séparation des tâches : personne ne valide sa propre réservation, même super administrateur', async () => {
+  it('séparation des tâches : seul un super administrateur valide sa propre réservation, tracé, l’autre associé prévenu', async () => {
     const r = await post('BO', '/reservations', reservation({ apporteurId: ids.aSa, codeApporteurId: ids.codeSa, numeroContrat: '87654321', clientNom: 'Petit', clientPrenom: 'Hugo' })).expect(201);
     ids.rSa = r.body.id;
-    const refus = await post('SA', `/reservations/${ids.rSa}/validation`).expect(403);
-    expect(refus.body.code).toBe('PROPRE_PRODUCTION');
-    await post('ADMIN', `/reservations/${ids.rSa}/validation`).expect(201);
+    expect((await get('SA', `/reservations/${ids.rSa}`).expect(200)).body.droits.valider).toBe(true);
+    boite.vider();
+    await post('SA', `/reservations/${ids.rSa}/validation`).expect(201);
+    expect(boite.dernierPour(SA2).objet).toMatch(/validation de sa propre réservation/);
+    expect(boite.dernierPour(SA2).texte).not.toMatch(/Petit|Hugo/);
+    const trace = await prisma.log.findFirstOrThrow({ where: { action: 'RESERVATION_VALIDEE', cible: ids.rSa } });
+    expect(trace.details).toMatchObject({ saPropreReservation: true });
+    // Un administrateur, lui, ne valide pas la sienne.
+    const rAdmin = await post('BO', '/reservations', reservation({ apporteurId: ids.aAdmin, codeApporteurId: ids.codeAdmin, numeroContrat: '87650000', clientNom: 'Leroy', clientPrenom: 'Paul', montantBrut: '2000', tauxFrais: '0' })).expect(201);
+    expect((await get('ADMIN', `/reservations/${rAdmin.body.id}`).expect(200)).body.droits.valider).toBe(false);
+    expect((await post('ADMIN', `/reservations/${rAdmin.body.id}/validation`).expect(403)).body.code).toBe('PROPRE_PRODUCTION');
+    await post('BO', `/reservations/${rAdmin.body.id}/annulation`, { motifId: ids.annulationDeces }).expect(201);
     // Une dérogation de format accordée par le back-office vaut tant que le numéro ne change pas.
     const atypique = await post('BO', '/reservations', reservation({ apporteurId: ids.a1, numeroContrat: 'ANCIEN-01', clientNom: 'Ancien', clientPrenom: 'Max', montantBrut: '2000', tauxFrais: '0', derogations: [{ code: 'FORMAT_CONTRAT', motif: 'Contrat ancien, format d’origine' }] })).expect(201);
     expect(atypique.body.derogations).toEqual(['FORMAT_CONTRAT']);
     await patch('M1', `/reservations/${atypique.body.id}`, { encoursClient: '500000' }).expect(200);
     await patch('M1', `/reservations/${atypique.body.id}`, { numeroContrat: 'ANCIEN-02' }).expect(422);
-    await post('M1', `/reservations/${atypique.body.id}/annulation`, { motifId: ids.annulationCompagnie }).expect(201);
+    // Refus de la compagnie : le back-office décide si c'est imputable, et l'explique.
+    expect((await post('M1', `/reservations/${atypique.body.id}/annulation`, { motifId: ids.annulationCompagnie }).expect(403)).body.code).toBe('MOTIF_BACK_OFFICE');
+    expect((await post('BO', `/reservations/${atypique.body.id}/annulation`, { motifId: ids.annulationCompagnie, commentaire: 'Contrat nanti' }).expect(400)).body.code).toBe('IMPUTABILITE');
+    expect((await post('BO', `/reservations/${atypique.body.id}/annulation`, { motifId: ids.annulationCompagnie, imputable: false }).expect(400)).body.code).toBe('COMMENTAIRE');
+    await post('BO', `/reservations/${atypique.body.id}/annulation`, { motifId: ids.annulationCompagnie, imputable: false, commentaire: 'Contrat nanti, la compagnie refuse l’arbitrage' }).expect(201);
+    expect(await prisma.reservation.findUniqueOrThrow({ where: { id: atypique.body.id }, select: { annulationImputable: true, poidsAnnulation: true } })).toEqual({ annulationImputable: false, poidsAnnulation: 0 });
     // Un mandataire ne saisit pas pour le compte d'un autre.
     await post('M1', '/reservations', reservation({ apporteurId: ids.a2, codeApporteurId: ids.codeM2, numeroContrat: '11112222' })).expect(403);
   });
@@ -349,17 +388,20 @@ describe('Module Enveloppes (bout en bout)', () => {
     expect(annulee.body).toMatchObject({ statut: 'ANNULEE', annulationTardive: false });
     expect((await get('BO', `/enveloppes/${ids.enveloppe}`).expect(200)).body.compteurs.restante).toBe('250.00');
 
-    // À moins de 15 jours de la date limite interne, l'annulation imputable est tardive.
-    await prisma.enveloppe.update({ where: { id: ids.enveloppe }, data: { dateLimiteInterne: new Date(`${ajouterJours(aujourdHui, 10)}T00:00:00Z`) } });
-    const avertie = await post('M2', `/reservations/${ids.rM2}/annulation`, { motifId: ids.annulationImputable }).expect(409);
+    // Dans les 20 derniers jours avant la date limite interne, l'annulation imputable est tardive.
+    await prisma.enveloppe.update({ where: { id: ids.enveloppe }, data: { dateLimiteInterne: new Date(`${ajouterJours(aujourdHui, 18)}T00:00:00Z`) } });
+    const avertie = await post('M2', `/reservations/${ids.rM2}/annulation`, { motifId: ids.annulationRenonce }).expect(409);
     expect(avertie.body.code).toBe('TARDIVE');
-    const tardive = await post('M2', `/reservations/${ids.rM2}/annulation`, { motifId: ids.annulationImputable, confirmeTardive: true }).expect(201);
+    // Réservée il y a plus de 30 jours et annulée à la dernière minute : elle compte double.
+    await prisma.reservation.update({ where: { id: ids.rM2 }, data: { createdAt: new Date(Date.now() - 40 * 86_400_000) } });
+    const tardive = await post('M2', `/reservations/${ids.rM2}/annulation`, { motifId: ids.annulationRenonce, confirmeTardive: true }).expect(201);
     expect(tardive.body.annulationTardive).toBe(true);
+    expect(await prisma.reservation.findUniqueOrThrow({ where: { id: ids.rM2 }, select: { annulationImputable: true, poidsAnnulation: true } })).toEqual({ annulationImputable: true, poidsAnnulation: 2 });
     await prisma.enveloppe.update({ where: { id: ids.enveloppe }, data: { dateLimiteInterne: new Date(`${ajouterJours(aujourdHui, 40)}T00:00:00Z`) } });
 
     const fiabilite = await get('M2', '/enveloppes/fiabilite').expect(200);
     expect(fiabilite.body).toHaveLength(1);
-    expect(fiabilite.body[0]).toMatchObject({ apporteur: { prenom: 'Maud' }, annulationsTardives: { nombre: 1, montant: '4950.00' } });
+    expect(fiabilite.body[0]).toMatchObject({ apporteur: { prenom: 'Maud' }, annulationsTardives: { nombre: 1, montant: '4950.00' }, poidsAnnulations: 2 });
     const tous = await get('BO', '/enveloppes/fiabilite').expect(200);
     expect(tous.body.length).toBeGreaterThanOrEqual(2);
   });
@@ -376,10 +418,42 @@ describe('Module Enveloppes (bout en bout)', () => {
     await post('ADMIN', `/enveloppes/${ids.enveloppe}/mouvements`, { type: 'RESTITUTION', montant: '1', motif: 'Essai' }).expect(422);
   });
 
-  it('clients confiés : affectés par l’administrateur, au taux minoré, signalés par le mandataire', async () => {
+  it('conventions : annexées par l’administrateur, lues par le seul mandataire concerné', async () => {
+    const deposer = (qui: string, apporteurId: string, champs: Record<string, string>, fichier?: Buffer) => {
+      let req = http().post(`/api/referentiels/apporteurs/${apporteurId}/conventions`).set('Cookie', c[qui]);
+      for (const [k, v] of Object.entries(champs)) req = req.field(k, v);
+      return fichier ? req.attach('fichier', fichier, 'convention.pdf') : req;
+    };
+    await deposer('BO', ids.a1, { dateEffet: aujourdHui, tauxClientsConfies: '0.004' }, PDF).expect(403);
+    await deposer('ADMIN', ids.a1, { dateEffet: aujourdHui, tauxClientsConfies: '0.004' }).expect(400);
+    await deposer('ADMIN', ids.a1, { dateEffet: aujourdHui, tauxClientsConfies: '0.004' }, Buffer.from('<html>')).expect(400);
+    expect(await prisma.convention.count()).toBe(0);
+    // Une convention future ne s'applique pas encore.
+    await deposer('ADMIN', ids.a1, { dateEffet: ajouterJours(aujourdHui, 300), tauxClientsConfies: '0.003' }, PDF).expect(201);
+    const convention = await deposer('ADMIN', ids.a1, { dateEffet: aujourdHui, tauxClientsConfies: '0.004', commentaire: 'Convention de mandat' }, PDF).expect(201);
+    expect(convention.body).toMatchObject({ dateEffet: aujourdHui, tauxClientsConfies: '0.004', document: { nom: 'convention.pdf' } });
+    expect((await get('ADMIN', `/referentiels/apporteurs/${ids.a1}/conventions`).expect(200)).body).toHaveLength(2);
+    await get('BO', `/referentiels/apporteurs/${ids.a1}/conventions`).expect(403);
+
+    const miennes = await get('M1', '/referentiels/conventions/miennes').expect(200);
+    expect(miennes.body).toHaveLength(2);
+    expect((await get('M2', '/referentiels/conventions/miennes').expect(200)).body).toHaveLength(0);
+    const idDocument = convention.body.document.id;
+    expect((await get('M1', `/referentiels/conventions/documents/${idDocument}`).expect(200)).headers['content-type']).toBe('application/pdf');
+    expect((await get('M1', `/referentiels/conventions/documents/${idDocument}?voir=1`).expect(200)).headers['content-disposition']).toMatch(/^inline;/);
+    await get('M2', `/referentiels/conventions/documents/${idDocument}`).expect(404);
+    await get('BO', `/referentiels/conventions/documents/${idDocument}`).expect(404);
+    await get('SA', `/referentiels/conventions/documents/${idDocument}`).expect(200);
+  });
+
+  it('clients confiés : affectés par l’administrateur, au taux de la convention, signalés par le mandataire', async () => {
     await post('BO', `/enveloppes/${ids.enveloppe}/clients-confies`, { apporteurId: ids.a1, typeClient: 'PHYSIQUE', clientNom: 'Morel', clientPrenom: 'Lina' }).expect(403);
     const confie = await post('ADMIN', `/enveloppes/${ids.enveloppe}/clients-confies`, { apporteurId: ids.a1, typeClient: 'PHYSIQUE', clientNom: 'Morel', clientPrenom: 'Lina', numeroContrat: '88889999' }).expect(201);
-    expect(confie.body.taux).toBe('0.005');
+    // Le taux de la convention en vigueur du mandataire ; sans convention, celui de l'enveloppe.
+    expect(confie.body.taux).toBe('0.004');
+    const sansConvention = await post('ADMIN', `/enveloppes/${ids.enveloppe}/clients-confies`, { apporteurId: ids.a2, typeClient: 'PHYSIQUE', clientNom: 'Faure', clientPrenom: 'Inès' }).expect(201);
+    expect(sansConvention.body.taux).toBe('0.005');
+    await post('ADMIN', `/enveloppes/clients-confies/${sansConvention.body.id}/retrait`).expect(204);
     expect(boite.dernierPour(M1).objet).toMatch(/client confié/);
     expect((await get('M1', '/enveloppes/clients-confies').expect(200)).body).toHaveLength(1);
     expect((await get('M2', '/enveloppes/clients-confies').expect(200)).body).toHaveLength(0);
@@ -387,7 +461,7 @@ describe('Module Enveloppes (bout en bout)', () => {
 
     await post('ADMIN', `/enveloppes/${ids.enveloppe}/mouvements`, { type: 'RALLONGE', montant: '20000', motif: 'Rallonge clients confiés' }).expect(201);
     const r = await post('M1', '/reservations', reservation({ clientConfieId: confie.body.id, clientNom: 'Autre', numeroContrat: '88889999', montantBrut: '10000', tauxFrais: '0' })).expect(201);
-    expect(r.body).toMatchObject({ origineClient: 'CONFIE', clientNom: 'Morel', tauxCommission: '0.005', commissionEstimee: '50.00' });
+    expect(r.body).toMatchObject({ origineClient: 'CONFIE', clientNom: 'Morel', tauxCommission: '0.004', commissionEstimee: '40.00' });
     expect(r.body.accordClientLe).not.toBeNull();
     expect(boite.dernierPour(BO).objet).toMatch(/signature à organiser/);
     expect((await get('M1', '/enveloppes/clients-confies').expect(200)).body[0].statut).toBe('ACCEPTE');
@@ -395,7 +469,7 @@ describe('Module Enveloppes (bout en bout)', () => {
   });
 
   it('documents : PDF déposé par le back-office, lu par le mandataire ; avenant vierge réservé', async () => {
-    const pdf = Buffer.from('%PDF-1.4\n%essai\n');
+    const pdf = PDF;
     const fiche = await http().post(`/api/enveloppes/${ids.enveloppe}/documents`).set('Cookie', c.BO).field('categorie', 'FICHE_PRODUIT').attach('fichier', pdf, 'fiche-produit.pdf').expect(201);
     const vierge = await http().post(`/api/enveloppes/${ids.enveloppe}/documents`).set('Cookie', c.BO).field('categorie', 'AVENANT_VIERGE').attach('fichier', pdf, 'avenant-vierge.pdf').expect(201);
     await http().post(`/api/enveloppes/${ids.enveloppe}/documents`).set('Cookie', c.BO).field('categorie', 'FICHE_PRODUIT').attach('fichier', Buffer.from('<html>'), 'piege.pdf').expect(400);
@@ -467,25 +541,60 @@ describe('Module Enveloppes (bout en bout)', () => {
     let jeudi = aujourdHui;
     while (new Date(`${jeudi}T12:00:00Z`).getUTCDay() !== 4) jeudi = ajouterJours(jeudi, 1);
     boite.vider();
-    await planificateur.executer(new Date(`${jeudi}T08:01:00Z`));
+    await planificateur.executer(aParis(jeudi, '09:01'));
     expect(boite.recus.filter((m) => /point de la semaine/.test(m.objet))).toHaveLength(0);
 
     await post('BO', '/enveloppes/parametres/emailing').expect(403);
     await post('ADMIN', '/enveloppes/parametres/emailing').expect(201);
-    await planificateur.executer(new Date(`${jeudi}T08:00:00Z`));
+    await planificateur.executer(aParis(jeudi, '09:00'));
     expect(boite.recus.filter((m) => /point de la semaine/.test(m.objet))).toHaveLength(0);
-    await planificateur.executer(new Date(`${jeudi}T08:01:00Z`));
+    await planificateur.executer(aParis(jeudi, '09:01'));
     const hebdo = boite.recus.filter((m) => /point de la semaine/.test(m.objet));
-    expect(hebdo.map((m) => m.a).sort()).toEqual([M1, M2, SA].sort());
+    expect(hebdo.map((m) => m.a).sort()).toEqual([M1, M2, SA, ADMIN].sort());
     for (const m of hebdo) {
       expect(m.texte).not.toMatch(/Durand|Élodie|Morel|Lemoine|Blanc|Noir/);
     }
+    // Le jeudi : ce qui reste à faire, ce qui est fait, et un mot pour avancer avec le lien.
+    expect(hebdo.find((m) => m.a === M1)!.texte).toContain('Ce qui est fait');
+    const pourSa = hebdo.find((m) => m.a === SA)!;
+    expect(pourSa.texte).toContain('Ce qu’il vous reste à faire');
+    expect(pourSa.texte).toContain('validée : opération à passer');
+    expect(pourSa.texte).toContain('Pour avancer, mettez à jour vos réservations');
     const archive = await prisma.envoiEmailing.findMany();
     expect(archive).toHaveLength(1);
-    expect(archive[0].destinataires).toHaveLength(3);
+    expect(archive[0].destinataires).toHaveLength(4);
     // Pas de second envoi la même semaine.
-    await planificateur.executer(new Date(`${jeudi}T09:30:00Z`));
-    expect(boite.recus.filter((m) => /point de la semaine/.test(m.objet))).toHaveLength(3);
+    await planificateur.executer(aParis(jeudi, '10:30'));
+    expect(boite.recus.filter((m) => /point de la semaine/.test(m.objet))).toHaveLength(4);
+  });
+
+  it('à 20 jours, un second récapitulatif le lundi ; à 14 jours, une alerte au back-office', async () => {
+    const planificateur = app.get(PlanificateurService);
+    let lundi = ajouterJours(aujourdHui, 20);
+    while (new Date(`${lundi}T12:00:00Z`).getUTCDay() !== 1) lundi = ajouterJours(lundi, 1);
+    const rappels = () => boite.recus.filter((m) => /ce qu’il reste à faire/.test(m.objet));
+    const alertes = () => boite.recus.filter((m) => /réservations à faire avancer/.test(m.objet));
+    boite.vider();
+    // Plus de 20 jours avant la date limite interne : pas de mail le lundi.
+    await planificateur.executer(aParis(ajouterJours(lundi, -7), '09:01'));
+    expect(rappels()).toHaveLength(0);
+    await planificateur.executer(aParis(lundi, '09:01'));
+    expect(rappels().map((m) => m.a).sort()).toEqual([M1, M2, SA, ADMIN].sort());
+    const pourSa = rappels().find((m) => m.a === SA)!;
+    expect(pourSa.texte).toContain('Ce qu’il vous reste à faire');
+    expect(pourSa.texte).not.toContain('Ce qui est fait');
+    expect(pourSa.texte).not.toMatch(/Petit|Hugo/);
+    await planificateur.executer(aParis(lundi, '11:00'));
+    expect(rappels()).toHaveLength(4);
+    expect(await prisma.envoiEmailing.count({ where: { semaine: { endsWith: 'lundi' } } })).toBe(1);
+
+    // À 14 jours : une alerte au back-office, une seule fois, par mandataire, initiales seulement.
+    await planificateur.executer(aParis(ajouterJours(aujourdHui, 26), '10:00'));
+    await planificateur.executer(aParis(ajouterJours(aujourdHui, 27), '10:00'));
+    expect(alertes().map((m) => m.a)).toEqual([BO]);
+    expect(alertes()[0].texte).toContain('Sarah Essai');
+    expect(alertes()[0].texte).toMatch(/client H\. P\./);
+    expect(alertes()[0].texte).not.toMatch(/Petit|Hugo/);
   });
 
   it('à la date limite interne, l’enveloppe se ferme ; seule une dérogation de l’administrateur permet encore de réserver', async () => {

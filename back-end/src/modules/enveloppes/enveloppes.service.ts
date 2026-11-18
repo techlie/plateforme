@@ -75,6 +75,11 @@ export class EnveloppesService {
       emailingHeure: p.emailingHeure,
       emailingValideLe: p.emailingValideLe?.toISOString() ?? null,
       emailingValidePar: p.emailingValidePar,
+      relancesRapprocheesJours: p.relancesRapprocheesJours,
+      emailingJourRapproche: p.emailingJourRapproche,
+      alerteBackOfficeJours: p.alerteBackOfficeJours,
+      ancienneteAnnulationJours: p.ancienneteAnnulationJours,
+      poidsAnnulationAggravee: p.poidsAnnulationAggravee,
     };
   }
 
@@ -94,6 +99,11 @@ export class EnveloppesService {
         compteAReboursJours: dto.compteAReboursJours,
         emailingJour: dto.emailingJour,
         emailingHeure: dto.emailingHeure,
+        relancesRapprocheesJours: dto.relancesRapprocheesJours,
+        emailingJourRapproche: dto.emailingJourRapproche,
+        alerteBackOfficeJours: dto.alerteBackOfficeJours,
+        ancienneteAnnulationJours: dto.ancienneteAnnulationJours,
+        poidsAnnulationAggravee: dto.poidsAnnulationAggravee,
       },
     });
     await this.tracer(auteur, 'PARAMETRES_ENVELOPPES', 'Paramètres du module Enveloppes modifiés.', avant.id, {
@@ -122,9 +132,15 @@ export class EnveloppesService {
       throw new ConflictException({ code: 'EXISTE', message: 'Ce motif existe déjà.' });
     }
     const motif = await this.repository.prisma.motif.create({
-      data: { categorie: dto.categorie, libelle, imputable: dto.categorie === 'ANNULATION' ? (dto.imputable ?? false) : false, commentaireObligatoire: dto.commentaireObligatoire ?? false },
+      data: {
+        categorie: dto.categorie,
+        libelle,
+        imputabilite: dto.categorie === 'ANNULATION' ? (dto.imputabilite ?? 'NON_IMPUTABLE') : 'NON_IMPUTABLE',
+        // Au choix du back-office : il explique toujours son choix.
+        commentaireObligatoire: dto.imputabilite === 'AU_CHOIX' ? true : (dto.commentaireObligatoire ?? false),
+      },
     });
-    await this.tracer(auteur, 'MOTIF_CREE', `Motif « ${libelle} » créé.`, motif.id, { categorie: dto.categorie, imputable: motif.imputable });
+    await this.tracer(auteur, 'MOTIF_CREE', `Motif « ${libelle} » créé.`, motif.id, { categorie: dto.categorie, imputabilite: motif.imputabilite });
     return motif;
   }
 
@@ -137,12 +153,12 @@ export class EnveloppesService {
       where: { id },
       data: {
         libelle: dto.libelle?.trim(),
-        imputable: avant.categorie === 'ANNULATION' ? dto.imputable : undefined,
-        commentaireObligatoire: dto.commentaireObligatoire,
+        imputabilite: avant.categorie === 'ANNULATION' ? dto.imputabilite : undefined,
+        commentaireObligatoire: dto.imputabilite === 'AU_CHOIX' ? true : dto.commentaireObligatoire,
         actif: dto.actif,
       },
     });
-    await this.tracer(auteur, 'MOTIF_MODIFIE', `Motif « ${motif.libelle} » modifié.`, id, { avant: { libelle: avant.libelle, imputable: avant.imputable, actif: avant.actif } });
+    await this.tracer(auteur, 'MOTIF_MODIFIE', `Motif « ${motif.libelle} » modifié.`, id, { avant: { libelle: avant.libelle, imputabilite: avant.imputabilite, actif: avant.actif } });
     return motif;
   }
 
@@ -707,7 +723,11 @@ export class EnveloppesService {
     if (deja.some((c) => cleClient(c.clientNom, c.clientPrenom) === cle)) {
       throw new ConflictException({ code: 'DEJA_CONFIE', message: 'Ce client est déjà confié sur cette enveloppe.' });
     }
-    const taux = dto.taux ?? e.tauxClientsConfies.toString();
+    // Décision du 18 novembre : le taux est celui de la convention de l'apporteur ; à défaut,
+    // celui de l'enveloppe. L'administrateur peut encore le saisir, et c'est tracé.
+    const convention = dto.taux ? null : await this.referentiels.tauxConvention(dto.apporteurId, dateParis(new Date()));
+    const taux = dto.taux ?? convention?.taux ?? e.tauxClientsConfies.toString();
+    const origineTaux = dto.taux ? 'SAISI' : convention ? 'CONVENTION' : 'ENVELOPPE';
     const confie = await this.repository.prisma.clientConfie.create({
       data: {
         enveloppeId,
@@ -726,6 +746,8 @@ export class EnveloppesService {
       enveloppeId,
       apporteurId: dto.apporteurId,
       taux,
+      origineTaux,
+      conventionId: convention?.conventionId ?? null,
     });
     const adresse = apporteur.compte ? apporteur.compte.email : apporteur.email;
     await this.notifications.envoyer([adresse], `client confié · ${e.nomProduit}`, [

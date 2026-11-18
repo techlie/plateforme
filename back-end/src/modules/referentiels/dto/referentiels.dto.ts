@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { ArrayMaxSize, IsArray, IsBoolean, IsEmail, IsEnum, IsOptional, IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
 import { NatureCodeApporteur, RoleApporteur } from '@prisma/client';
-import { EstDate } from '../../../shared/validation/decimaux';
+import { EstDate, EstTaux } from '../../../shared/validation/decimaux';
 
 export class CompagnieDto {
   @IsString()
@@ -219,4 +219,22 @@ export class ImportFondsDto {
   @Type(() => Boolean)
   @IsBoolean()
   appliquer: boolean;
+}
+
+/**
+ * Convention d'un apporteur (décision du 18 novembre) : document annexé, date d'effet, et le
+ * taux des clients confiés qu'elle fixe. Envoyée en formulaire avec le fichier.
+ */
+export class ConventionDto {
+  @EstDate()
+  dateEffet: string;
+
+  @IsOptional()
+  @EstTaux()
+  tauxClientsConfies?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  commentaire?: string;
 }

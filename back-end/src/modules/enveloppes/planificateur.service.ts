@@ -7,11 +7,12 @@ import { dateParis, depuisDateBase, estDepassee, joursEntre, joursRestants, jour
 import { EnveloppesService } from './enveloppes.service';
 import { NotificationsEnveloppesService } from './notifications.service';
 import { soldeGlobale } from './regles/compteurs';
-import { estLeMoment, lignesMandataire, raisonDeBlocage, semaineIso } from './regles/emailing';
+import { estDansLesRelancesRapprochees, estLeMoment, lignesAlerteBackOffice, lignesMandataire, raisonDeBlocage, semaineIso, STATUTS_A_FAIRE, STATUTS_RECAPITULATIF } from './regles/emailing';
 import { d } from './regles/montants';
 import { STATUTS_ACTIFS } from './regles/statuts';
 
 const AUTEUR = 'Plateforme (tâche planifiée)';
+const NOMS_JOURS = ['', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 
 /**
  * Tâches qui dépendent de l'heure : fermeture des enveloppes à la date limite interne (23 h 59,
@@ -62,6 +63,7 @@ export class PlanificateurService implements OnApplicationBootstrap, OnApplicati
     await this.marquerGlobalesEchues(maintenant);
     await this.rappelerEcheances(maintenant);
     await this.compteARebours(maintenant);
+    await this.alerteBackOffice(maintenant);
     await this.mailHebdomadaire(maintenant);
   }
 
@@ -176,17 +178,78 @@ export class PlanificateurService implements OnApplicationBootstrap, OnApplicati
   }
 
   /**
-   * Chaque jeudi à 9 h 01, un mail par enveloppe ouverte, une fois le modèle validé par
-   * l'administrateur. Garde-fou : une donnée incohérente bloque l'envoi et alerte le back-office.
+   * Décision du 18 novembre : à 14 jours de la date limite interne, une alerte au back-office, une
+   * fois par enveloppe, avec les réservations pas encore assez avancées, par mandataire, pour les
+   * appeler et les motiver. Clients cités par leurs initiales.
+   */
+  private async alerteBackOffice(maintenant: Date) {
+    const parametres = await this.prisma.parametresEnveloppes.findFirst();
+    if (!parametres) return;
+    const cle = `alerte-bo:${parametres.alerteBackOfficeJours}`;
+    const ouvertes = await this.prisma.enveloppe.findMany({ where: { statut: 'OUVERTE' }, include: { compagnie: { select: { nom: true } } } });
+    for (const e of ouvertes) {
+      const reste = joursRestants(depuisDateBase(e.dateLimiteInterne), maintenant);
+      if (reste < 0 || reste > parametres.alerteBackOfficeJours || e.alertesEnvoyees.includes(cle)) continue;
+      await this.prisma.enveloppe.update({ where: { id: e.id }, data: { alertesEnvoyees: [...e.alertesEnvoyees, cle] } });
+      const reservations = await this.prisma.reservation.findMany({
+        where: { enveloppeId: e.id, statut: { in: [...STATUTS_A_FAIRE] } },
+        select: {
+          numero: true,
+          statut: true,
+          clientNom: true,
+          clientPrenom: true,
+          numeroContrat: true,
+          clientPrevendu: true,
+          motif: { select: { libelle: true } },
+          apporteur: { select: { id: true, prenom: true, nom: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+      if (reservations.length === 0) continue;
+      const suivies = reservations.map((r) => ({ ...r, motif: r.motif?.libelle ?? null }));
+      const groupes = new Map<string, { mandataire: string; reservations: typeof suivies }>();
+      for (const r of suivies) {
+        const g = groupes.get(r.apporteur.id) ?? { mandataire: `${r.apporteur.prenom} ${r.apporteur.nom}`, reservations: [] };
+        g.reservations.push(r);
+        groupes.set(r.apporteur.id, g);
+      }
+      const n = reservations.length;
+      await this.notifications.auBackOffice(`J-${reste} · réservations à faire avancer · ${e.nomProduit}`, [
+        'Bonjour,',
+        '',
+        `Plus que ${reste} jour${reste > 1 ? 's' : ''} avant la date limite interne de ${e.compagnie.nom} · ${e.nomProduit} (${this.notifications.dateLisible(e.dateLimiteInterne)}).`,
+        `${n} réservation${n > 1 ? 's ne sont' : ' n’est'} pas encore assez avancée${n > 1 ? 's' : ''} : appelez les mandataires pour les aider à finaliser.`,
+        ...lignesAlerteBackOffice([...groupes.values()]),
+        '',
+        this.notifications.lienEnveloppe(e.id),
+      ]);
+      await this.journal.ecrire({ action: 'ALERTE_BACK_OFFICE', message: `Alerte J-${reste} au back-office sur ${e.nomProduit} : ${n} réservation${n > 1 ? 's' : ''} à faire avancer.`, succes: true, auteur: AUTEUR, cible: e.id });
+    }
+  }
+
+  /**
+   * Récapitulatif aux mandataires, une fois le modèle validé par l'administrateur. Chaque jeudi à
+   * 9 h 01 : ce qui reste à faire et ce qui est fait. Décision du 18 novembre : à partir de 20 jours
+   * de la date limite interne, aussi le lundi à la même heure, avec ce qui reste à faire.
+   * Garde-fou : une donnée incohérente bloque l'envoi et alerte le back-office.
    * Chaque envoi est archivé : date, destinataires, contenu.
    */
   private async mailHebdomadaire(maintenant: Date) {
     const parametres = await this.prisma.parametresEnveloppes.findFirst();
-    if (!parametres?.emailingValideLe || !estLeMoment(jourEtHeureParis(maintenant), parametres.emailingJour, parametres.emailingHeure)) return;
+    if (!parametres?.emailingValideLe) return;
+    const moment = jourEtHeureParis(maintenant);
+    const principal = estLeMoment(moment, parametres.emailingJour, parametres.emailingHeure);
+    const rapproche = !principal && estLeMoment(moment, parametres.emailingJourRapproche, parametres.emailingHeure);
+    if (!principal && !rapproche) return;
     const semaine = semaineIso(dateParis(maintenant));
+    // Clé d'archive : la semaine pour l'envoi principal, la semaine et le jour pour le second.
+    const cleEnvoi = principal ? semaine : `${semaine} ${NOMS_JOURS[parametres.emailingJourRapproche]}`;
+    const nomJour = NOMS_JOURS[principal ? parametres.emailingJour : parametres.emailingJourRapproche];
     const ouvertes = await this.prisma.enveloppe.findMany({ where: { statut: 'OUVERTE' }, include: { compagnie: { select: { nom: true } }, gammesExclues: { select: { gamme: { select: { nom: true } } } } } });
     for (const e of ouvertes) {
-      const envoye = await this.prisma.envoiEmailing.findFirst({ where: { enveloppeId: e.id, semaine, bloque: false } });
+      const reste = joursRestants(depuisDateBase(e.dateLimiteInterne), maintenant);
+      if (rapproche && !estDansLesRelancesRapprochees(reste, parametres.relancesRapprocheesJours)) continue;
+      const envoye = await this.prisma.envoiEmailing.findFirst({ where: { enveloppeId: e.id, semaine: cleEnvoi, bloque: false } });
       if (envoye) continue;
       const c = await this.enveloppes.compteurs(e.id);
       const depassementAutorise = (await this.prisma.reservation.count({ where: { enveloppeId: e.id, derogations: { has: 'DEPASSEMENT' }, statut: { in: [...STATUTS_ACTIFS] } } })) > 0;
@@ -195,7 +258,7 @@ export class PlanificateurService implements OnApplicationBootstrap, OnApplicati
         restanteNegative: c.restante.isNegative(),
         depassementAutorise,
       });
-      const objet = `${e.compagnie.nom} · ${e.nomProduit} · point de la semaine`;
+      const objet = principal ? `${e.compagnie.nom} · ${e.nomProduit} · point de la semaine` : `${e.compagnie.nom} · ${e.nomProduit} · ce qu’il reste à faire (J-${reste})`;
       const commun = [
         'Bonjour,',
         '',
@@ -203,7 +266,7 @@ export class PlanificateurService implements OnApplicationBootstrap, OnApplicati
         c.restante.isNegative()
           ? `Enveloppe complète, dépassement autorisé de ${this.notifications.euros(c.depassement)}.`
           : `Enveloppe restante : ${this.notifications.euros(c.restante)}.`,
-        `Date limite interne : ${this.notifications.dateLisible(e.dateLimiteInterne)}.`,
+        `Date limite interne : ${this.notifications.dateLisible(e.dateLimiteInterne)}${reste >= 0 ? `, dans ${reste} jour${reste > 1 ? 's' : ''}` : ''}.`,
         `Taux de commission : ${d(e.tauxCommission).times(100).toString()} % du montant net investi.`,
         `Montant minimum par réservation : ${this.notifications.euros(e.montantMinimum)}.`,
         e.seuilConcentration ? `Concentration : ${d(e.seuilConcentration).times(100).toString()} % de l’encours du client au plus (alerte).` : '',
@@ -214,10 +277,10 @@ export class PlanificateurService implements OnApplicationBootstrap, OnApplicati
 
       if (blocage) {
         // L'envoi est retenté à chaque passe du jour ; l'alerte ne part qu'une fois.
-        if (await this.prisma.envoiEmailing.findFirst({ where: { enveloppeId: e.id, semaine, bloque: true } })) continue;
-        await this.prisma.envoiEmailing.create({ data: { enveloppeId: e.id, semaine, destinataires: [], objet, contenu: commun.join('\n'), bloque: true, raisonBlocage: blocage } });
-        await this.notifications.auBackOffice(`mail du jeudi bloqué · ${e.nomProduit}`, [`Le mail hebdomadaire de ${e.compagnie.nom} · ${e.nomProduit} n’est pas parti.`, `Raison : ${blocage}`, 'Corrigez la donnée en cause : l’envoi repartira à la prochaine passe du jour.']);
-        await this.journal.ecrire({ action: 'EMAILING_BLOQUE', message: `Mail hebdomadaire de ${e.nomProduit} bloqué : ${blocage}`, succes: false, auteur: AUTEUR, cible: e.id });
+        if (await this.prisma.envoiEmailing.findFirst({ where: { enveloppeId: e.id, semaine: cleEnvoi, bloque: true } })) continue;
+        await this.prisma.envoiEmailing.create({ data: { enveloppeId: e.id, semaine: cleEnvoi, destinataires: [], objet, contenu: commun.join('\n'), bloque: true, raisonBlocage: blocage } });
+        await this.notifications.auBackOffice(`récapitulatif du ${nomJour} bloqué · ${e.nomProduit}`, [`Le récapitulatif du ${nomJour} de ${e.compagnie.nom} · ${e.nomProduit} n’est pas parti.`, `Raison : ${blocage}`, 'Corrigez la donnée en cause : l’envoi repartira à la prochaine passe du jour.']);
+        await this.journal.ecrire({ action: 'EMAILING_BLOQUE', message: `Récapitulatif du ${nomJour} de ${e.nomProduit} bloqué : ${blocage}`, succes: false, auteur: AUTEUR, cible: e.id });
         continue;
       }
 
@@ -229,17 +292,20 @@ export class PlanificateurService implements OnApplicationBootstrap, OnApplicati
       const adresses: string[] = [];
       for (const a of destinataires) {
         const reservations = await this.prisma.reservation.findMany({
-          where: { enveloppeId: e.id, apporteurId: a.id, statut: { in: ['SOUMISE', 'RENVOYEE', 'LISTE_ATTENTE'] } },
+          where: { enveloppeId: e.id, apporteurId: a.id, statut: { in: [...STATUTS_RECAPITULATIF] } },
           select: { numero: true, statut: true, clientNom: true, clientPrenom: true, numeroContrat: true, clientPrevendu: true, motif: { select: { libelle: true } } },
           orderBy: { createdAt: 'asc' },
         });
-        const personnel = lignesMandataire(reservations.map((r) => ({ ...r, motif: r.motif?.libelle ?? null })));
+        const personnel = lignesMandataire(
+          reservations.map((r) => ({ ...r, motif: r.motif?.libelle ?? null })),
+          { avecFait: principal, lien: this.notifications.lienEnveloppe(e.id) },
+        );
         await this.notifications.envoyer([a.user!.email], objet, [...commun, ...personnel]);
         adresses.push(a.user!.email);
         archive.push(`— ${a.user!.email}`, ...personnel);
       }
-      await this.prisma.envoiEmailing.create({ data: { enveloppeId: e.id, semaine, destinataires: adresses, objet, contenu: archive.join('\n') } });
-      await this.journal.ecrire({ action: 'EMAILING_ENVOYE', message: `Mail hebdomadaire de ${e.nomProduit} envoyé à ${adresses.length} destinataire${adresses.length > 1 ? 's' : ''}.`, succes: true, auteur: AUTEUR, cible: e.id });
+      await this.prisma.envoiEmailing.create({ data: { enveloppeId: e.id, semaine: cleEnvoi, destinataires: adresses, objet, contenu: archive.join('\n') } });
+      await this.journal.ecrire({ action: 'EMAILING_ENVOYE', message: `Récapitulatif du ${nomJour} de ${e.nomProduit} envoyé à ${adresses.length} destinataire${adresses.length > 1 ? 's' : ''}.`, succes: true, auteur: AUTEUR, cible: e.id });
     }
   }
 }

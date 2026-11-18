@@ -16,6 +16,7 @@ function entree(modif: Partial<EntreeControle['reservation']> = {}, autres: Part
     reservation: {
       typeOperation: 'VERSEMENT_LIBRE',
       numeroContrat: '12345678',
+      montantBrut: '10000',
       montantNet: '10000',
       encoursClient: '200000',
       gammeId: 'g-ok',
@@ -77,13 +78,23 @@ describe('Contrôles à la saisie d’une réservation (section 6.3)', () => {
     expect(controlerReservation(entree({ montantNet: '1500' })).bloquants).toEqual([]);
   });
 
-  it('arbitrage fonds par fonds : liste obligatoire, total égal au montant réservé', () => {
+  it('arbitrage fonds par fonds : liste obligatoire, total égal au montant brut', () => {
     const base = { typeOperation: 'ARBITRAGE' as const, modeArbitrage: 'PAR_FONDS' as const };
     expect(codes(controlerReservation(entree(base)).bloquants)).toEqual(['FONDS_ABSENTS']);
     const ecart = controlerReservation(entree({ ...base, fonds: [{ montant: '6000' }, { montant: '3000' }] }));
     expect(codes(ecart.bloquants)).toEqual(['FONDS_TOTAL']);
     expect(ecart.bloquants[0].message).toContain('reste 1');
     expect(controlerReservation(entree({ ...base, fonds: [{ montant: '6000' }, { montant: '4000' }] })).bloquants).toEqual([]);
+    // Frais de 1 % : 10 100 désinvestis pour 10 000 investis ; c'est le brut que les fonds égalent.
+    const avecFrais = { ...base, montantBrut: '10100', montantNet: '9999' };
+    expect(controlerReservation(entree({ ...avecFrais, fonds: [{ montant: '10100' }] })).bloquants).toEqual([]);
+    expect(codes(controlerReservation(entree({ ...avecFrais, fonds: [{ montant: '9999' }] })).bloquants)).toEqual(['FONDS_TOTAL']);
+  });
+
+  it('désinvestissement en pourcentage : l’encours du contrat est obligatoire', () => {
+    const base = { typeOperation: 'ARBITRAGE' as const, modeArbitrage: 'PAR_FONDS' as const };
+    expect(codes(controlerReservation(entree({ ...base, fonds: [{ montant: '10000', pourcentage: '0.25' }] })).bloquants)).toEqual(['ENCOURS_CONTRAT']);
+    expect(controlerReservation(entree({ ...base, valeurContrat: '40000', fonds: [{ montant: '10000', pourcentage: '0.25' }] })).bloquants).toEqual([]);
   });
 
   it('arbitrage global : pourcentage et valeur requis, 100 % au plus ; alerte au-delà de 5 % d’écart d’estimation', () => {

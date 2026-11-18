@@ -22,8 +22,8 @@ import { ModuleRequis, Profils, UtilisateurCourant } from '../../shared/acces/ac
 import { PROFILS_ADMINISTRATION } from '../../shared/acces/acces.types';
 import type { UtilisateurConnecte } from '../../shared/acces/acces.types';
 import { PROFILS_GESTION } from './acces-enveloppes';
-import { DocumentsService, TAILLE_MAX_DOCUMENT } from './documents.service';
-import type { FichierRecu } from './documents.service';
+import { DocumentsService, enTeteFichier, TAILLE_MAX_DOCUMENT } from '../../shared/documents/documents.service';
+import type { FichierRecu } from '../../shared/documents/documents.service';
 import { DepotDocumentEnveloppeDto } from './dto/documents.dto';
 import {
   ClientConfieDto,
@@ -41,12 +41,6 @@ import {
 } from './dto/enveloppes.dto';
 import { EnveloppesService } from './enveloppes.service';
 import { ReservationsService } from './reservations.service';
-
-/** Nom de fichier sûr dans un en-tête de téléchargement. */
-export function enTeteFichier(nom: string): string {
-  const ascii = nom.normalize('NFD').replace(/[^\x20-\x7e]/g, '').replace(/["\\]/g, '_');
-  return `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(nom)}`;
-}
 
 @Controller('enveloppes')
 @ModuleRequis('ENVELOPPES')

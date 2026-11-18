@@ -35,7 +35,7 @@ export function raisonDeBlocage(x: { dateLimiteDepassee: boolean; restanteNegati
   return null;
 }
 
-export interface ReservationEnAttente {
+export interface ReservationSuivie {
   numero: number;
   statut: StatutReservation;
   clientNom: string;
@@ -45,21 +45,69 @@ export interface ReservationEnAttente {
   motif: string | null;
 }
 
-/** Action attendue sur une réservation encore non validée. */
-export function actionAttendue(r: ReservationEnAttente): string {
-  if (r.statut === 'RENVOYEE') return `à corriger : ${r.motif ?? 'voir la plateforme'}`;
-  if (r.statut === 'LISTE_ATTENTE') return 'en liste d’attente';
-  if (!r.clientPrevendu) return 'client à prévendre';
-  return 'en attente de validation par le back-office';
+/** Décision du 18 novembre : ce qui reste à faire au mandataire, puis ce qui est fait. */
+export const STATUTS_A_FAIRE: readonly StatutReservation[] = ['SOUMISE', 'RENVOYEE', 'LISTE_ATTENTE', 'VALIDEE', 'ECHUE'];
+export const STATUTS_FAITS: readonly StatutReservation[] = ['OPERATION_PASSEE', 'ECART_A_JUSTIFIER', 'VERIFIEE'];
+export const STATUTS_RECAPITULATIF: readonly StatutReservation[] = [...STATUTS_A_FAIRE, ...STATUTS_FAITS];
+
+/** Où en est la réservation, et ce que le mandataire doit faire. */
+export function actionAttendue(r: ReservationSuivie): string {
+  switch (r.statut) {
+    case 'RENVOYEE':
+      return `à corriger : ${r.motif ?? 'voir la plateforme'}`;
+    case 'LISTE_ATTENTE':
+      return 'en liste d’attente';
+    case 'SOUMISE':
+      return r.clientPrevendu ? 'en attente de validation par le back-office' : 'client à prévendre';
+    case 'VALIDEE':
+      return 'validée : opération à passer, puis à déclarer sur la plateforme';
+    case 'ECHUE':
+      return 'échue : le back-office va vous contacter';
+    case 'VERIFIEE':
+      return 'vérifiée par la compagnie';
+    default:
+      return 'opération déclarée, vérification par la compagnie en cours';
+  }
 }
 
-/** Les réservations du mandataire, citées sans le nom du client : initiales et fin du contrat. */
-export function lignesMandataire(reservations: ReservationEnAttente[]): string[] {
-  if (reservations.length === 0) {
-    return ['Vous n’avez pas de réservation en attente sur cette enveloppe.'];
+function ligne(r: ReservationSuivie): string {
+  return `- n° ${r.numero} · client ${initialesClient(r.clientNom, r.clientPrenom)} · contrat ${finDeContrat(r.numeroContrat)} : ${actionAttendue(r)}`;
+}
+
+/**
+ * Récapitulatif personnel du mandataire, sans le nom du client : initiales et fin du contrat.
+ * Le jeudi, ce qui reste à faire et ce qui est fait ; le lundi des dernières semaines, ce qui reste.
+ * Puis un mot pour avancer et le lien vers la plateforme.
+ */
+export function lignesMandataire(reservations: ReservationSuivie[], x: { avecFait: boolean; lien: string }): string[] {
+  const aFaire = reservations.filter((r) => STATUTS_A_FAIRE.includes(r.statut));
+  const faits = reservations.filter((r) => STATUTS_FAITS.includes(r.statut));
+  if (aFaire.length === 0 && (faits.length === 0 || !x.avecFait)) {
+    return [faits.length ? 'Rien ne vous attend sur cette enveloppe.' : 'Vous n’avez pas de réservation sur cette enveloppe.'];
   }
-  return [
-    'Vos réservations encore non validées :',
-    ...reservations.map((r) => `- n° ${r.numero} · client ${initialesClient(r.clientNom, r.clientPrenom)} · contrat ${finDeContrat(r.numeroContrat)} : ${actionAttendue(r)}`),
-  ];
+  const lignes: string[] = [];
+  if (aFaire.length) lignes.push('Ce qu’il vous reste à faire :', ...aFaire.map(ligne));
+  else lignes.push('Rien ne vous attend sur cette enveloppe.');
+  if (x.avecFait && faits.length) lignes.push('', 'Ce qui est fait :', ...faits.map(ligne));
+  if (aFaire.length) {
+    lignes.push('', `Pour avancer, mettez à jour vos réservations sur la plateforme, avec votre identifiant et votre mot de passe : ${x.lien}`);
+  }
+  return lignes;
+}
+
+/** Le second récapitulatif, le lundi, ne part que dans les dernières semaines avant la date limite interne. */
+export function estDansLesRelancesRapprochees(joursRestants: number, seuilJours: number): boolean {
+  return joursRestants >= 0 && joursRestants <= seuilJours;
+}
+
+/**
+ * Alerte au back-office, une fois par enveloppe, à l'approche de la date limite interne : les
+ * réservations pas encore assez avancées, par mandataire, pour les appeler et les motiver.
+ */
+export function lignesAlerteBackOffice(groupes: { mandataire: string; reservations: ReservationSuivie[] }[]): string[] {
+  const lignes: string[] = [];
+  for (const g of groupes.filter((x) => x.reservations.length)) {
+    lignes.push('', `${g.mandataire} :`, ...g.reservations.map(ligne));
+  }
+  return lignes;
 }

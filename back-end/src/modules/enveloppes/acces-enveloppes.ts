@@ -20,7 +20,8 @@ export function estSuperAdministrateur(u: UtilisateurConnecte): boolean {
 /**
  * Séparation des tâches : personne ne décide seul sur sa propre production. L'apporteur d'une
  * réservation ne peut ni la valider, ni lui accorder une dérogation, ni saisir sa vérification,
- * ni modifier son taux, même s'il est administrateur.
+ * ni modifier son taux, même s'il est administrateur. Seule exception, décidée le 18 novembre :
+ * un super administrateur peut valider sa propre réservation (tracé, l'autre associé prévenu).
  */
 export function interdireSurSaPropreReservation(u: UtilisateurConnecte, apporteurUserId: string | null): void {
   if (apporteurUserId && apporteurUserId === u.id) {

@@ -3,6 +3,9 @@ import type { Request } from 'express';
 export const NOM_COOKIE_SESSION = 'sr_session';
 
 /** Lit un cookie dans l'en-tête de la demande, sans dépendance supplémentaire. */
+/** Cookie de l'appareil reconnu : limité aux routes de connexion. */
+export const NOM_COOKIE_APPAREIL = 'sr_appareil';
+
 export function lireCookie(requete: Request, nom: string): string | undefined {
   const entete = requete.headers.cookie;
   if (!entete) return undefined;

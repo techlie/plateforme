@@ -108,6 +108,47 @@ describe('Connexion et droits (bout en bout)', () => {
     await http().post('/api/auth/code').send({ demande: etape1.body.demande, code: bonCode }).expect(401);
   });
 
+  it('reconnaît un appareil de confiance 30 jours : plus de code, toujours le mot de passe', async () => {
+    const cookies = (r: request.Response) => ([] as string[]).concat(r.headers['set-cookie'] ?? []);
+    const connexion = (cookie?: string, motDePasse = MOT_DE_PASSE) => {
+      const req = http().post('/api/auth/connexion');
+      return (cookie ? req.set('Cookie', cookie) : req).send({ email: ADMIN, motDePasse });
+    };
+    // Sans la case cochée, aucun appareil n'est retenu.
+    const e1 = await connexion().expect(200);
+    const r1 = await http().post('/api/auth/code').send({ demande: e1.body.demande, code: boite.codePour(ADMIN) }).expect(200);
+    expect(cookies(r1).some((c) => c.startsWith('sr_appareil='))).toBe(false);
+
+    const e2 = await connexion().expect(200);
+    const r2 = await http().post('/api/auth/code').send({ demande: e2.body.demande, code: boite.codePour(ADMIN), faireConfiance: true }).expect(200);
+    const brut = cookies(r2).find((c) => c.startsWith('sr_appareil='))!;
+    expect(brut).toMatch(/HttpOnly/i);
+    expect(brut).toMatch(/Path=\/api\/auth/i);
+    const appareil = brut.split(';')[0];
+
+    // Sur l'appareil reconnu : le mot de passe suffit, aucun code n'est envoyé.
+    const avant = boite.recus.length;
+    const e3 = await connexion(appareil).expect(200);
+    expect(e3.body).toMatchObject({ etape: 'CONNECTE', utilisateur: { email: ADMIN } });
+    expect(cookies(e3).some((c) => c.startsWith('sr_session='))).toBe(true);
+    expect(boite.recus.length).toBe(avant);
+    await connexion(appareil, 'mauvais mot de passe').expect(401);
+    // L'appareil ne vaut que pour son compte.
+    const autre = await http().post('/api/auth/connexion').set('Cookie', appareil).send({ email: SA, motDePasse: MOT_DE_PASSE }).expect(200);
+    expect(autre.body.etape).toBe('CODE');
+
+    // Après 30 jours, le code est redemandé.
+    await prisma.appareilReconnu.updateMany({ data: { expireLe: new Date(Date.now() - 1000) } });
+    expect((await connexion(appareil).expect(200)).body.etape).toBe('CODE');
+    await prisma.appareilReconnu.updateMany({ data: { expireLe: new Date(Date.now() + 86_400_000) } });
+    expect((await connexion(appareil).expect(200)).body.etape).toBe('CONNECTE');
+
+    // Un nouveau mot de passe retire la confiance donnée aux appareils.
+    await http().post('/api/auth/mot-de-passe-oublie').send({ email: ADMIN }).expect(200);
+    await http().post('/api/auth/mot-de-passe').send({ jeton: boite.jetonPour(ADMIN), motDePasse: MOT_DE_PASSE }).expect(204);
+    expect((await connexion(appareil).expect(200)).body.etape).toBe('CODE');
+  });
+
   it('ferme toutes les routes sans session', async () => {
     await http().get('/api/auth/moi').expect(401);
     await http().get('/api/simulateur/contrats').expect(401);

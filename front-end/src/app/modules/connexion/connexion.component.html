@@ -4,7 +4,7 @@
   @if (!demande()) {
     <div>
       <h1 class="acces__titre">Connexion</h1>
-      <p class="acces__texte">Saisissez votre adresse et votre mot de passe. Un code vous sera ensuite envoyé par courriel.</p>
+      <p class="acces__texte">Saisissez votre adresse et votre mot de passe. Un code vous sera ensuite envoyé par courriel, sauf sur un appareil que vous avez déjà reconnu.</p>
     </div>
 
     <form class="acces__formulaire" (submit)="envoyerIdentifiants($event)" novalidate>
@@ -50,6 +50,13 @@
             autocomplete="one-time-code" maxlength="6" required [value]="code()" (input)="saisir('code', $event)" />
         </div>
       </div>
+      <label class="case-confiance">
+        <input type="checkbox" [checked]="faireConfiance()" (change)="faireConfiance.set($any($event.target).checked)" />
+        <span>
+          Faire confiance à cet appareil pendant {{ joursAppareil }} jours
+          <small>Le code ne sera plus demandé ici ; le mot de passe, toujours. Décochez sur un ordinateur partagé.</small>
+        </span>
+      </label>
       @if (erreur(); as message) {
         <p class="note note--danger" role="alert">{{ message }}</p>
       }

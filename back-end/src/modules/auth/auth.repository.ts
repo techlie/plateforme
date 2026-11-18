@@ -83,6 +83,18 @@ export class AuthRepository {
     return this.prisma.session.updateMany({ where: { id: sessionId, revoqueeLe: null }, data: { revoqueeLe: maintenant } });
   }
 
+  creerAppareil(userId: string, empreinte: string, expireLe: Date, navigateur: string | null) {
+    return this.prisma.appareilReconnu.create({ data: { userId, empreinte, expireLe, navigateur } });
+  }
+
+  trouverAppareil(empreinte: string) {
+    return this.prisma.appareilReconnu.findUnique({ where: { empreinte } });
+  }
+
+  noterAppareil(id: string, maintenant: Date) {
+    return this.prisma.appareilReconnu.update({ where: { id }, data: { derniereUtilisation: maintenant } });
+  }
+
   revoquerSessions(userId: string, maintenant: Date): Promise<unknown> {
     return this.prisma.session.updateMany({ where: { userId, revoqueeLe: null }, data: { revoqueeLe: maintenant } });
   }
@@ -112,6 +124,8 @@ export class AuthRepository {
         data: { motDePasse: empreinteMotDePasse, echecsConnexion: 0, bloqueJusqua: null },
       });
       await tx.session.updateMany({ where: { userId, revoqueeLe: null }, data: { revoqueeLe: maintenant } });
+      // Nouveau mot de passe : les appareils reconnus doivent repasser par le code.
+      await tx.appareilReconnu.updateMany({ where: { userId, revoqueLe: null }, data: { revoqueLe: maintenant } });
       return true;
     });
   }

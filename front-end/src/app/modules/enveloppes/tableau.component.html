@@ -170,5 +170,22 @@
         </dl>
       </section>
     }
+
+    @if (!gestion() && conventions().length) {
+      <section class="carte" aria-labelledby="titre-conventions">
+        <div class="carte__tete">
+          <h2 id="titre-conventions">Mes conventions</h2>
+          <span class="discret">Annexées par le cabinet</span>
+        </div>
+        <ul class="liste-simple">
+          @for (v of conventions(); track v.id) {
+            <li>
+              Effet au {{ dateCourte(v.dateEffet) }}{{ v.tauxClientsConfies ? ' · clients confiés ' + pourcent(v.tauxClientsConfies) : '' }}
+              @if (v.document) { · <a class="lien-texte" [href]="lienConvention(v.document.id) + '?voir=1'" target="_blank" rel="noopener">Voir</a> · <a class="lien-texte" [href]="lienConvention(v.document.id)" download>Télécharger</a> }
+            </li>
+          }
+        </ul>
+      </section>
+    }
   }
 </div>

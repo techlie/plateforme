@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsUUID, Length, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsOptional, IsString, IsUUID, Length, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class ConnexionDto {
   @IsEmail({}, { message: 'Adresse électronique invalide.' })
@@ -19,6 +19,11 @@ export class CodeDto {
   @Length(6, 6, { message: 'Le code compte six chiffres.' })
   @Matches(/^\d{6}$/, { message: 'Le code compte six chiffres.' })
   code: string;
+
+  /** Reconnaître cet appareil : le code n'est plus demandé pendant 30 jours. */
+  @IsOptional()
+  @IsBoolean()
+  faireConfiance?: boolean;
 }
 
 export class DemandeReinitialisationDto {

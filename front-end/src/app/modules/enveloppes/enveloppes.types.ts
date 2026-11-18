@@ -19,7 +19,9 @@ export type TypeClient = 'PHYSIQUE' | 'MORALE';
 export type ModeArbitrage = 'GLOBAL' | 'PAR_FONDS';
 export type ModeOperation = 'DEMATERIALISE' | 'PAPIER';
 export type CategorieMotif = 'REFUS' | 'RENVOI' | 'ANNULATION' | 'ECART';
-export type CategorieDocument = 'DOCUMENTATION_TECHNIQUE' | 'AVENANT_COMPAGNIE' | 'FICHE_PRODUIT' | 'AVENANT_VIERGE' | 'PREUVE_VERIFICATION' | 'JUSTIFICATIF_OPERATION';
+export type CategorieDocument = 'DOCUMENTATION_TECHNIQUE' | 'AVENANT_COMPAGNIE' | 'FICHE_PRODUIT' | 'AVENANT_VIERGE' | 'PREUVE_VERIFICATION' | 'JUSTIFICATIF_OPERATION' | 'CONVENTION';
+/** Imputabilité d'un motif d'annulation au mandataire (décision du 18 novembre). */
+export type ImputabiliteMotif = 'IMPUTABLE' | 'NON_IMPUTABLE' | 'AU_CHOIX' | 'SELON_DELAI';
 export type CodeDerogation = 'FORMAT_CONTRAT' | 'DEPASSEMENT' | 'DATE_LIMITE';
 
 export interface Constat {
@@ -91,6 +93,8 @@ export interface LigneFonds {
   nom: string;
   isin: string | null;
   montant: string;
+  /** Saisie en pourcentage de l'encours du contrat : le montant en est calculé. */
+  pourcentage?: string | null;
   horsReferentiel?: boolean;
 }
 
@@ -147,6 +151,7 @@ export interface Reservation {
   valideeLe: string | null;
   annuleeLe: string | null;
   annulationTardive: boolean | null;
+  annulationImputable: boolean | null;
   operationDeclareeLe: string | null;
   createdAt: string;
   estApporteur: boolean;
@@ -156,7 +161,7 @@ export interface Reservation {
 export interface DetailReservation extends Reservation {
   historique: { id: string; date: string; action: string; auteur: string; deStatut: StatutReservation | null; versStatut: StatutReservation | null; commentaire: string | null; details: Record<string, unknown> | null }[];
   documents: DocumentDepose[];
-  droits: { gestion: boolean; administrateur: boolean; decider: boolean; modifier: boolean };
+  droits: { gestion: boolean; administrateur: boolean; decider: boolean; valider: boolean; modifier: boolean };
 }
 
 export interface Apercu {
@@ -176,7 +181,7 @@ export interface Motif {
   id: string;
   categorie: CategorieMotif;
   libelle: string;
-  imputable: boolean;
+  imputabilite: ImputabiliteMotif;
   commentaireObligatoire: boolean;
   actif: boolean;
 }
@@ -246,6 +251,8 @@ export interface Fiabilite {
   lignesComptees: number;
   annulationsDansLesDelais: { nombre: number; montant: string };
   annulationsTardives: { nombre: number; montant: string };
+  /** Annulations imputables pondérées : 1 chacune, 2 si tardive sur une réservation ancienne. */
+  poidsAnnulations: number;
   prolongations: number;
   nonHonorees: { nombre: number; montant: string };
   delaiMoyenJours: number | null;
@@ -267,7 +274,29 @@ export interface Parametres {
   emailingHeure: string;
   emailingValideLe: string | null;
   emailingValidePar: string | null;
+  relancesRapprocheesJours: number;
+  emailingJourRapproche: number;
+  alerteBackOfficeJours: number;
+  ancienneteAnnulationJours: number;
+  poidsAnnulationAggravee: number;
 }
+
+export interface Convention {
+  id: string;
+  dateEffet: string;
+  tauxClientsConfies: string | null;
+  commentaire: string | null;
+  auteur: string;
+  creeLe: string;
+  document: { id: string; nom: string; taille: number } | null;
+}
+
+export const LIBELLES_IMPUTABILITE: Record<ImputabiliteMotif, string> = {
+  IMPUTABLE: 'Imputable au mandataire',
+  NON_IMPUTABLE: 'Non imputable',
+  SELON_DELAI: 'Imputable si tardive',
+  AU_CHOIX: 'Au choix du back-office',
+};
 
 export const LIBELLES_STATUTS: Record<StatutReservation, string> = {
   SOUMISE: 'Soumise',
@@ -306,6 +335,7 @@ export const LIBELLES_DOCUMENTS: Record<CategorieDocument, string> = {
   AVENANT_VIERGE: 'Avenant vierge',
   PREUVE_VERIFICATION: 'Preuve de vérification',
   JUSTIFICATIF_OPERATION: 'Justificatif d’opération',
+  CONVENTION: 'Convention',
 };
 
 /** Ton de la pastille de statut : neutre, en cours, réussi, alerte, clos. */

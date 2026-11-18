@@ -7,6 +7,7 @@ import {
   actionMandataire,
   Apporteur,
   ClientConfie,
+  Convention,
   Enveloppe,
   Fiabilite,
   LIBELLES_STATUTS,
@@ -65,6 +66,8 @@ export class TableauEnveloppesComponent implements OnInit {
   readonly confies = signal<ClientConfie[]>([]);
   readonly fiabilite = signal<Fiabilite | null>(null);
   readonly moi = signal<Apporteur | null>(null);
+  /** Décision du 18 novembre : le mandataire voit et télécharge ses conventions. */
+  readonly conventions = signal<Convention[]>([]);
 
   readonly ouvertes = computed(() => this.enveloppes().filter((e) => e.statut === 'OUVERTE'));
   readonly actives = computed(() => this.reservations().filter((r) => !['REFUSEE', 'LIBEREE', 'ANNULEE', 'ANNULEE_APRES_OPERATION'].includes(r.statut)));
@@ -89,13 +92,15 @@ export class TableauEnveloppesComponent implements OnInit {
         this.enveloppes.set(enveloppes);
         this.reservations.set(reservations);
       } else {
-        const [enveloppes, reservations, confies, fiabilite, moi] = await Promise.all([
+        const [enveloppes, reservations, confies, fiabilite, moi, conventions] = await Promise.all([
           this.api.enveloppes(),
           this.api.reservations(),
           this.api.clientsConfies(),
           this.api.fiabilite(),
           this.api.moi(),
+          this.api.mesConventions(),
         ]);
+        this.conventions.set(conventions);
         this.enveloppes.set(enveloppes);
         this.reservations.set(reservations);
         this.confies.set(confies);
@@ -111,6 +116,10 @@ export class TableauEnveloppesComponent implements OnInit {
 
   remplissage(e: Enveloppe): number {
     return Math.min(100, Math.max(0, Number(e.compteurs.tauxRemplissage) * 100));
+  }
+
+  lienConvention(documentId: string): string {
+    return this.api.lienConvention(documentId);
   }
 
   produit(r: Reservation): string {

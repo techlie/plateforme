@@ -16,7 +16,7 @@ export interface DonneesAvenant {
   montantNet: string;
   modeArbitrage: 'GLOBAL' | 'PAR_FONDS' | null;
   pourcentageArbitrage: string | null;
-  fonds: { nom: string; isin: string | null; montant: string }[];
+  fonds: { nom: string; isin: string | null; montant: string; pourcentage?: string | null }[];
   apporteur: string;
   codeApporteur: string | null;
   date: string;
@@ -51,7 +51,12 @@ export function valeursAvenant(x: DonneesAvenant): [string, string][] {
     lignes.push(['Désinvestissement', `${pourcent(x.pourcentageArbitrage)} du contrat, au prorata des supports`]);
   }
   if (x.modeArbitrage === 'PAR_FONDS') {
-    x.fonds.forEach((f, i) => lignes.push([`Fonds à désinvestir ${i + 1}`, `${f.nom}${f.isin ? ` (${f.isin})` : ''} : ${euros(f.montant)}`]));
+    x.fonds.forEach((f, i) =>
+      lignes.push([
+        `Fonds à désinvestir ${i + 1}`,
+        `${f.nom}${f.isin ? ` (${f.isin})` : ''} : ${f.pourcentage ? `${pourcent(f.pourcentage)} de l’encours du contrat, soit ${euros(f.montant)}` : euros(f.montant)}`,
+      ]),
+    );
   }
   lignes.push(['Apporteur', x.apporteur], ['Code apporteur', x.codeApporteur ?? 'non renseigné'], ['Date', dateFr(x.date)]);
   return lignes;

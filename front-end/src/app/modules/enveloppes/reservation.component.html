@@ -64,6 +64,7 @@
             @if (r.ecart) { <div><dt>Écart</dt><dd [class.positif]="+r.ecart > 0" [class.negatif]="+r.ecart < 0">{{ +r.ecart > 0 ? '+' : '' }}{{ euros(r.ecart) }} ({{ pourcent(r.ecartPct) }})</dd></div> }
             @if (r.motifEcart) { <div><dt>Motif de l’écart</dt><dd>{{ r.motifEcart }}</dd></div> }
             @if (r.motif) { <div><dt>Dernier motif</dt><dd>{{ r.motif.libelle }}</dd></div> }
+            @if (r.annulationImputable !== null) { <div><dt>Annulation</dt><dd>{{ r.annulationImputable ? 'Imputable au mandataire' : 'Non imputable' }}{{ r.annulationTardive ? ', tardive' : '' }}</dd></div> }
             @if (r.patrimoineAJour || r.enveloppe.controlePatrimoine) { <div><dt>Patrimoine</dt><dd>{{ r.patrimoineAJour ? 'À jour au ' + dateCourte(r.datePatrimoine) : 'À mettre à jour' }}</dd></div> }
           </dl>
           @if (r.typeOperation === 'ARBITRAGE') {
@@ -72,8 +73,9 @@
             } @else {
               <h3>Fonds à désinvestir</h3>
               <ul class="liste-simple">
-                @for (f of r.fonds; track f.id) { <li>{{ f.nom }}{{ f.isin ? ' · ' + f.isin : '' }} : <span class="montant">{{ euros(f.montant) }}</span>{{ f.horsReferentiel ? ' · hors référentiel' : '' }}</li> }
+                @for (f of r.fonds; track f.id) { <li>{{ f.nom }}{{ f.isin ? ' · ' + f.isin : '' }} : <span class="montant">{{ ligneFonds(f) }}</span>{{ f.horsReferentiel ? ' · hors référentiel' : '' }}</li> }
               </ul>
+              @if (r.valeurContrat) { <p class="discret">Encours du contrat déclaré : {{ euros(r.valeurContrat) }}. Le total des lignes égale le montant brut.</p> }
             }
           }
         </section>
@@ -128,9 +130,14 @@
             }
           }
 
+          @if (peutValider()) {
+            <button type="button" class="bouton bouton--principal" (click)="valider()" [disabled]="envoi()">Valider la réservation</button>
+            @if (validationDeSaPropre()) {
+              <p class="discret">C’est votre propre réservation : la validation est inscrite au journal et l’autre associé en est prévenu.</p>
+            }
+          }
           @if (decider()) {
             @if (r.statut === 'SOUMISE') {
-              <button type="button" class="bouton bouton--principal" (click)="valider()" [disabled]="envoi()">Valider la réservation</button>
               <div class="actions">
                 <button type="button" class="bouton" (click)="ouvrir('renvoyer')">Renvoyer</button>
                 <button type="button" class="bouton" (click)="ouvrir('refuser')">Refuser</button>
@@ -192,7 +199,17 @@
             @case ('annuler') {
               <div class="formulaire" style="gap: 14px">
                 <label class="champ"><span class="champ__libelle">Motif de l’annulation</span>
-                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Choisir</option>@for (m of motifsDe('ANNULATION'); track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }</select></span></label>
+                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event); imputableChoisi.set(null)"><option value="">Choisir</option>@for (m of motifsDe('ANNULATION'); track m.id) { <option [value]="m.id">{{ m.libelle }}{{ portee(m) }}</option> }</select></span></label>
+                @if (choixImputabilite()) {
+                  <div class="formulaire" style="gap: 8px">
+                    <span class="champ__libelle" id="libelle-imputable">Imputable au mandataire ?</span>
+                    <div class="pastilles" role="group" aria-labelledby="libelle-imputable">
+                      <button type="button" class="pastille" [attr.aria-pressed]="imputableChoisi() === true" (click)="imputableChoisi.set(true)">Imputable</button>
+                      <button type="button" class="pastille" [attr.aria-pressed]="imputableChoisi() === false" (click)="imputableChoisi.set(false)">Non imputable</button>
+                    </div>
+                    <p class="discret">Expliquez votre choix dans la précision : elle est obligatoire pour ce motif.</p>
+                  </div>
+                }
                 <label class="champ"><span class="champ__libelle">Précision</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
                 @if (avertissementTardif()) {
                   <p class="note note--alerte" role="alert">{{ avertissementTardif() }}</p>
@@ -214,12 +231,23 @@
                 <label class="champ"><span class="champ__libelle">Encours du client</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="mEncours()" (ngModelChange)="mEncours.set($event)" /><span class="champ__unite">€</span></span></label>
                 <label class="case"><input type="checkbox" [checked]="mPrevendu()" (change)="mPrevendu.set($any($event.target).checked)" /> Client prévendu</label>
                 @for (f of mFonds(); track $index) {
-                  <label class="champ"><span class="champ__libelle">{{ f.nom }}</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="f.montant" (ngModelChange)="modifierFonds($index, $event)" /><span class="champ__unite">€</span></span></label>
+                  <label class="champ"><span class="champ__libelle">{{ f.nom }}</span><span class="champ__zone"><input class="champ__saisie" inputmode="decimal" [ngModel]="f.pourcentage ?? f.montant" (ngModelChange)="modifierFonds($index, $event)" /><span class="champ__unite">{{ f.pourcentage !== null ? '% de l’encours' : '€' }}</span></span></label>
                 }
                 @if (baisse()) {
                   <p class="note note--alerte">Une baisse de montant est une annulation partielle : la part retirée suit les règles de l’annulation, tardive comprise.</p>
                   <label class="champ"><span class="champ__libelle">Motif de la baisse</span>
-                    <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Choisir</option>@for (m of motifsDe('ANNULATION'); track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }</select></span></label>
+                    <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event); imputableChoisi.set(null)"><option value="">Choisir</option>@for (m of motifsDe('ANNULATION'); track m.id) { <option [value]="m.id">{{ m.libelle }}{{ portee(m) }}</option> }</select></span></label>
+                  @if (choixImputabilite()) {
+                  <div class="formulaire" style="gap: 8px">
+                    <span class="champ__libelle" id="libelle-imputable">Imputable au mandataire ?</span>
+                    <div class="pastilles" role="group" aria-labelledby="libelle-imputable">
+                      <button type="button" class="pastille" [attr.aria-pressed]="imputableChoisi() === true" (click)="imputableChoisi.set(true)">Imputable</button>
+                      <button type="button" class="pastille" [attr.aria-pressed]="imputableChoisi() === false" (click)="imputableChoisi.set(false)">Non imputable</button>
+                    </div>
+                    <p class="discret">Expliquez votre choix dans la précision : elle est obligatoire pour ce motif.</p>
+                  </div>
+                }
+                  <label class="champ"><span class="champ__libelle">Précision</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
                 }
                 <p class="discret">Une hausse repasse en validation. Chaque modification est tracée{{ r.accordClientLe ? ', et rend périmé l’avenant déjà produit' : '' }}.</p>
                 @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
@@ -238,7 +266,7 @@
                   </div>
                 }
                 @if (r.fonds.length) {
-                  <div><h3>Fonds à désinvestir demandés</h3><ul class="liste-simple">@for (f of r.fonds; track f.id) { <li>{{ f.nom }} : {{ euros(f.montant) }}</li> }</ul></div>
+                  <div><h3>Fonds à désinvestir demandés</h3><ul class="liste-simple">@for (f of r.fonds; track f.id) { <li>{{ f.nom }} : {{ ligneFonds(f) }}</li> }</ul></div>
                 }
                 <label class="champ"><span class="champ__libelle">Motif d’écart, si l’écart dépasse le seuil</span>
                   <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Plus tard</option>@for (m of motifsDe('ECART'); track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }</select></span></label>
@@ -276,7 +304,17 @@
             @case ('apres-operation') {
               <div class="formulaire" style="gap: 14px">
                 <label class="champ"><span class="champ__libelle">Motif</span>
-                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event)"><option value="">Choisir</option>@for (m of motifsDe('ANNULATION'); track m.id) { <option [value]="m.id">{{ m.libelle }}{{ m.imputable ? ' (imputable au mandataire)' : '' }}</option> }</select></span></label>
+                  <span class="champ__zone"><select class="champ__saisie" [ngModel]="motifId()" (ngModelChange)="motifId.set($event); imputableChoisi.set(null)"><option value="">Choisir</option>@for (m of motifsDe('ANNULATION'); track m.id) { <option [value]="m.id">{{ m.libelle }}{{ portee(m) }}</option> }</select></span></label>
+                @if (choixImputabilite()) {
+                  <div class="formulaire" style="gap: 8px">
+                    <span class="champ__libelle" id="libelle-imputable">Imputable au mandataire ?</span>
+                    <div class="pastilles" role="group" aria-labelledby="libelle-imputable">
+                      <button type="button" class="pastille" [attr.aria-pressed]="imputableChoisi() === true" (click)="imputableChoisi.set(true)">Imputable</button>
+                      <button type="button" class="pastille" [attr.aria-pressed]="imputableChoisi() === false" (click)="imputableChoisi.set(false)">Non imputable</button>
+                    </div>
+                    <p class="discret">Expliquez votre choix dans la précision : elle est obligatoire pour ce motif.</p>
+                  </div>
+                }
                 <label class="champ"><span class="champ__libelle">Précision</span><textarea [ngModel]="commentaire()" (ngModelChange)="commentaire.set($event)"></textarea></label>
                 @if (erreurPanneau()) { <p class="note note--danger" role="alert">{{ erreurPanneau() }}</p> }
                 <button type="button" class="bouton bouton--principal" (click)="motive('annulation-apres-operation', 'Opération annulée : les deux compteurs sont rétablis.')" [disabled]="envoi()">Annuler l’opération</button>

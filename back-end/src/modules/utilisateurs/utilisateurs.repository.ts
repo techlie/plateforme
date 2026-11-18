@@ -74,6 +74,7 @@ export class UtilisateursRepository {
       }
       if (fermerSessions) {
         await tx.session.updateMany({ where: { userId: id, revoqueeLe: null }, data: { revoqueeLe: new Date() } });
+        await tx.appareilReconnu.updateMany({ where: { userId: id, revoqueLe: null }, data: { revoqueLe: new Date() } });
       }
       return tx.user.update({ where: { id }, data: donnees, select: FICHE });
     });

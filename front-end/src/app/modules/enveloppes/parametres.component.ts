@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { messageErreur } from '../../core/session.types';
 import { EnveloppesApi } from './enveloppes.api';
-import { CategorieMotif, Motif, Parametres } from './enveloppes.types';
+import { CategorieMotif, ImputabiliteMotif, LIBELLES_IMPUTABILITE, Motif, Parametres } from './enveloppes.types';
 import { dateHeure, depuisTaux, pourcent, versTaux } from './formats';
 
 const JOURS = ['', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
@@ -28,6 +28,7 @@ export class ParametresEnveloppesComponent implements OnInit {
   readonly categories = CATEGORIES;
   readonly pourcent = pourcent;
   readonly dateHeure = dateHeure;
+  readonly imputabilites = Object.entries(LIBELLES_IMPUTABILITE) as [ImputabiliteMotif, string][];
 
   readonly parametres = signal<Parametres | null>(null);
   readonly motifs = signal<Motif[]>([]);
@@ -43,10 +44,15 @@ export class ParametresEnveloppesComponent implements OnInit {
   readonly concentration = signal('');
   readonly jour = signal(4);
   readonly heure = signal('09:01');
+  readonly relancesRapprochees = signal('');
+  readonly jourRapproche = signal(1);
+  readonly alerteBackOffice = signal('');
+  readonly anciennete = signal('');
+  readonly poidsAggrave = signal('');
 
   readonly nouveauCategorie = signal<CategorieMotif>('REFUS');
   readonly nouveauLibelle = signal('');
-  readonly nouveauImputable = signal(false);
+  readonly nouveauImputabilite = signal<ImputabiliteMotif>('NON_IMPUTABLE');
   readonly nouveauCommentaire = signal(false);
 
   async ngOnInit(): Promise<void> {
@@ -73,6 +79,11 @@ export class ParametresEnveloppesComponent implements OnInit {
     this.concentration.set(depuisTaux(p.seuilConcentrationDefaut));
     this.jour.set(p.emailingJour);
     this.heure.set(p.emailingHeure);
+    this.relancesRapprochees.set(String(p.relancesRapprocheesJours));
+    this.jourRapproche.set(p.emailingJourRapproche);
+    this.alerteBackOffice.set(String(p.alerteBackOfficeJours));
+    this.anciennete.set(String(p.ancienneteAnnulationJours));
+    this.poidsAggrave.set(String(p.poidsAnnulationAggravee));
   }
 
   motifsDe(c: CategorieMotif): Motif[] {
@@ -89,10 +100,15 @@ export class ParametresEnveloppesComponent implements OnInit {
       delaiHonorerJours: entier(this.delai()),
       rappelAvantEcheanceJours: entier(this.rappel()),
       seuilEcart,
-      delaiAnnulationTardiveJours: entier(this.tardif()) ?? 15,
+      delaiAnnulationTardiveJours: entier(this.tardif()) ?? 20,
       seuilConcentrationDefaut: concentration,
       emailingJour: this.jour(),
       emailingHeure: this.heure(),
+      relancesRapprocheesJours: entier(this.relancesRapprochees()) ?? undefined,
+      emailingJourRapproche: this.jourRapproche(),
+      alerteBackOfficeJours: entier(this.alerteBackOffice()) ?? undefined,
+      ancienneteAnnulationJours: entier(this.anciennete()) ?? undefined,
+      poidsAnnulationAggravee: entier(this.poidsAggrave()) ?? undefined,
     };
     if (tauxConfies !== this.parametres()?.tauxClientsConfiesDefaut) corps['tauxClientsConfiesDefaut'] = tauxConfies;
     await this.executer(async () => this.remplir(await this.api.modifierParametres(corps)), 'Paramètres enregistrés.');
@@ -108,7 +124,7 @@ export class ParametresEnveloppesComponent implements OnInit {
       await this.api.creerMotif({
         categorie: this.nouveauCategorie(),
         libelle: this.nouveauLibelle().trim(),
-        imputable: this.nouveauCategorie() === 'ANNULATION' ? this.nouveauImputable() : undefined,
+        imputabilite: this.nouveauCategorie() === 'ANNULATION' ? this.nouveauImputabilite() : undefined,
         commentaireObligatoire: this.nouveauCommentaire(),
       });
       this.nouveauLibelle.set('');
@@ -116,7 +132,7 @@ export class ParametresEnveloppesComponent implements OnInit {
     }, 'Motif ajouté.');
   }
 
-  basculerMotif(m: Motif, champ: 'actif' | 'imputable', valeur: boolean): Promise<void> {
+  basculerMotif(m: Motif, champ: 'actif' | 'imputabilite', valeur: boolean | ImputabiliteMotif): Promise<void> {
     return this.executer(async () => {
       await this.api.modifierMotif(m.id, { [champ]: valeur });
       this.motifs.set(await this.api.motifs());

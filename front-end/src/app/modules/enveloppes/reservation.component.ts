@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { messageErreur } from '../../core/session.types';
 import { codeErreur, controlesRefuses, EnveloppesApi } from './enveloppes.api';
-import { CategorieMotif, DetailReservation, LIBELLES_DOCUMENTS, LIBELLES_STATUTS, LIBELLES_TYPES, ModeOperation, Motif, tonStatut } from './enveloppes.types';
+import { CategorieMotif, DetailReservation, LIBELLES_DOCUMENTS, LIBELLES_STATUTS, LIBELLES_TYPES, LigneFonds, ModeOperation, Motif, tonStatut } from './enveloppes.types';
 import { aujourdhuiParis, dateCourte, dateHeure, depuisMontant, depuisTaux, euros, eurosRonds, nomClient, pourcent, versMontant, versTaux } from './formats';
 
 type Panneau =
@@ -101,7 +101,9 @@ export class ReservationComponent implements OnInit {
   readonly mFrais = signal('');
   readonly mEncours = signal('');
   readonly mPrevendu = signal(true);
-  readonly mFonds = signal<{ fondsId: string | null; nom: string; isin: string | null; montant: string }[]>([]);
+  readonly mFonds = signal<{ fondsId: string | null; nom: string; isin: string | null; montant: string; pourcentage: string | null }[]>([]);
+  /** Motif « au choix du back-office » : imputable au mandataire, ou non. */
+  readonly imputableChoisi = signal<boolean | null>(null);
 
   readonly statut = computed(() => this.r()?.statut);
   readonly avantOperation = computed(() => ['SOUMISE', 'LISTE_ATTENTE', 'RENVOYEE', 'VALIDEE', 'ECHUE'].includes(this.statut() ?? ''));
@@ -114,6 +116,11 @@ export class ReservationComponent implements OnInit {
   readonly peutDeclarerOperation = computed(() => !!this.r()?.droits.modifier && ['VALIDEE', 'ECHUE'].includes(this.statut() ?? ''));
   readonly patrimoineRequis = computed(() => !!this.r()?.enveloppe.controlePatrimoine);
   readonly decider = computed(() => !!this.r()?.droits.decider);
+  readonly peutValider = computed(() => !!this.r()?.droits.valider && this.statut() === 'SOUMISE');
+  /** Décision du 18 novembre : un super administrateur valide sa propre réservation, et c'est signalé. */
+  readonly validationDeSaPropre = computed(() => this.peutValider() && !this.decider());
+  readonly motifChoisi = computed(() => this.motifs().find((m) => m.id === this.motifId()) ?? null);
+  readonly choixImputabilite = computed(() => this.motifChoisi()?.imputabilite === 'AU_CHOIX');
   readonly lienAvenant = computed(() => this.api.lienAvenant(this.id()));
   readonly lienDocument = (id: string) => this.api.lienDocument(id);
   readonly compagnie = computed(() => {
@@ -122,7 +129,41 @@ export class ReservationComponent implements OnInit {
   });
 
   motifsDe(categorie: CategorieMotif): Motif[] {
-    return this.motifs().filter((m) => m.categorie === categorie && m.actif);
+    // Un motif au choix du back-office n'est proposé qu'au back-office, qui décide de l'imputabilité.
+    const gestion = !!this.r()?.droits.gestion;
+    return this.motifs().filter((m) => m.categorie === categorie && m.actif && (gestion || m.imputabilite !== 'AU_CHOIX'));
+  }
+
+  /** Ce qu'un motif d'annulation emporte pour la fiabilité du mandataire. */
+  portee(m: Motif): string {
+    switch (m.imputabilite) {
+      case 'IMPUTABLE':
+        return ' · imputable au mandataire';
+      case 'SELON_DELAI':
+        return ' · imputable si tardive';
+      case 'AU_CHOIX':
+        return ' · au choix du back-office';
+      default:
+        return '';
+    }
+  }
+
+  ligneFonds(f: LigneFonds): string {
+    return f.pourcentage ? `${pourcent(f.pourcentage)} de l’encours du contrat, soit ${euros(f.montant)}` : euros(f.montant);
+  }
+
+  /** Champs propres à un motif au choix : l'imputabilité retenue. Le commentaire l'explique. */
+  private choix(): { imputable?: boolean } | null {
+    if (!this.choixImputabilite()) return {};
+    if (this.imputableChoisi() === null) {
+      this.erreurPanneau.set('Indiquez si l’annulation est imputable au mandataire.');
+      return null;
+    }
+    if (!this.commentaire().trim()) {
+      this.erreurPanneau.set('Expliquez votre choix en commentaire.');
+      return null;
+    }
+    return { imputable: this.imputableChoisi()! };
   }
 
   async ngOnInit(): Promise<void> {
@@ -149,6 +190,7 @@ export class ReservationComponent implements OnInit {
     this.motifId.set('');
     this.commentaire.set('');
     this.accord.set(false);
+    this.imputableChoisi.set(null);
     const r = this.r()!;
     if (p === 'modifier') {
       this.mContrat.set(r.numeroContrat ?? '');
@@ -157,7 +199,7 @@ export class ReservationComponent implements OnInit {
       this.mFrais.set(depuisTaux(r.tauxFrais));
       this.mEncours.set(depuisMontant(r.encoursClient));
       this.mPrevendu.set(r.clientPrevendu);
-      this.mFonds.set(r.fonds.map((f) => ({ fondsId: f.fondsId, nom: f.nom, isin: f.isin, montant: depuisMontant(f.montant) })));
+      this.mFonds.set(r.fonds.map((f) => ({ fondsId: f.fondsId, nom: f.nom, isin: f.isin, montant: depuisMontant(f.montant), pourcentage: f.pourcentage ? depuisTaux(f.pourcentage) : null })));
     }
     if (p === 'verifier') {
       this.montant.set(depuisMontant(r.montantNet));
@@ -204,15 +246,19 @@ export class ReservationComponent implements OnInit {
       this.erreurPanneau.set('Choisissez un motif.');
       return Promise.resolve(false);
     }
-    return this.action(nom, { motifId: this.motifId(), commentaire: this.commentaire().trim() || undefined }, confirmation);
+    const choix = this.choix();
+    if (!choix) return Promise.resolve(false);
+    return this.action(nom, { motifId: this.motifId(), commentaire: this.commentaire().trim() || undefined, ...choix }, confirmation);
   }
 
   async annuler(confirmeTardive = false): Promise<void> {
     if (!this.motifId()) return this.erreurPanneau.set('Choisissez un motif.');
+    const choix = this.choix();
+    if (!choix) return;
     this.envoi.set(true);
     this.erreurPanneau.set(null);
     try {
-      this.r.set(await this.api.action(this.id(), 'annulation', { motifId: this.motifId(), commentaire: this.commentaire().trim() || undefined, confirmeTardive: confirmeTardive || undefined }));
+      this.r.set(await this.api.action(this.id(), 'annulation', { motifId: this.motifId(), commentaire: this.commentaire().trim() || undefined, confirmeTardive: confirmeTardive || undefined, ...choix }));
       this.panneau.set(null);
       this.avertissementTardif.set(null);
       this.message.set('Réservation annulée : le montant revient dans l’enveloppe.');
@@ -292,7 +338,10 @@ export class ReservationComponent implements OnInit {
       this.erreurPanneau.set('Montant ou frais invalides.');
       return Promise.resolve(false);
     }
+    const choix = this.baisse() && this.motifId() ? this.choix() : {};
+    if (!choix) return Promise.resolve(false);
     const corps: Record<string, unknown> = {
+      ...choix,
       numeroContrat: this.mContrat().trim(),
       numeroDemande: this.mDemande().trim(),
       montantBrut: brut,
@@ -303,13 +352,17 @@ export class ReservationComponent implements OnInit {
       commentaire: this.commentaire().trim() || undefined,
     };
     if (r.modeArbitrage === 'PAR_FONDS') {
-      corps['fonds'] = this.mFonds().map((f) => ({ fondsId: f.fondsId ?? undefined, nom: f.nom, isin: f.isin ?? undefined, montant: versMontant(f.montant) ?? '0' }));
+      corps['fonds'] = this.mFonds().map((f) =>
+        f.pourcentage !== null
+          ? { fondsId: f.fondsId ?? undefined, nom: f.nom, isin: f.isin ?? undefined, pourcentage: versTaux(f.pourcentage) ?? '0' }
+          : { fondsId: f.fondsId ?? undefined, nom: f.nom, isin: f.isin ?? undefined, montant: versMontant(f.montant) ?? '0' },
+      );
     }
     return this.executer(() => this.api.modifierReservation(this.id(), corps), 'Réservation modifiée ; la modification est tracée.');
   }
 
-  modifierFonds(index: number, montant: string): void {
-    this.mFonds.update((l) => l.map((f, i) => (i === index ? { ...f, montant } : f)));
+  modifierFonds(index: number, valeur: string): void {
+    this.mFonds.update((l) => l.map((f, i) => (i === index ? (f.pourcentage !== null ? { ...f, pourcentage: valeur } : { ...f, montant: valeur }) : f)));
   }
 
   baisse(): boolean {
@@ -335,6 +388,7 @@ export class ReservationComponent implements OnInit {
     const morceaux: string[] = [];
     if (typeof details['motif'] === 'string') morceaux.push(`Motif : ${details['motif']}`);
     if (typeof details['montantRetire'] === 'string') morceaux.push(`${euros(details['montantRetire'] as string)} retirés${details['tardive'] ? ', tardive' : ''}`);
+    if (typeof details['imputable'] === 'boolean') morceaux.push(details['imputable'] ? 'imputable au mandataire' : 'non imputable');
     if (typeof details['montantValide'] === 'string') morceaux.push(`Validé ${euros(details['montantValide'] as string)}, écart ${euros(details['ecart'] as string)}`);
     if (typeof details['echeance'] === 'string') morceaux.push(`Échéance ${dateCourte(details['echeance'] as string)}`);
     if (typeof details['avenant'] === 'string') morceaux.push(details['avenant'] as string);

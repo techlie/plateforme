@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
+import { DocumentsModule } from '../../shared/documents/documents.module';
 import { ReferentielsModule } from '../referentiels/referentiels.module';
-import { DocumentsService } from './documents.service';
 import { EnveloppesController } from './enveloppes.controller';
 import { EnveloppesRepository } from './enveloppes.repository';
 import { EnveloppesService } from './enveloppes.service';
@@ -10,9 +10,9 @@ import { ReservationsController } from './reservations.controller';
 import { ReservationsService } from './reservations.service';
 
 @Module({
-  imports: [ReferentielsModule],
+  imports: [ReferentielsModule, DocumentsModule],
   controllers: [EnveloppesController, ReservationsController],
-  providers: [EnveloppesRepository, EnveloppesService, ReservationsService, NotificationsEnveloppesService, DocumentsService, PlanificateurService],
+  providers: [EnveloppesRepository, EnveloppesService, ReservationsService, NotificationsEnveloppesService, PlanificateurService],
   exports: [EnveloppesService, ReservationsService],
 })
 export class EnveloppesModule {}
